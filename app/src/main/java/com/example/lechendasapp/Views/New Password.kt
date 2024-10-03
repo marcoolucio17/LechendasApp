@@ -131,7 +131,7 @@ fun ImageWithTextOverlay(
 
 
 @Composable
-fun SimpleInputBox() {
+fun SimpleInputBox(labelText: String) {
     // Estado para almacenar el valor ingresado por el usuario
     var text by remember { mutableStateOf("") }
 
@@ -139,7 +139,7 @@ fun SimpleInputBox() {
     OutlinedTextField(
         value = text,
         onValueChange = { text = it }, // Actualizar el valor cuando el usuario escriba
-        label = { Text("Nueva Contraseña") }, // Etiqueta que aparece en la caja
+        label = { Text(labelText) }, // Etiqueta que aparece en la caja (recibida como parámetro)
         singleLine = true, // Mantener el texto en una sola línea
         modifier = Modifier
             .fillMaxWidth() // Ocupar el ancho completo
@@ -147,6 +147,7 @@ fun SimpleInputBox() {
         textStyle = MaterialTheme.typography.bodyLarge // Estilo del texto
     )
 }
+
 
 // Footer
 @Composable
@@ -214,8 +215,9 @@ fun MainBody(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ){
-                    SimpleInputBox()
-                    SimpleInputBox()
+                    SimpleInputBox(labelText = "Nueva Contraseña")
+                    SimpleInputBox(labelText = "Confirma Contraseña")
+
                 }
 
             }

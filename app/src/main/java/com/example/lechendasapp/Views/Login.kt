@@ -1,6 +1,7 @@
 package com.example.lechendasapp.Views
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,7 +43,7 @@ fun LoginScreen() {
             topBar = { AppHeaderLogin() },
             bottomBar = { AppFooter() }
         ) { innerPadding ->
-            MainBody(
+            MainBodyLogin(
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -106,6 +110,62 @@ fun AppHeaderLogin() {
     }
 }
 
+@Composable
+fun MainBodyLogin(
+    modifier: Modifier = Modifier, // Optional modifier for external customization
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize() // Fill the maximum available width and height
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize() // Fill the maximum size
+                .padding(16.dp), // Optional padding for spacing
+            verticalArrangement = Arrangement.SpaceBetween // Space between inner column and button
+        ) {
+            // Inner column with content passed as parameter
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth() // Inner column fills available width
+                    .padding(top = 30.dp)
+
+            ) {
+
+                    Text(
+                        text = "Inicia Sesión",
+                        textAlign = TextAlign.Center,
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.W700,
+                        lineHeight = 30.sp
+
+                    )
+
+                    SimpleInputBox(labelText = "Email")
+                    SimpleInputBox(labelText = "Contraseña")
+
+            }
+
+            Text(
+                text = "Olvidaste la contraseña?",
+                modifier = Modifier.align(Alignment.End),
+                fontSize = 13.sp,
+                color = Color.Green,
+                fontWeight = FontWeight.W600
+            )
+
+            // Button at the bottom
+            Button(
+                onClick = { /* Action for the button */ },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+                    .height(50.dp)
+                    .width(100.dp)
+            ) {
+                Text(text = "Guardar")
+            }
+        }
+    }
+}
 
 // Preview for Composable function
 @Preview(showBackground = true, showSystemUi = true)
