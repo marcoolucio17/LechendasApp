@@ -1,4 +1,4 @@
-package com.example.lechendasapp.views.intro
+package com.example.lechendasapp.views
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -23,12 +23,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.lechendasapp.R
-import com.example.lechendasapp.preview.ScreenPreviews
-import com.example.lechendasapp.ui.theme.LechendasAppTheme
 
 @Composable
-fun Intro(companyApp: String, modifier: Modifier = Modifier) {
+fun Intro(navController: NavController, modifier: Modifier = Modifier) {
     val image = painterResource(R.drawable.intro_img)
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     Column(
@@ -38,7 +37,7 @@ fun Intro(companyApp: String, modifier: Modifier = Modifier) {
     ) {
         Spacer(modifier = Modifier.height(if (isLandscape) 40.dp else 80.dp))
         Text(
-            text = "$companyApp!",
+            text = stringResource(R.string.app_name),
             fontSize = 60.sp,
             color = colorResource(id = R.color.green_800),
         )
@@ -68,7 +67,7 @@ fun Intro(companyApp: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun IntroImage(companyApp: String, modifier: Modifier = Modifier) {
+fun IntroImage(navController: NavController, modifier: Modifier = Modifier) {
     val gradientBackground = painterResource(R.drawable.radial_gradient)
     Box {
         Image(
@@ -78,16 +77,25 @@ fun IntroImage(companyApp: String, modifier: Modifier = Modifier) {
             modifier = modifier.fillMaxSize()
         )
         Intro(
-            companyApp = companyApp, modifier = Modifier
+            navController = navController,
+            modifier = Modifier
         )
     }
 }
 
-@ScreenPreviews
+@Composable
+fun IntroView(navController: NavController, modifier: Modifier = Modifier) {
+    IntroImage(
+        navController = navController,
+        modifier = modifier
+    )
+}
+
+/*@ScreenPreviews
 @Composable
 fun IntroPreview() {
     LechendasAppTheme {
         IntroImage(companyApp = stringResource(R.string.app_name))
     }
-}
+}*/
 
