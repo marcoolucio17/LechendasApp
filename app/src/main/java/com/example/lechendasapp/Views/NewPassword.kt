@@ -4,13 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +38,6 @@ import androidx.navigation.NavController
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
-import androidx.compose.ui.platform.LocalContext
 
 // Entry point
 @Composable
@@ -48,7 +45,7 @@ fun NewPassword(navController: NavController) {
     // Scaffold with custom header and footer
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { AppHeader(navController) },  // Custom Header
+        topBar = { AppHeader(navController, "Crear nueva Contraseña") },  // Custom Header
         bottomBar = { AppFooter() }  // Footer
     ) { innerPadding ->
         MainBody(
@@ -60,17 +57,17 @@ fun NewPassword(navController: NavController) {
 
 // Custom Header with Row and Images
 @Composable
-fun AppHeader(navController: NavController) {
+fun AppHeader(navController: NavController, stringT: String) {
     // Custom layout with images at the top
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
+                .height(170.dp)
         ) {
             // First Image (larger and positioned behind)
             ImageWithTextOverlay(
                 imageRes = R.drawable.vector_5svg,
-                text = "Crear nueva contraseña",
+                text = stringT,
                 navController = navController,
             )
 
@@ -106,11 +103,9 @@ fun ImageWithTextOverlay(
                 .width(1900.dp)
         )
 
-        Row (
-            verticalAlignment = Alignment.CenterVertically,
+        Column (
             modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center)
+                .padding(horizontal = 10.dp, vertical = 5.dp)
         ){
             TextButton(onClick = { navController.navigate("login_view")}) {
                 Image(
@@ -128,7 +123,7 @@ fun ImageWithTextOverlay(
                 fontWeight = FontWeight.Bold,
                 lineHeight = 40.sp,
                 modifier = Modifier
-                    .padding(vertical = 30.dp),
+                    .padding(horizontal = 20.dp, vertical = 0.dp),
             )
         }
         }

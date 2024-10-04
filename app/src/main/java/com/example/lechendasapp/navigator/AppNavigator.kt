@@ -6,7 +6,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lechendasapp.views.IntroView
 import com.example.lechendasapp.views.LoginView
+import com.example.lechendasapp.views.NewPasswordScreenView
 import com.example.lechendasapp.views.NewPasswordView
+import com.example.lechendasapp.views.VerifyUserView
 
 @Composable
 fun AppNavigator() {
@@ -21,6 +23,12 @@ fun AppNavigator() {
         }
         composable("new_password") {
             NewPasswordView(navController = navController)
+        }
+        composable("verify_view") {
+            VerifyUserView(navController = navController)
+        }
+        composable("forgot_password") {
+            NewPasswordScreenView(navController = navController)
         }
     }
 }

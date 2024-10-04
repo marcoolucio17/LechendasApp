@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -88,10 +89,9 @@ fun AppHeaderLogin(navController: NavController) {
                 .align(Alignment.TopStart)
         )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
             modifier = Modifier
-                .padding(vertical = 50.dp)
+                .padding(horizontal = 10.dp, vertical = 20.dp)
         ) {
             TextButton(onClick = {navController.navigate("intro_view")}) {
                 Image(
@@ -110,7 +110,7 @@ fun AppHeaderLogin(navController: NavController) {
                 fontSize = 50.sp,
                 fontWeight = FontWeight.W700,
                 modifier = Modifier
-                    .padding(16.dp, 0.dp)
+                    .padding(20.dp, 5.dp)
             )
         }
     }
@@ -155,7 +155,7 @@ fun MainBodyLogin(
         // Button at the bottom
         Button(
             onClick = {
-                navController.navigate("intro_view")
+                navController.navigate("verify_view")
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = colorResource(id = R.color.green),

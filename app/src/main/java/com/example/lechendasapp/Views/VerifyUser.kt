@@ -1,12 +1,23 @@
-package com.example.lechendasapp.Views
+package com.example.lechendasapp.views
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,8 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -23,27 +35,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.lechendasapp.R
+import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
-import com.example.lechendasapp.R // Import the R file that links your resources
 
 // Entry point
 @Composable
-fun VerifyUserScreen() {
+fun VerifyUserScreen(navController: NavController) {
     LechendasAppTheme {
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
             val isTablet = maxWidth > 600.dp
             Scaffold(
-                topBar = { AppHeader( isTablet ) },
-                bottomBar = { AppFooter(isTablet) }
+                topBar = { AppHeader(isTablet, navController) },
+                bottomBar = { AppFooter() }
             ) { innerPadding ->
                 MainBody(
                     modifier = Modifier.padding(innerPadding),
-                    isTablet = isTablet
+                    isTablet = isTablet,
+                    navController = navController
                 )
             }
         }
@@ -52,30 +66,27 @@ fun VerifyUserScreen() {
 
 // Custom Header with Row and Images
 @Composable
-fun AppHeader(isTablet: Boolean) {
-    Column(
+fun AppHeader(isTablet: Boolean, navController: NavController) {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(if (isTablet) 350.dp else 250.dp)
+            .height(170.dp)
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            ImageWithTextOverlay(
-                imageRes = R.drawable.vector_5,
-                text = "Verificación",
-                modifier = Modifier.size(if (isTablet) 750.dp else 550.dp),
-                isTablet = isTablet
-            )
-            Image(
-                painter = painterResource(R.drawable.vector_1),
-                contentDescription = "Logo 2",
-                modifier = Modifier
-                    .size(if (isTablet) 450.dp else 190.dp)
-                    .align(Alignment.CenterStart)
-                    .offset(x = if (isTablet) 400.dp else 250.dp)
-            )
-        }
+        ImageWithTextOverlay(
+            imageRes = R.drawable.vector_5svg,
+            text = "Verificación",
+            isTablet = isTablet,
+            navController = navController
+        )
+        Image(
+            painter = painterResource(R.drawable.vector_6svg),
+            contentDescription = "Logo 2",
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .width(130.dp)
+                .height(200.dp)
+        )
     }
 }
 
@@ -85,68 +96,42 @@ fun ImageWithTextOverlay(
     imageRes: Int,
     text: String,
     modifier: Modifier = Modifier,
-    isTablet: Boolean
+    isTablet: Boolean,
+    navController: NavController
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(550.dp)
     ) {
         Image(
             painter = painterResource(id = imageRes),
             contentDescription = null,
+            contentScale = ContentScale.FillBounds,
             modifier = Modifier
-                .fillMaxSize()
+                .width(1900.dp)
         )
 
         Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.fillMaxHeight()
-                .padding(top = 50.dp)
+            modifier = Modifier
+                .padding(horizontal = 10.dp, vertical = 5.dp)
         ) {
-            TextButton(onClick = {}) {
+            TextButton(onClick = {navController.navigate("login_view")}) {
                 Image(
                     painter = painterResource(R.drawable.keyboard_arrow_left),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(if (isTablet) 70.dp else 40.dp)
-                        .padding(if (isTablet) 10.dp else 0.dp)
+                        .size(40.dp)
                 )
             }
 
             Text(
                 text = text,
                 color = Color.White,
-                fontSize = if (isTablet) 60.sp else 36.sp,
+                fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
+                lineHeight = 40.sp,
                 modifier = Modifier
-                    .padding(if (isTablet) 50.dp else 16.dp),
-
-            )
-        }
-    }
-}
-
-@Composable
-fun AppFooter(isTablet: Boolean) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = if (isTablet) 32.dp else 16.dp)
-            .height(if (isTablet) 300.dp else 150.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(R.drawable.vector_3),
-                contentDescription = "Logo 3",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(if (isTablet) 300.dp else 150.dp)
+                    .padding(horizontal = 20.dp, vertical = 0.dp),
             )
         }
     }
@@ -156,7 +141,8 @@ fun AppFooter(isTablet: Boolean) {
 @Composable
 fun MainBody(
     modifier: Modifier = Modifier,
-    isTablet: Boolean
+    isTablet: Boolean,
+    navController: NavController
 ) {
     var text by remember { mutableStateOf(TextFieldValue("")) }
     var text2 by remember { mutableStateOf(TextFieldValue("")) }
@@ -175,7 +161,9 @@ fun MainBody(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth().padding(top = if (isTablet) 60.dp else 30.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = if (isTablet) 60.dp else 30.dp)
             ) {
 
                 Text(
@@ -199,7 +187,10 @@ fun MainBody(
 
                         TextField(
                             value = text,
-                            textStyle = TextStyle.Default.copy(fontSize = 60.sp, textAlign = TextAlign.Center),
+                            textStyle = TextStyle.Default.copy(
+                                fontSize = 60.sp,
+                                textAlign = TextAlign.Center
+                            ),
                             onValueChange = { newText ->
                                 text = newText
                             },
@@ -212,7 +203,10 @@ fun MainBody(
 
                         TextField(
                             value = text2,
-                            textStyle = TextStyle.Default.copy(fontSize = 60.sp, textAlign = TextAlign.Center),
+                            textStyle = TextStyle.Default.copy(
+                                fontSize = 60.sp,
+                                textAlign = TextAlign.Center
+                            ),
                             onValueChange = { newText ->
                                 text2 = newText
                             },
@@ -224,7 +218,10 @@ fun MainBody(
 
                         TextField(
                             value = text3,
-                            textStyle = TextStyle.Default.copy(fontSize = 60.sp, textAlign = TextAlign.Center),
+                            textStyle = TextStyle.Default.copy(
+                                fontSize = 60.sp,
+                                textAlign = TextAlign.Center
+                            ),
                             onValueChange = { newText ->
                                 text3 = newText
                             },
@@ -236,11 +233,17 @@ fun MainBody(
 
                         TextField(
                             value = text4,
-                            textStyle = TextStyle.Default.copy(fontSize = 60.sp, textAlign = TextAlign.Center),
+                            textStyle = TextStyle.Default.copy(
+                                fontSize = 60.sp,
+                                textAlign = TextAlign.Center
+                            ),
                             onValueChange = { newText ->
                                 text4 = newText
                             },
-                            modifier = Modifier.weight(1f).height(100.dp).padding(end = 8.dp)
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(100.dp)
+                                .padding(end = 8.dp)
                         )
                     }
                 }
@@ -249,15 +252,15 @@ fun MainBody(
                     text = "Reenviar código",
                     fontSize = if (isTablet) 24.sp else 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = colorResource(R.color.dark_green),
+                    color = colorResource(R.color.green_800),
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.padding(top = if (isTablet) 40.dp else 30.dp)
                 )
             }
 
             Button(
-                onClick = {  },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_green)),
+                onClick = { navController.navigate("intro_view") },
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.green_800)),
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .height(if (isTablet) 80.dp else 60.dp)
@@ -272,8 +275,19 @@ fun MainBody(
     }
 }
 
-@Preview(showBackground = true)
+
+@Composable
+fun VerifyUserView(navController: NavController) {
+    LechendasAppTheme {
+        VerifyUserScreen(navController = navController)
+    }
+}
+
+
+@ScreenPreviews
 @Composable
 fun VerifyUserScreenPreview() {
-    VerifyUserScreen()
+    LechendasAppTheme {
+        VerifyUserScreen(navController = NavController(LocalContext.current))
+    }
 }
