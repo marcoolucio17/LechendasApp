@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -25,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lechendasapp.R
+import com.example.lechendasapp.components.NavButton
+import com.example.lechendasapp.preview.ScreenPreviews
+import com.example.lechendasapp.ui.theme.LechendasAppTheme
 
 @Composable
 fun Intro(navController: NavController, modifier: Modifier = Modifier) {
@@ -49,11 +53,13 @@ fun Intro(navController: NavController, modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(if (isLandscape) 40.dp else 80.dp))
         Button(
-            onClick = { /*TODO*/ },
+            onClick = {
+                navController.navigate("login_view")
+            },
             colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.green),
-                    contentColor = Color.White,
-                ),
+                containerColor = colorResource(id = R.color.green),
+                contentColor = Color.White,
+            ),
             modifier = Modifier
                 .width(200.dp)
                 .height(60.dp)
@@ -85,17 +91,22 @@ fun IntroImage(navController: NavController, modifier: Modifier = Modifier) {
 
 @Composable
 fun IntroView(navController: NavController, modifier: Modifier = Modifier) {
-    IntroImage(
-        navController = navController,
-        modifier = modifier
-    )
+    LechendasAppTheme {
+        IntroImage(
+            navController = navController,
+            modifier = modifier
+        )
+    }
 }
 
-/*@ScreenPreviews
+@ScreenPreviews
 @Composable
 fun IntroPreview() {
     LechendasAppTheme {
-        IntroImage(companyApp = stringResource(R.string.app_name))
+        IntroImage(
+            navController = NavController(LocalContext.current),
+            modifier = Modifier
+        )
     }
-}*/
+}
 
