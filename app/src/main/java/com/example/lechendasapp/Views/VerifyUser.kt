@@ -33,73 +33,72 @@ import com.example.lechendasapp.R // Import the R file that links your resources
 @Composable
 fun VerifyUserScreen() {
     LechendasAppTheme {
-        // Scaffold with custom header and footer
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            topBar = { AppHeader() },  // Custom Header
-            bottomBar = { AppFooter() }  // Footer
-        ) { innerPadding ->
-            MainBody(
-                modifier = Modifier.padding(innerPadding)
-            )
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            val isTablet = maxWidth > 600.dp
+            Scaffold(
+                topBar = { AppHeader( isTablet ) },
+                bottomBar = { AppFooter(isTablet) }
+            ) { innerPadding ->
+                MainBody(
+                    modifier = Modifier.padding(innerPadding),
+                    isTablet = isTablet
+                )
+            }
         }
     }
 }
 
 // Custom Header with Row and Images
 @Composable
-fun AppHeader() {
-    // Custom layout with images at the top
+fun AppHeader(isTablet: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp), // Adjust height of the header area
-            // horizontalAlignment = Alignment.CenterHorizontally
+            .height(if (isTablet) 350.dp else 250.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // First Image (larger and positioned behind)
             ImageWithTextOverlay(
-                imageRes = R.drawable.vector_5, // Your image resource
-                text = "Verificación",        // Text to overlay
-                modifier = Modifier.size(550.dp) // You can adjust the size if needed
+                imageRes = R.drawable.vector_5,
+                text = "Verificación",
+                modifier = Modifier.size(if (isTablet) 750.dp else 550.dp),
+                isTablet = isTablet
             )
-
-            // Second Image (overlap on top of the first image)
             Image(
-                painter = painterResource(R.drawable.vector_1), // Replace with your image resource
+                painter = painterResource(R.drawable.vector_1),
                 contentDescription = "Logo 2",
                 modifier = Modifier
-                    .size(190.dp)
-                    .align(Alignment.CenterStart) // Align it to start (to overlap)
-                    .offset(x = 250.dp) // Adjust offset to overlap with the first image
-
+                    .size(if (isTablet) 450.dp else 190.dp)
+                    .align(Alignment.CenterStart)
+                    .offset(x = if (isTablet) 400.dp else 250.dp)
             )
         }
     }
 }
 
+
 @Composable
 fun ImageWithTextOverlay(
-    imageRes: Int, // Image resource ID
-    text: String,  // Text to overlay
-    modifier: Modifier = Modifier // Optional modifier for external customization
+    imageRes: Int,
+    text: String,
+    modifier: Modifier = Modifier,
+    isTablet: Boolean
 ) {
     Box(
         modifier = modifier
-            .fillMaxWidth() // Make the composable fill the width
-            .height(550.dp) // Adjust the height as needed
+            .fillMaxWidth()
+            .height(550.dp)
     ) {
-        // The image in the background
         Image(
             painter = painterResource(id = imageRes),
-            contentDescription = null, // Content description for accessibility
+            contentDescription = null,
             modifier = Modifier
-                .fillMaxSize() // Make the image fill the whole Box
+                .fillMaxSize()
         )
 
-        // The text overlay on top of the image
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start,
@@ -109,57 +108,55 @@ fun ImageWithTextOverlay(
             TextButton(onClick = {}) {
                 Image(
                     painter = painterResource(R.drawable.keyboard_arrow_left),
-                    contentDescription = null, // Content description for accessibility
+                    contentDescription = null,
                     modifier = Modifier
-                        .size(40.dp) // Make the image fill the whole Box
+                        .size(if (isTablet) 70.dp else 40.dp)
+                        .padding(if (isTablet) 10.dp else 0.dp)
                 )
             }
 
             Text(
                 text = text,
-                color = Color.White, // Make text white
-                fontSize = 36.sp, // Increase font size
+                color = Color.White,
+                fontSize = if (isTablet) 60.sp else 36.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .padding(16.dp), // Add padding for spacing
+                    .padding(if (isTablet) 50.dp else 16.dp),
 
             )
         }
     }
 }
 
-
-
-
-// Footer
 @Composable
-fun AppFooter() {
-    // Custom layout with images at the top
+fun AppFooter(isTablet: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp)
-            .height(150.dp), // Adjust height of the header area
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(top = if (isTablet) 32.dp else 16.dp)
+            .height(if (isTablet) 300.dp else 150.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween, // Space between the images
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // First Image (enlarge image)
             Image(
-                painter = painterResource(R.drawable.vector_3), // Replace with your image resource
+                painter = painterResource(R.drawable.vector_3),
                 contentDescription = "Logo 3",
-                modifier = Modifier.size(550.dp) // Set size for the first image
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(if (isTablet) 300.dp else 150.dp)
             )
         }
     }
 }
 
+
 @Composable
 fun MainBody(
-    modifier: Modifier = Modifier, // Optional modifier for external customization
+    modifier: Modifier = Modifier,
+    isTablet: Boolean
 ) {
     var text by remember { mutableStateOf(TextFieldValue("")) }
     var text2 by remember { mutableStateOf(TextFieldValue("")) }
@@ -168,50 +165,38 @@ fun MainBody(
 
     Box(
         modifier = modifier
-            .fillMaxSize() // Fill the maximum available width and height
+            .fillMaxSize()
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize() // Fill the maximum size
-                .padding(16.dp), // Optional padding for spacing
-            verticalArrangement = Arrangement.SpaceBetween // Space between inner column and button
+                .fillMaxSize()
+                .padding(if (isTablet) 32.dp else 16.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Inner column with content passed as parameter
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth() // Inner column fills available width
-                    .padding(top = 30.dp)
-
+                modifier = Modifier.fillMaxWidth().padding(top = if (isTablet) 60.dp else 30.dp)
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
 
-                    Text(
-                        text = "Porfavor escribe el código de verificación enviado a",
-                        textAlign = TextAlign.Center,
-                        fontSize = 24.sp,
-                        lineHeight = 30.sp
+                Text(
+                    text = "Porfavor escribe el código de verificación enviado a",
+                    textAlign = TextAlign.Center,
+                    fontSize = if (isTablet) 32.sp else 24.sp,
+                    lineHeight = if (isTablet) 40.sp else 30.sp
+                )
+                Text(
+                    text = "juanperez@algo.com",
+                    fontSize = if (isTablet) 32.sp else 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
 
-                    )
-
-                    Text(
-                        text = "juanperez@algo.com",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                // aquí irá para ingresar el código de verificación
                 Column(
                     modifier = Modifier
-                        .padding(top = 35.dp)
+                        .padding(top = if (isTablet) 50.dp else 35.dp)
                 ) {
+                    Row(Modifier.fillMaxWidth()) {
 
-                    Row( Modifier
-                        .fillMaxWidth()
-                    ) {
                         TextField(
                             value = text,
                             textStyle = TextStyle.Default.copy(fontSize = 60.sp, textAlign = TextAlign.Center),
@@ -258,47 +243,35 @@ fun MainBody(
                             modifier = Modifier.weight(1f).height(100.dp).padding(end = 8.dp)
                         )
                     }
-
-
                 }
 
-                // link para reenviar
                 Text(
                     text = "Reenviar código",
-                    fontSize = 18.sp,
+                    fontSize = if (isTablet) 24.sp else 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = colorResource(R.color.dark_green),
                     textDecoration = TextDecoration.Underline,
-                    modifier = Modifier
-                        .padding(top = 30.dp)
-
-
+                    modifier = Modifier.padding(top = if (isTablet) 40.dp else 30.dp)
                 )
-
-
             }
 
-            // Button at the bottom
             Button(
-                onClick = { /* Action for the button */ },
+                onClick = {  },
                 colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_green)),
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-                    .height(60.dp)
-                    .width(150.dp)
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .height(if (isTablet) 80.dp else 60.dp)
+                    .width(if (isTablet) 200.dp else 150.dp)
             ) {
                 Text(
                     text = "VERIFICAR",
-                    fontSize = 20.sp
+                    fontSize = if (isTablet) 24.sp else 20.sp
                 )
             }
         }
     }
 }
 
-
-
-
-// Preview for Composable function
 @Preview(showBackground = true)
 @Composable
 fun VerifyUserScreenPreview() {
