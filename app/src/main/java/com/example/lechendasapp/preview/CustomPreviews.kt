@@ -12,13 +12,17 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
     showSystemUi = true,
     showBackground = true,
 )
+
 @Preview(
     name = "Phone",
-    device = PHONE,
+    device = "spec:width=411dp,height=891dp",
     showSystemUi = true,
     showBackground = true,
 )
-@Preview(
+
+// Si sobra tiempo vemos e landscape
+
+/*@Preview(
     name = "Galaxy Tab A9 Landscape",
     device = "id:Samsung Tablet Galaxy Tab A9",
     widthDp = 1340,
@@ -26,6 +30,8 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
     showBackground = true,
     //cannot showUi it's bugged
 )
+*/
+
 /*@Preview(
     name = "Phone - Landscape",
     device = "spec:width = 411dp, height = 891dp, orientation = landscape, dpi = 420",

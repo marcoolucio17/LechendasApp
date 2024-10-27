@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">AWAQ-BIO</string>
     <string name="company_name">AWAQ</string>
+    <string name="iniciar_sesion">Iniciar sesión</string>
+    <string name="olvidaste_la_contrasena">¿Olvidaste la contraseña?</string>
+    <string name="guardar">Guardar</string>
+    <string name="entrar">Entrar</string>
+    <string name="bienvenido">Bienvenido</string>
+    <string name="enviar">Enviar</string>
 </resources>

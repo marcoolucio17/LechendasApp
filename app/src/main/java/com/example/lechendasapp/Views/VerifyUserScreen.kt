@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -37,56 +36,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
-import com.example.lechendasapp.ui.theme.LechendasAppTheme
+import com.example.lechendasapp.utils.InitialFooter
+import com.example.lechendasapp.utils.TopBar2
+
+//TODO: add modifier as a parameter to all Screens
 
 // Entry point
 @Composable
-fun VerifyUserScreen(navController: NavController) {
-    LechendasAppTheme {
-        BoxWithConstraints(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            val isTablet = maxWidth > 600.dp
-            Scaffold(
-                topBar = { AppHeader(isTablet, navController) },
-                bottomBar = { AppFooter() }
-            ) { innerPadding ->
-                MainBody(
-                    modifier = Modifier.padding(innerPadding),
-                    isTablet = isTablet,
-                    navController = navController
-                )
-            }
-        }
-    }
-}
-
-// Custom Header with Row and Images
-@Composable
-fun AppHeader(isTablet: Boolean, navController: NavController) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(170.dp)
+fun VerifyUserScreen(
+    onBack: () -> Unit,
+) {
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
-        ImageWithTextOverlay(
-            imageRes = R.drawable.vector_5svg,
-            text = "Verificación",
-            isTablet = isTablet,
-            navController = navController
-        )
-        Image(
-            painter = painterResource(R.drawable.vector_6svg),
-            contentDescription = "Logo 2",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .width(130.dp)
-                .height(200.dp)
-        )
+        val isTablet = maxWidth > 600.dp
+        Scaffold(
+            topBar = { TopBar2(onBack) },
+            bottomBar = { InitialFooter() }
+        ) { innerPadding ->
+            MainBody(
+                modifier = Modifier.padding(innerPadding),
+                isTablet = isTablet,
+                onBack = onBack
+            )
+        }
     }
 }
 
@@ -97,7 +72,7 @@ fun ImageWithTextOverlay(
     text: String,
     modifier: Modifier = Modifier,
     isTablet: Boolean,
-    navController: NavController
+    onBack: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -115,9 +90,9 @@ fun ImageWithTextOverlay(
             modifier = Modifier
                 .padding(horizontal = 10.dp, vertical = 5.dp)
         ) {
-            TextButton(onClick = {navController.navigate("login_view")}) {
+            TextButton(onClick = onBack) {
                 Image(
-                    painter = painterResource(R.drawable.keyboard_arrow_left),
+                    painter = painterResource(R.drawable.arrow_left),
                     contentDescription = null,
                     modifier = Modifier
                         .size(40.dp)
@@ -142,7 +117,7 @@ fun ImageWithTextOverlay(
 fun MainBody(
     modifier: Modifier = Modifier,
     isTablet: Boolean,
-    navController: NavController
+    onBack: () -> Unit
 ) {
     var text by remember { mutableStateOf(TextFieldValue("")) }
     var text2 by remember { mutableStateOf(TextFieldValue("")) }
@@ -259,7 +234,7 @@ fun MainBody(
             }
 
             Button(
-                onClick = { navController.navigate("intro_view") },
+                onClick = onBack,
                 colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.green_800)),
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -275,19 +250,10 @@ fun MainBody(
     }
 }
 
-
-@Composable
-fun VerifyUserView(navController: NavController) {
-    LechendasAppTheme {
-        VerifyUserScreen(navController = navController)
-    }
-}
-
-
 @ScreenPreviews
 @Composable
 fun VerifyUserScreenPreview() {
-    LechendasAppTheme {
-        VerifyUserScreen(navController = NavController(LocalContext.current))
-    }
+    VerifyUserScreen(
+        onBack = {},
+    )
 }
