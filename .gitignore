@@ -13,6 +13,10 @@
 /.idea/kotlinc.xml
 /.idea/deploymentTargetSelector.xml
 /.idea/appInsightsSettings.xml
+
+/.idea/compiler.xml
+/.idea/misc.xml
+
 .DS_Store
 /build
 /captures
