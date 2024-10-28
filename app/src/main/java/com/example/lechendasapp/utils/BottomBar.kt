@@ -39,7 +39,7 @@ fun NavigationBar(
             .padding(windowInsets.asPaddingValues())
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.primary),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Contenido proporcionado por el lambda content
