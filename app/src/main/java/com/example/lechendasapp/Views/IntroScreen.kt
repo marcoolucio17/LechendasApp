@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
+import com.example.lechendasapp.utils.MyScreen
 
 @Composable
 fun IntroScreen(
@@ -54,7 +55,8 @@ fun IntroContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
 
-    ) {
+    )
+    {
         Text(
             text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.displayMedium,
@@ -77,6 +79,7 @@ fun IntroContent(
             )
         }
     }
+    MyScreen()
 }
 
 @Preview(showBackground = true)
