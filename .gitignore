@@ -17,6 +17,8 @@
 /.idea/compiler.xml
 /.idea/misc.xml
 /.idea/inspectionProfiles/Project_Default.xml
+/.idea/render.experimental.xml
+/.idea/runConfigurations.xml
 
 .DS_Store
 /build
