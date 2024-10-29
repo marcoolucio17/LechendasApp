@@ -2,6 +2,7 @@ package com.example.lechendasapp.views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,13 +33,27 @@ import androidx.compose.ui.unit.dp
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
+import com.example.lechendasapp.utils.BottomNavBar
 
 @Composable
 fun SearchScreen(
+    onBack: () -> Unit,
+    currentRoute: String = "search",
+    onSearch: () -> Unit,
+    onHome: () -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
-        topBar = { SearchTopBar() }
+        topBar = { SearchTopBar(onBack = onBack) },
+        bottomBar = {
+            BottomNavBar(
+                currentRoute = currentRoute,
+                onHome = onHome,
+                onSearch = onSearch,
+                onSettings = onSettings
+            )
+        }
     ) { innerPadding ->
         SearchContent(
             modifier = modifier.padding(innerPadding)
@@ -48,11 +63,19 @@ fun SearchScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchTopBar(title: String = "Búsqueda") {
+fun SearchTopBar(
+    onBack: () -> Unit,
+    title: String = "Búsqueda"
+) {
     TopAppBar(
         navigationIcon = {
-            Icon(
-                imageVector = Icons.AutoMirrored.Sharp.ArrowBack, contentDescription = null)
+            IconButton(
+                onClick = onBack
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Sharp.ArrowBack, contentDescription = null
+                )
+            }
         },
         title = { Text(text = title) },
         actions = { // Add the actions parameter for additional icons
@@ -96,7 +119,8 @@ fun SearchItem() {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(15.dp)
         ) {
             //State
@@ -106,7 +130,10 @@ fun SearchItem() {
                 tint = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier
                     .size(50.dp)
-                    .background(color = MaterialTheme.colorScheme.onPrimaryContainer, shape = MaterialTheme.shapes.small)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = MaterialTheme.shapes.small
+                    )
             )
             Spacer(modifier = Modifier.width(10.dp))
             Column (
@@ -150,6 +177,12 @@ fun SearchItemPreview() {
 @Composable
 fun PreviewScreen() {
     LechendasAppTheme {
-        SearchScreen()
+        SearchScreen(
+            onBack = {},
+            currentRoute = "search",
+            onSearch = {},
+            onHome = {},
+            onSettings = {},
+        )
     }
 }
