@@ -2,9 +2,11 @@ package com.example.lechendasapp.navigation
 
 import androidx.navigation.NavController
 import com.example.lechendasapp.navigation.LechendasScreens.FORGOT_PASSWORD_SCREEN
+import com.example.lechendasapp.navigation.LechendasScreens.HOME_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.INTRO_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.LOGIN_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.NEW_PASSWORD_SCREEN
+import com.example.lechendasapp.navigation.LechendasScreens.SEARCH_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VERIFY_SCREEN
 
 /* screen used in the app */
@@ -14,6 +16,8 @@ private object LechendasScreens {
     const val NEW_PASSWORD_SCREEN = "newPassword"
     const val VERIFY_SCREEN = "verify"
     const val FORGOT_PASSWORD_SCREEN = "forgotPassword"
+    const val HOME_SCREEN = "home"
+    const val SEARCH_SCREEN = "search"
 }
 
 /*For the future: arguments for the routes */
@@ -30,6 +34,8 @@ object LechendasDestinations {
     const val NEW_PASSWORD_ROUTE = NEW_PASSWORD_SCREEN
     const val VERIFY_ROUTE = VERIFY_SCREEN
     const val FORGOT_PASSWORD_ROUTE = FORGOT_PASSWORD_SCREEN
+    const val HOME_ROUTE = HOME_SCREEN
+    const val SEARCH_ROUTE = SEARCH_SCREEN
 }
 
 class LechendasNavigationActions(private val navController: NavController) {
@@ -51,6 +57,14 @@ class LechendasNavigationActions(private val navController: NavController) {
 
     fun navigateToForgotPassword() {
         navController.navigate(LechendasDestinations.FORGOT_PASSWORD_ROUTE)
+    }
+
+    fun navigateToHome() {
+        navController.navigate(LechendasDestinations.HOME_ROUTE)
+    }
+
+    fun navigateToSearch() {
+        navController.navigate(LechendasDestinations.SEARCH_ROUTE)
     }
 }
 
