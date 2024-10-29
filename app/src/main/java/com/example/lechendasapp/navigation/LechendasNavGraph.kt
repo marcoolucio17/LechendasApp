@@ -15,6 +15,7 @@ import com.example.lechendasapp.views.LoginScreen
 import com.example.lechendasapp.views.NewPasswordScreen
 import com.example.lechendasapp.views.SearchScreen
 import com.example.lechendasapp.views.VerifyUserScreen
+import com.example.lechendasapp.views.FormularyInitialScreen
 
 
 @Composable
@@ -73,6 +74,15 @@ fun LechendasNavGraph(
                 onHome = { navActions.navigateToHome() },
                 onSearch = { navActions.navigateToSearch() },
                 onSettings = { navActions.navigateToVerify() }
+            )
+        }
+        composable (route = LechendasDestinations.FORMULARY_ROUTE) {
+            FormularyInitialScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = LechendasDestinations.FORMULARY_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToVerify() }
             )
         }
     }
