@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+//TODO: HASH PASSWORDS
 @Entity(
     tableName = "users",
     indices = [Index(value = ["email"], unique = true)]

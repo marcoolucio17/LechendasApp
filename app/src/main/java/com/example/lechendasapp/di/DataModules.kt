@@ -39,4 +39,5 @@ object DatabaseModule {
 
     @Provides
     fun provideUserDao(database: AwaqDatabase): UserDao = database.userDao()
+    //TODO: inject all DAOs here
 }
