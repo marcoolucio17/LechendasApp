@@ -12,12 +12,14 @@ interface UserRepository {
 
     suspend fun getUserById(userId: Long): User?
 
+    suspend fun getUserByEmail(email: String): User?
+
     suspend fun addUser(
         firstName: String,
         lastName: String,
         email: String,
         password: String,
-        birthdate: String,
+        birthDate: String,
         country: String,
         occupation: String?,
     )

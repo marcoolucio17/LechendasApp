@@ -29,6 +29,10 @@ class DefaultUserRepository @Inject constructor(
         return localDataSource.getById(userId)?.toExternal()
     }
 
+    override suspend fun getUserByEmail(email: String): User? {
+        return localDataSource.getByEmail(email)?.toExternal()
+    }
+
     override suspend fun addUser(
         firstName: String,
         lastName: String,

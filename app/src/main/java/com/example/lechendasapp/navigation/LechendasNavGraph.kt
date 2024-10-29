@@ -37,6 +37,7 @@ fun LechendasNavGraph(
         composable(route = LechendasDestinations.LOGIN_ROUTE) {
             LoginScreen(
                 onBack = { navController.navigateUp() },
+                onLoginSuccess = { navActions.navigateToVerify() }
             )
         }
         composable(route = LechendasDestinations.NEW_PASSWORD_ROUTE) {

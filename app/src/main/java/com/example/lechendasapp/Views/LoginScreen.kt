@@ -16,10 +16,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -32,12 +28,12 @@ import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.InitialFooter
 import com.example.lechendasapp.utils.TopBar1
-import com.example.lechendasapp.views.LoginViewModel
 
 
 @Composable
 fun LoginScreen(
     onBack: () -> Unit,
+    onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel<LoginViewModel>(),
     modifier: Modifier = Modifier
 ) {
@@ -46,9 +42,9 @@ fun LoginScreen(
         bottomBar = { InitialFooter() },
     ) { innerPadding ->
         LoginBody(
-            loginUiState = viewModel.loginUiState,
+            loginUiState = viewModel.loginUiState.value,
             onUserChange = viewModel::updateUiState,
-            onVerify = viewModel::insertUser,
+            onVerify = { viewModel.checkUserCredentials(onLoginSuccess) },
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -58,7 +54,7 @@ fun LoginScreen(
 @Composable
 fun LoginBody(
     loginUiState: LoginUiState,
-    onUserChange: (UserDetails) -> Unit,
+    onUserChange: (UserCredentials) -> Unit,
     onVerify: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -78,10 +74,10 @@ fun LoginBody(
 @Composable
 private fun LoginContent(
     loginUiState: LoginUiState,
-    onUserChange: (UserDetails) -> Unit,
+    onUserChange: (UserCredentials) -> Unit,
     onVerify: () -> Unit
 ) {
-    val userDetail: UserDetails = loginUiState.userDetail
+    val userDetail: UserCredentials = loginUiState.userCredentials
     Text(
         text = stringResource(R.string.iniciar_sesion),
         style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
@@ -135,6 +131,7 @@ fun LoginScreePreview() {
     LechendasAppTheme {
         LoginScreen(
             onBack = {},
+            onLoginSuccess = {}
         )
     }
 }
