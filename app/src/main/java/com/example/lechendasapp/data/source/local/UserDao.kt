@@ -11,6 +11,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDao {
 
+    //real usage
+    //get user by email
+    @Query("SELECT * FROM users WHERE email = :email")
+    suspend fun getByEmail(email: String): LocalUser?
+
     //Basic methods
 
     @Query("SELECT * FROM users")

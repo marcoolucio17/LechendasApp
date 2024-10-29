@@ -1,87 +1,84 @@
 package com.example.lechendasapp.views
 
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lechendasapp.data.repository.UserRepository
 import com.example.lechendasapp.data.model.User
+import com.example.lechendasapp.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class LoginUiState(
-    val userDetail: UserDetails = UserDetails(),
+    var userCredentials: UserCredentials = UserCredentials(),
 )
 
-data class UserDetails(
-    val id: Long? = null,
-    val firstName: String = "Polonia",
-    val lastName: String = "Herzegovina",
+data class UserCredentials(
     val email: String = "",
     val password: String = "",
-    val country: String = "México",
-    val occupation: String? = null,
-    val birthDate: String = "Hoy",
-)
-
-fun UserDetails.toUser(): User  = User (
-    id = id,
-    firstName = firstName,
-    lastName = lastName,
-    email = email,
-    password = password,
-    country = country,
-    occupation = occupation,
-    birthDate = birthDate
 )
 
 fun User.toLoginUiState(): LoginUiState = LoginUiState(
-    userDetail = this.toUserDetails()
+    userCredentials = this.toUserDetails()
 )
 
-fun User.toUserDetails(): UserDetails = UserDetails(
-    id = this.id,
-    firstName = this.firstName,
-    lastName = this.lastName,
+fun User.toUserDetails(): UserCredentials = UserCredentials(
     email = this.email,
     password = this.password,
-    occupation = this.occupation,
-    country = this.country,
-    birthDate = this.birthDate
 )
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
-    var loginUiState by mutableStateOf(LoginUiState())
-        private set
+    private val _loginUiState = mutableStateOf(LoginUiState())
+    val loginUiState: State<LoginUiState> = _loginUiState
 
-    // Insert user to room database
-    fun insertUser() {
+    private val _isLoggedIn = mutableStateOf(false)
+    private val isLoggedIn: State<Boolean> = _isLoggedIn
+
+    fun checkUserCredentials(onLoginSuccess: () -> Unit) {
         viewModelScope.launch {
-            userRepository.insertUser(loginUiState.userDetail.toUser())
-            Log.d("LoginViewModel", "insertUser: ${loginUiState.userDetail.toUser()}")
+            if (checkUser()) {
+                _isLoggedIn.value = true
+                onLoginSuccess()
+                Log.d("LoginViewModel", "checkUserCredentials: $isLoggedIn")
+            } else {
+                _isLoggedIn.value = false
+                Log.d("LoginViewModel", "checkUserCredentials: $isLoggedIn")
+            }
         }
     }
 
-    fun updateUiState(newUserDetail: UserDetails) {
-        loginUiState = LoginUiState(newUserDetail)
+    //check password and email in room database
+    private suspend fun checkUser(): Boolean {
+        //validate input
+        if (!validateInput()) {
+            return false
+        }
+
+        //validate user to database
+        val testUser: User? = userRepository.getUserByEmail(_loginUiState.value.userCredentials.email)
+        if (testUser == null) {
+            return false
+        } else if (testUser.password != loginUiState.value.userCredentials.password) {
+            return false
+        }
+
+        //if email and password is correct, return true and user is logged in
+        return true
+    }
+
+    //auxiliar: check if email and password is not empty
+    private fun validateInput(): Boolean {
+        return _loginUiState.value.userCredentials.email.isNotEmpty() && _loginUiState.value.userCredentials.password.isNotEmpty()
+    }
+
+    //get email and password from the users input
+    fun updateUiState(newUserDetail: UserCredentials) {
+        _loginUiState.value = _loginUiState.value.copy(userCredentials = newUserDetail)
         Log.d("LoginViewModel", "updateUiState: $newUserDetail")
-    }
-
-    fun updateEmail(newEmail: String) {
-        loginUiState = loginUiState.copy(
-            userDetail = loginUiState.userDetail.copy(email = newEmail)
-        )
-    }
-
-    fun updatePassword(newPassword: String) {
-        loginUiState = loginUiState.copy(
-            userDetail = loginUiState.userDetail.copy(password = newPassword)
-        )
     }
 }
