@@ -8,10 +8,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.lechendasapp.views.HomeScreen
 import com.example.lechendasapp.views.ForgotPasswordScreen
 import com.example.lechendasapp.views.IntroScreen
 import com.example.lechendasapp.views.LoginScreen
 import com.example.lechendasapp.views.NewPasswordScreen
+import com.example.lechendasapp.views.SearchScreen
 import com.example.lechendasapp.views.VerifyUserScreen
 
 
@@ -37,6 +39,7 @@ fun LechendasNavGraph(
         composable(route = LechendasDestinations.LOGIN_ROUTE) {
             LoginScreen(
                 onBack = { navController.navigateUp() },
+                onLoginSuccess = { navActions.navigateToHome() }
             )
         }
         composable(route = LechendasDestinations.NEW_PASSWORD_ROUTE) {
@@ -49,9 +52,27 @@ fun LechendasNavGraph(
                 onBack = { navController.navigateUp() },
             )
         }
-        composable(route = LechendasDestinations.NEW_PASSWORD_ROUTE) {
+        composable(route = LechendasDestinations.FORGOT_PASSWORD_ROUTE) {
             ForgotPasswordScreen(
                 onBack = { navController.navigateUp() },
+            )
+        }
+        composable(route = LechendasDestinations.HOME_ROUTE) {
+            HomeScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = LechendasDestinations.HOME_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToVerify() }
+            )
+        }
+        composable (route = LechendasDestinations.SEARCH_ROUTE) {
+            SearchScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = LechendasDestinations.SEARCH_ROUTE,
+                onHome = { navActions.navigateToHome() },
+                onSearch = { navActions.navigateToSearch() },
+                onSettings = { navActions.navigateToVerify() }
             )
         }
     }

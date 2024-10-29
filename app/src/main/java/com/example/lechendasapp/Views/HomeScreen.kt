@@ -1,10 +1,10 @@
-package com.example.lechendasapp.Views
+package com.example.lechendasapp.views
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,9 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,28 +36,28 @@ import androidx.compose.ui.unit.sp
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
-import com.example.lechendasapp.utils.NavigationBar
+import com.example.lechendasapp.utils.BottomNavBar
+import com.example.lechendasapp.utils.DonutChartScreen
 
 
 @Composable
 fun HomeScreen(
     onBack: () -> Unit,
+    currentRoute: String = "home",
+    onMenuClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = { CustomBoxLayout() },
         bottomBar = {
-            NavigationBar {
-                // Ejemplo de contenido de la barra de navegación
-                IconButton(onClick = { /* Acción para el primer botón */ }) {
-                    Icon(Icons.Filled.Home, contentDescription = "Inicio")
-                }
-                IconButton(onClick = { /* Acción para el segundo botón */ }) {
-                    Icon(Icons.Filled.Favorite, contentDescription = "Favoritos")
-                }
-                IconButton(onClick = { /* Acción para el tercer botón */ }) {
-                    Icon(Icons.Filled.Settings, contentDescription = "Configuraciones")
-                }
-            }
+            BottomNavBar(
+                currentRoute = currentRoute,
+                onHome = onMenuClick,
+                onSearch = onSearchClick,
+                onSettings = onSettingsClick,
+        )
         }
     ) { innerPadding ->
         HomeContent(
@@ -140,7 +139,56 @@ fun CustomBoxLayout(
 @Composable
 fun HomeContent(
     modifier: Modifier = Modifier
-){
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(vertical = 20.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        // Título "Dashboard" en la parte superior
+        Text(
+            text = "Dashboard",
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        // Gráfico de dona con flechas a los lados
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Flecha izquierda
+            IconButton(onClick = { /* Acción para ir al gráfico anterior */ }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Anterior",
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+
+            // Gráfico de dona centrado
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .size(400.dp)
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                DonutChartScreen()
+            }
+
+            // Flecha derecha
+            IconButton(onClick = { /* Acción para ir al gráfico siguiente */ }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = "Siguiente",
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+        }
+    }
 }
 
 
@@ -151,6 +199,10 @@ fun HomeScreenPreview() {
     LechendasAppTheme {
         HomeScreen(
             onBack = {},
+            currentRoute = "home",
+            onMenuClick = {},
+            onSearchClick = {},
+            onSettingsClick = {}
         )
     }
 }

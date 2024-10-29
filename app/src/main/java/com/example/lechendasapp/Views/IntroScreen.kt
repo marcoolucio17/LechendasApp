@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
-import com.example.lechendasapp.utils.MyScreen
 
 @Composable
 fun IntroScreen(
@@ -79,7 +78,6 @@ fun IntroContent(
             )
         }
     }
-    MyScreen()
 }
 
 @Preview(showBackground = true)
