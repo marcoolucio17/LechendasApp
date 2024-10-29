@@ -2,9 +2,12 @@ package com.example.lechendasapp.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.lechendasapp.data.repository.DefaultMonitorLogRepository
 import com.example.lechendasapp.data.repository.DefaultUserRepository
+import com.example.lechendasapp.data.repository.MonitorLogRepository
 import com.example.lechendasapp.data.repository.UserRepository
 import com.example.lechendasapp.data.source.local.AwaqDatabase
+import com.example.lechendasapp.data.source.local.MonitorLogDao
 import com.example.lechendasapp.data.source.local.UserDao
 import dagger.Binds
 import dagger.Module
@@ -21,7 +24,12 @@ abstract class RepositoryModule {
     @Singleton
     @Binds
     abstract fun bindTaskRepository(repository: DefaultUserRepository): UserRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindMonitorLogRepository(repository: DefaultMonitorLogRepository): MonitorLogRepository
 }
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -39,5 +47,8 @@ object DatabaseModule {
 
     @Provides
     fun provideUserDao(database: AwaqDatabase): UserDao = database.userDao()
+
+    @Provides
+    fun provideMonitorLogDao(database: AwaqDatabase): MonitorLogDao = database.monitorLogDao()
     //TODO: inject all DAOs here
 }
