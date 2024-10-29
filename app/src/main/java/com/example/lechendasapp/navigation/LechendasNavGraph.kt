@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lechendasapp.views.HomeScreen
 import com.example.lechendasapp.views.ForgotPasswordScreen
+import com.example.lechendasapp.views.FormularyInitialScreen
 import com.example.lechendasapp.views.IntroScreen
 import com.example.lechendasapp.views.LoginScreen
 import com.example.lechendasapp.views.NewPasswordScreen
@@ -63,7 +64,7 @@ fun LechendasNavGraph(
                 currentRoute = LechendasDestinations.HOME_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToVerify() }
+                onSettingsClick = { navActions.navigateToFormulary() }
             )
         }
         composable (route = LechendasDestinations.SEARCH_ROUTE) {
@@ -72,7 +73,16 @@ fun LechendasNavGraph(
                 currentRoute = LechendasDestinations.SEARCH_ROUTE,
                 onHome = { navActions.navigateToHome() },
                 onSearch = { navActions.navigateToSearch() },
-                onSettings = { navActions.navigateToVerify() }
+                onSettings = { navActions.navigateToFormulary() }
+            )
+        }
+        composable(route = LechendasDestinations.FORMULARY_ROUTE) {
+            FormularyInitialScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = LechendasDestinations.FORMULARY_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToFormulary() }
             )
         }
     }

@@ -17,13 +17,13 @@ interface MonitorLogDao {
     fun observeAll(): Flow<List<LocalMonitorLog>>
 
     @Query("SELECT * FROM monitor_logs WHERE id = :id")
-    fun observeById(id: Int): Flow<LocalMonitorLog?>
+    fun observeById(id: Long): Flow<LocalMonitorLog>
 
     @Query("SELECT * FROM monitor_logs")
     suspend fun getAll(): List<LocalMonitorLog>
 
     @Query("SELECT * FROM monitor_logs WHERE id = :id")
-    suspend fun getById(id: Int): LocalMonitorLog?
+    suspend fun getById(id: Long): LocalMonitorLog?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(monitorLog: LocalMonitorLog)
