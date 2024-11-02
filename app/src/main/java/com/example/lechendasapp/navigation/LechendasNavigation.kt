@@ -1,6 +1,7 @@
 package com.example.lechendasapp.navigation
 
 import androidx.navigation.NavController
+import com.example.lechendasapp.navigation.LechendasScreens.CONFIGURATION_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.FORGOT_PASSWORD_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.FORMULARY_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.HOME_SCREEN
@@ -20,6 +21,7 @@ private object LechendasScreens {
     const val HOME_SCREEN = "home"
     const val SEARCH_SCREEN = "search"
     const val FORMULARY_SCREEN = "formulary"
+    const val CONFIGURATION_SCREEN = "configuration"
 }
 
 /*For the future: arguments for the routes */
@@ -39,6 +41,7 @@ object LechendasDestinations {
     const val HOME_ROUTE = HOME_SCREEN
     const val SEARCH_ROUTE = SEARCH_SCREEN
     const val FORMULARY_ROUTE = FORMULARY_SCREEN
+    const val CONFIGURATION_ROUTE = CONFIGURATION_SCREEN
 }
 
 class LechendasNavigationActions(private val navController: NavController) {
@@ -72,6 +75,10 @@ class LechendasNavigationActions(private val navController: NavController) {
 
     fun navigateToFormulary() {
         navController.navigate(LechendasDestinations.FORMULARY_ROUTE)
+    }
+
+    fun navigateToConfiguration() {
+        navController.navigate(LechendasDestinations.CONFIGURATION_ROUTE)
     }
 }
 

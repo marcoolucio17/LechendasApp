@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 interface MonitorLogDao {
 
     //Basic methods
-
     @Query("SELECT * FROM monitor_logs")
     fun observeAll(): Flow<List<LocalMonitorLog>>
 

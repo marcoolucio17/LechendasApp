@@ -11,13 +11,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDao {
 
-    //real usage
-    //get user by email
+    /*Funciones que seguramente si se van a usar*/
     @Query("SELECT * FROM users WHERE email = :email")
     suspend fun getByEmail(email: String): LocalUser?
 
-    //Basic methods
-
+    /*Basic methods (Todos los tienen pero seguramente no se usen)*/
     @Query("SELECT * FROM users")
     fun observeAll(): Flow<List<LocalUser>>
 

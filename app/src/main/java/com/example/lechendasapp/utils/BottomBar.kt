@@ -35,7 +35,7 @@ fun BottomNavBar(
     val routes = listOf(
         LechendasDestinations.HOME_ROUTE,
         LechendasDestinations.SEARCH_ROUTE,
-        LechendasDestinations.FORMULARY_ROUTE //TODO: Cambiar correctamente
+        LechendasDestinations.CONFIGURATION_ROUTE
     )
 
     NavigationBar {

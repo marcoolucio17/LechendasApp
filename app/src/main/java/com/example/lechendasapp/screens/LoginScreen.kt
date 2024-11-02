@@ -1,4 +1,4 @@
-package com.example.lechendasapp.views
+package com.example.lechendasapp.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -24,10 +25,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
+import com.example.lechendasapp.data.model.User
+import com.example.lechendasapp.data.repository.UserRepository
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.InitialFooter
 import com.example.lechendasapp.utils.TopBar1
+import com.example.lechendasapp.viewmodels.LoginUiState
+import com.example.lechendasapp.viewmodels.LoginViewModel
+import com.example.lechendasapp.viewmodels.UserCredentials
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 
 @Composable
@@ -44,7 +52,8 @@ fun LoginScreen(
         LoginBody(
             loginUiState = viewModel.loginUiState.value,
             onUserChange = viewModel::updateUiState,
-            onVerify = { viewModel.checkUserCredentials(onLoginSuccess) },
+            onVerify = onLoginSuccess,
+            //onVerify = { viewModel.checkUserCredentials(onLoginSuccess) },
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -67,6 +76,7 @@ fun LoginBody(
                 .padding(dimensionResource(R.dimen.padding_medium))
         ) {
             LoginContent(loginUiState, onUserChange, onVerify)
+//            LoginContent({})
         }
     }
 }
@@ -128,10 +138,68 @@ private fun LoginContent(
 @ScreenPreviews
 @Composable
 fun LoginScreePreview() {
+    val previewViewModel = rememberPreviewLoginViewModel()
+
     LechendasAppTheme {
         LoginScreen(
             onBack = {},
-            onLoginSuccess = {}
+            onLoginSuccess = {},
+            viewModel = previewViewModel
         )
+    }
+}
+
+class MockUserRepository : UserRepository {
+    override suspend fun getUserByEmail(email: String): User? {
+        // Return a sample user or null as needed for preview purposes
+        return User(
+            email = "test@example.com",
+            password = "password123",
+            id = 1,
+            firstName = "dante",
+            lastName = "Ferreira",
+            birthDate = "sd",
+            country = "País",
+            occupation = "si",
+            height = "1",
+            team = 1,
+            role = "lad"
+        )
+    }
+
+    override suspend fun insertUser(user: User) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteUser(user: User) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getUsersStream(): Flow<List<User>> {
+        // Return an empty or sample flow for the preview
+        return flowOf(emptyList())
+    }
+
+    override fun getIndividualUserStream(userId: Long): Flow<User> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getAllUsers(): List<User> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getUserById(userId: Long): User? {
+        TODO("Not yet implemented")
+    }
+}
+
+@Composable
+fun rememberPreviewLoginViewModel(): LoginViewModel {
+    val mockUserRepository = MockUserRepository()
+    return remember {
+        LoginViewModel(mockUserRepository).apply {
+            // Initialize with sample data for the preview
+            updateUiState(UserCredentials(email = "preview@example.com", password = "password"))
+        }
     }
 }

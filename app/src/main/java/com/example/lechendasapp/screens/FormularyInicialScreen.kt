@@ -1,4 +1,4 @@
-package com.example.lechendasapp.views
+package com.example.lechendasapp.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -24,6 +24,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.utils.TopBar3
+import com.example.lechendasapp.viewmodels.FormularioViewModel
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.lechendasapp.ui.theme.LechendasAppTheme
 
 
 @Composable
@@ -33,7 +36,7 @@ fun FormularyInitialScreen(
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    viewModel: FormularioViewModel = hiltViewModel()
+//    viewModel: FormularioViewModel = hiltViewModel()
 ) {
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title="Formulario") },
@@ -47,7 +50,7 @@ fun FormularyInitialScreen(
         }
     ) { innerPadding ->
         FormularioContent(
-            viewModel = viewModel,
+//            viewModel = viewModel,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -108,8 +111,8 @@ fun FormularioContent(
                 Epoca.values().forEach { epoca ->
                     RadioButtonWithText(
                         text = epoca.name,
-                        isSelected = uiState.form.habitatType == epoca.name,
-                        onClick = { viewModel.updateUiState(uiState.form.copy(habitatType = epoca.name)) }
+                        isSelected = uiState.form.seasons == epoca.name,
+                        onClick = { viewModel.updateUiState(uiState.form.copy(seasons = epoca.name)) }
                     )
                 }
             }
@@ -120,8 +123,8 @@ fun FormularioContent(
                 TipoRegistro.values().forEach { tipo ->
                     RadioButtonWithText(
                         text = tipo.displayName,
-                        isSelected = uiState.form.sightingMethod == tipo.displayName,
-                        onClick = { viewModel.updateUiState(uiState.form.copy(sightingMethod = tipo.displayName)) }
+                        isSelected = uiState.form.logType == tipo.displayName,
+                        onClick = { viewModel.updateUiState(uiState.form.copy(logType = tipo.displayName)) }
                     )
                 }
             }
@@ -253,4 +256,18 @@ enum class TipoRegistro(val displayName: String) {
     PARCELA_VEGETACION("Parcela de Vegetación"),
     CAMARAS_TRAMPA("Cámaras Trampa"),
     VARIABLES_CLIMATICAS("Variables Climáticas")
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun FormularyInitialScreenPreview() {
+    LechendasAppTheme {
+        FormularyInitialScreen(
+            onBack = {},
+            currentRoute = "formulary",
+            onMenuClick = {},
+            onSearchClick = {},
+            onSettingsClick = {}
+        )
+    }
 }

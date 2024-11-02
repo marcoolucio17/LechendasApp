@@ -15,15 +15,18 @@ import androidx.compose.ui.unit.dp
 import com.example.lechendasapp.R
 
 @Composable
-fun SimpleInputBox(labelText: String) {
+fun SimpleInputBox(
+    labelText: String,
+    singleLine: Boolean = true,
+    modifier: Modifier = Modifier
+) {
     var text by remember { mutableStateOf("") }
     OutlinedTextField(
         value = text,
         onValueChange = { text = it },
         label = { Text(labelText) },
-        singleLine = true,
-        modifier = Modifier
+        singleLine = singleLine,
+        modifier = modifier
             .width(450.dp)
-            .padding(dimensionResource(R.dimen.padding_extra_large))
     )
 }

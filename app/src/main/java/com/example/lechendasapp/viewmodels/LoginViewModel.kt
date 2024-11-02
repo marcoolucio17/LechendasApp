@@ -1,4 +1,4 @@
-package com.example.lechendasapp.views
+package com.example.lechendasapp.viewmodels
 
 import android.util.Log
 import androidx.compose.runtime.State

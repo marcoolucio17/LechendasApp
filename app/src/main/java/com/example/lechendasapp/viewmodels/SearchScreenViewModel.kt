@@ -1,4 +1,4 @@
-package com.example.lechendasapp.views
+package com.example.lechendasapp.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

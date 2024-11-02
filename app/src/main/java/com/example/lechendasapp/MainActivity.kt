@@ -20,6 +20,5 @@ class MainActivity : ComponentActivity() {
                 LechendasNavGraph()
             }
         }
-        Log.v(TAG, "onCreate called")
     }
 }

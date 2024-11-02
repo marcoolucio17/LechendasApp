@@ -1,4 +1,4 @@
-package com.example.lechendasapp.Views
+package com.example.lechendasapp.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,9 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
-import com.example.lechendasapp.utils.TopBar2
 import com.example.lechendasapp.utils.TopBar3
-import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import com.example.lechendasapp.R
 

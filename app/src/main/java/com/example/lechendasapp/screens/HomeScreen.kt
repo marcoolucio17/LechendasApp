@@ -1,4 +1,4 @@
-package com.example.lechendasapp.views
+package com.example.lechendasapp.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,10 +42,11 @@ fun HomeScreen(
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onAddClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
-        topBar = { CustomBoxLayout() },
+        topBar = { CustomBoxLayout(onAddClick = onAddClick) },
         bottomBar = {
             BottomNavBar(
                 currentRoute = currentRoute,
@@ -62,6 +64,7 @@ fun HomeScreen(
 
 @Composable
 fun CustomBoxLayout(
+    onAddClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.height(dimensionResource(R.dimen.top_bar_height))
@@ -119,12 +122,16 @@ fun CustomBoxLayout(
 
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Filled.AddCircle,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
+            IconButton(
+                onClick = onAddClick
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircle,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
     }
 }
@@ -146,7 +153,8 @@ fun HomeScreenPreview() {
             currentRoute = "home",
             onMenuClick = {},
             onSearchClick = {},
-            onSettingsClick = {}
+            onSettingsClick = {},
+            onAddClick = {}
         )
     }
 }

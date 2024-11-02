@@ -12,11 +12,20 @@ import androidx.room.PrimaryKey
 )
 data class LocalUser (
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
+
+    //personal data
     @ColumnInfo(name = "first_name") val firstName: String,
     @ColumnInfo(name = "last_name") val lastName: String,
-    @ColumnInfo(name = "email") val email: String,
     @ColumnInfo(name = "birth_date") val birthDate : String,
-    val password: String,
     val country: String,
-    val occupation: String? = null
+    val occupation: String? = null,
+    val height: String,
+
+    //credentials
+    @ColumnInfo(name = "email") val email: String,
+    val password: String,
+
+    //other
+    val team: Int,
+    val role: String,
 )

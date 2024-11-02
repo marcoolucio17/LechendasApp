@@ -1,4 +1,4 @@
-package com.example.lechendasapp.views
+package com.example.lechendasapp.viewmodels
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -17,13 +17,17 @@ data class FormsUiState(
 data class Form(
     val id: Long = 0,
     val userId: Long = 0,
-    val speciesId: Long = 0,
+
     val dateMillis: Long = 0,
     val gpsCoordinates: String = "",
-    val climateType: String? = "",
-    val habitatType: String? = "",
-    val observations: String? = "",
-    val sightingMethod: String = "",
+    val location: String = "",
+
+    val climateType: String = "",
+    val seasons: String = "",
+    val logType: String = "",
+
+    val observations: String? = null,
+    val zone: String = "",
 )
 
 fun MonitorLog.toFormsUiState(): FormsUiState = FormsUiState(
@@ -33,25 +37,31 @@ fun MonitorLog.toFormsUiState(): FormsUiState = FormsUiState(
 fun MonitorLog.toForm(): Form = Form(
     id = this.id,
     userId = this.userId,
-    speciesId = this.speciesId,
+
     dateMillis = this.dateMillis,
     gpsCoordinates = this.gpsCoordinates,
+    location = this.location,
+
     climateType = this.climateType,
-    habitatType = this.habitatType,
-    observations = this.observations,
-    sightingMethod = this.sightingMethod,
+    seasons = this.seasons,
+    logType = this.logType,
+
+    zone = this.zone,
 )
 
 fun FormsUiState.toMonitorLog(): MonitorLog = MonitorLog(
     id = this.form.id,
     userId = this.form.userId,
-    speciesId = this.form.speciesId,
+
     dateMillis = this.form.dateMillis,
     gpsCoordinates = this.form.gpsCoordinates,
+    location = this.form.location,
+
     climateType = this.form.climateType,
-    habitatType = this.form.habitatType,
-    observations = this.form.observations,
-    sightingMethod = this.form.sightingMethod,
+    seasons = this.form.seasons,
+    logType = this.form.logType,
+
+    zone = this.form.zone,
 )
 
 @HiltViewModel

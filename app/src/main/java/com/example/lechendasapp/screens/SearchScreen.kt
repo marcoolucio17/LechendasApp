@@ -1,5 +1,6 @@
-package com.example.lechendasapp.views
+package com.example.lechendasapp.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.sharp.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,10 +23,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -35,9 +35,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
 import com.example.lechendasapp.data.model.MonitorLog
+import com.example.lechendasapp.data.repository.MonitorLogRepository
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
+import com.example.lechendasapp.utils.TopBar3
+import com.example.lechendasapp.viewmodels.SearchViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +59,7 @@ fun SearchScreen(
     val searchUiState = viewModel._searchUiState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
-        topBar = { SearchTopBar(onBack = onBack) },
+        topBar = { TopBar3(onBack = onBack) },
         bottomBar = {
             BottomNavBar(
                 currentRoute = currentRoute,
@@ -70,36 +76,6 @@ fun SearchScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchTopBar(
-    onBack: () -> Unit,
-    title: String = "Búsqueda"
-) {
-    TopAppBar(
-        navigationIcon = {
-            IconButton(
-                onClick = onBack
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Sharp.ArrowBack, contentDescription = null
-                )
-            }
-        },
-        title = { Text(text = title) },
-        actions = { // Add the actions parameter for additional icons
-            IconButton(onClick = {/*TODO*/ }) { // Set up onClick for the menu icon
-                Icon(
-                    painter = painterResource(id = R.drawable.more_vert), // Use a three-dot icon resource
-                    contentDescription = "More options"
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-    )
-}
 
 @Composable
 fun SearchContent(
@@ -107,10 +83,16 @@ fun SearchContent(
     logList: List<MonitorLog>
 ) {
         if (logList.isEmpty()) {
-            Text(
-                text = "No hay registros"
-            )
+            Log.d("SearchScreen", "Empty List")
+            Column ( modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp, vertical = 20.dp)) {
+                Text(
+                    text = "No hay registros"
+                )
+            }
         } else {
+            Log.d("SearchScreen", "Not Empty List")
             LogList(
                 logList = logList,
                 modifier = modifier
@@ -183,7 +165,7 @@ fun SearchItem(
                 Text(
                     //TIPO DE OBSERVACIÓN
                     //text = "Fauna de Transectos",
-                    text = log.observations ?: "Fauna de Transectos",
+                    text = log.logType ?: "Fauna de Transectos",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
@@ -206,7 +188,7 @@ fun SearchItem(
 fun SearchItemPreview() {
     LechendasAppTheme {
         SearchItem(
-            log = MonitorLog(1, 15, 15, 15, "15", "15", "15", "15", "15")
+            log = MonitorLog(1, 15, 15, "15", "15", "15", "15", "15", "15")
         )
     }
 }
@@ -217,26 +199,61 @@ fun LogListPreview() {
     LechendasAppTheme {
         LogList(
             logList = listOf(
-                MonitorLog(1, 15, 15, 15, "15", "15", "15", "15", "15"),
-                MonitorLog(2, 15, 15, 15, "15", "15", "15", "15", "15"),
-                MonitorLog(3, 15, 15, 15, "15", "15", "15", "15", "15"),
-                MonitorLog(4, 15, 15, 15, "15", "15", "15", "15", "15")
+                MonitorLog(1, 15, 15, "15", "15", "15", "15", "15", "15",),
+                MonitorLog(2, 15, 15, "15", "15", "15", "15", "15", "15"),
+                MonitorLog(3, 15, 15, "15", "15", "15", "15", "15", "15"),
+                MonitorLog(4, 15, 15, "15", "15", "15", "15", "15", "15")
             )
         )
     }
 }
 
 
-//@ScreenPreviews
-//@Composable
-//fun PreviewScreen() {
-//    LechendasAppTheme {
-//        SearchScreen(
-//            onBack = {},
-//            currentRoute = "search",
-//            onSearch = {},
-//            onHome = {},
-//            onSettings = {},
-//        )
-//    }
-//}
+@ScreenPreviews
+@Composable
+fun PreviewScreen() {
+    LechendasAppTheme {
+        SearchScreen(
+            onBack = {},
+            currentRoute = "search",
+            onSearch = {},
+            onHome = {},
+            onSettings = {},
+            viewModel = rememberPreviewSearchViewModel()
+        )
+    }
+}
+
+
+class MockMonitorLogRepository : MonitorLogRepository {
+    override fun getMonitorLogsStream(): Flow<List<MonitorLog>> {
+        return flowOf(emptyList())
+    }
+
+    override fun getMonitorLogByIdStream(monitorLogId: Long): Flow<MonitorLog> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getAllMonitorLogs(): List<MonitorLog> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getMonitorLogById(monitorLogId: Long): MonitorLog? {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun addMonitorLog(monitorLog: MonitorLog) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteMonitorLog(monitorLog: MonitorLog) {
+        TODO("Not yet implemented")
+    }
+}
+
+@Composable
+fun rememberPreviewSearchViewModel(): SearchViewModel {
+    return remember {
+        SearchViewModel(MockMonitorLogRepository())
+    }
+}

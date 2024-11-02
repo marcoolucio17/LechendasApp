@@ -93,3 +93,8 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
 }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

@@ -1,4 +1,4 @@
-package com.example.lechendasapp.views
+package com.example.lechendasapp.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

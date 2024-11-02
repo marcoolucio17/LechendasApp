@@ -8,14 +8,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.lechendasapp.views.HomeScreen
-import com.example.lechendasapp.views.ForgotPasswordScreen
-import com.example.lechendasapp.views.FormularyInitialScreen
-import com.example.lechendasapp.views.IntroScreen
-import com.example.lechendasapp.views.LoginScreen
-import com.example.lechendasapp.views.NewPasswordScreen
-import com.example.lechendasapp.views.SearchScreen
-import com.example.lechendasapp.views.VerifyUserScreen
+import com.example.lechendasapp.screens.ConfigurationScreen
+import com.example.lechendasapp.screens.ForgotPasswordScreen
+import com.example.lechendasapp.screens.FormularyInitialScreen
+import com.example.lechendasapp.screens.HomeScreen
+import com.example.lechendasapp.screens.IntroScreen
+import com.example.lechendasapp.screens.LoginScreen
+import com.example.lechendasapp.screens.NewPasswordScreen
+import com.example.lechendasapp.screens.SearchScreen
+import com.example.lechendasapp.screens.VerifyUserScreen
 
 
 @Composable
@@ -64,7 +65,8 @@ fun LechendasNavGraph(
                 currentRoute = LechendasDestinations.HOME_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToFormulary() }
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                onAddClick = { navActions.navigateToFormulary() }
             )
         }
         composable (route = LechendasDestinations.SEARCH_ROUTE) {
@@ -73,7 +75,7 @@ fun LechendasNavGraph(
                 currentRoute = LechendasDestinations.SEARCH_ROUTE,
                 onHome = { navActions.navigateToHome() },
                 onSearch = { navActions.navigateToSearch() },
-                onSettings = { navActions.navigateToFormulary() }
+                onSettings = { navActions.navigateToConfiguration() }
             )
         }
         composable(route = LechendasDestinations.FORMULARY_ROUTE) {
@@ -82,7 +84,16 @@ fun LechendasNavGraph(
                 currentRoute = LechendasDestinations.FORMULARY_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToFormulary() }
+                onSettingsClick = { navActions.navigateToConfiguration() }
+            )
+        }
+        composable(route = LechendasDestinations.CONFIGURATION_ROUTE) {
+            ConfigurationScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = LechendasDestinations.CONFIGURATION_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() }
             )
         }
     }

@@ -5,14 +5,18 @@ import com.example.lechendasapp.data.source.local.LocalMonitorLog
 
 // External (App) to Local
 fun MonitorLog.toLocal() = LocalMonitorLog(
+    id = id,
     userId = userId,
-    speciesId = speciesId,
+
     dateMillis = dateMillis,
+    location = location,
     gpsCoordinates = gpsCoordinates,
+
     climateType = climateType,
-    habitatType = habitatType,
-    observations = observations,
-    sightingMethod = sightingMethod
+    seasons = seasons,
+    logType = logType,
+
+    zone = zone
 )
 
 fun List<MonitorLog>.toLocal() = map { it.toLocal() }
@@ -21,13 +25,16 @@ fun List<MonitorLog>.toLocal() = map { it.toLocal() }
 fun LocalMonitorLog.toExternal() = MonitorLog(
     id = id,
     userId = userId,
-    speciesId = speciesId,
+
     dateMillis = dateMillis,
+    location = location,
     gpsCoordinates = gpsCoordinates,
+
     climateType = climateType,
-    habitatType = habitatType,
-    observations = observations,
-    sightingMethod = sightingMethod
+    seasons = seasons,
+    logType = logType,
+
+    zone = zone
 )
 
 @JvmName("localToExternalMonitorLogs")
