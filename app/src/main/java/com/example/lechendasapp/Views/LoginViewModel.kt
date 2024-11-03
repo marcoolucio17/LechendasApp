@@ -1,84 +1,136 @@
 package com.example.lechendasapp.views
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.lechendasapp.R
 import com.example.lechendasapp.data.model.User
 import com.example.lechendasapp.data.repository.UserRepository
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.Firebase
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import java.security.MessageDigest
+import java.util.UUID
 import javax.inject.Inject
 
-data class LoginUiState(
-    var userCredentials: UserCredentials = UserCredentials(),
-)
+class AuthenticationManager(val context: Context){
+    private val auth = Firebase.auth
 
-data class UserCredentials(
-    val email: String = "",
-    val password: String = "",
-)
+    fun createAccountWithEmail(email: String, password: String): Flow<AuthResponse> = callbackFlow {
+        auth.createUserWithEmailAndPassword(email, password)
 
-fun User.toLoginUiState(): LoginUiState = LoginUiState(
-    userCredentials = this.toUserDetails()
-)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful){
+                    trySend(AuthResponse.Success)
+                } else {
+                    trySend(AuthResponse.Error(message = task.exception?.message ?: ""))
 
-fun User.toUserDetails(): UserCredentials = UserCredentials(
-    email = this.email,
-    password = this.password,
-)
-
-@HiltViewModel
-class LoginViewModel @Inject constructor(
-    private val userRepository: UserRepository
-) : ViewModel() {
-    private val _loginUiState = mutableStateOf(LoginUiState())
-    val loginUiState: State<LoginUiState> = _loginUiState
-
-    private val _isLoggedIn = mutableStateOf(false)
-    private val isLoggedIn: State<Boolean> = _isLoggedIn
-
-    fun checkUserCredentials(onLoginSuccess: () -> Unit) {
-        viewModelScope.launch {
-            if (checkUser()) {
-                _isLoggedIn.value = true
-                onLoginSuccess()
-                Log.d("LoginViewModel", "checkUserCredentials: $isLoggedIn")
-            } else {
-                _isLoggedIn.value = false
-                Log.d("LoginViewModel", "checkUserCredentials: $isLoggedIn")
+                }
             }
+
+        awaitClose()
+    }
+
+    fun loginWithEmail(email: String, password: String): Flow<AuthResponse> = callbackFlow{
+        auth.signInWithEmailAndPassword(email, password)
+
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful){
+                    trySend(AuthResponse.Success)
+                } else {
+                    trySend(AuthResponse.Error(message = task.exception?.message ?: ""))
+
+                }
+            }
+
+        awaitClose()
+    }
+
+    private fun createNonce(): String{
+        val rawNonce = UUID.randomUUID().toString()
+        val bytes = rawNonce.toByteArray()
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(bytes)
+
+        return digest.fold("") {str, it ->
+            str + "%02x".format(it)}
+    }
+
+    fun signInWithGoogle(): Flow<AuthResponse> = callbackFlow {
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(context.getString(R.string.web_client_id))
+            .setAutoSelectEnabled(false)
+            .setNonce(createNonce())
+            .build()
+
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
+        try {
+            val credentialManager = CredentialManager.create((context))
+            val result = credentialManager.getCredential(
+                context = context,
+                request = request
+            )
+
+            val credential = result.credential
+            if (credential is CustomCredential){
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL){
+
+                    try {
+
+                        val googleIdTokenCredential = GoogleIdTokenCredential
+                            .createFrom(credential.data)
+
+                        val firebaseCredential = GoogleAuthProvider
+                            .getCredential(
+                                googleIdTokenCredential.idToken,
+                                null
+                            )
+
+                        auth.signInWithCredential(firebaseCredential)
+                            .addOnCompleteListener{
+                                if (it.isSuccessful){
+                                    trySend(AuthResponse.Success)
+                                } else {
+                                    trySend(AuthResponse.Error(message = it.exception?.message ?: ""))
+                                }
+                            }
+
+
+                    } catch (e: GoogleIdTokenParsingException){
+                        trySend(AuthResponse.Error(message = e.message ?: ""))
+                    }
+
+                    awaitClose()
+                }
+            }
+
+        } catch (e: Exception){
+            trySend(AuthResponse.Error(message = e.message ?: ""))
         }
+
     }
 
-    //check password and email in room database
-    private suspend fun checkUser(): Boolean {
-        //validate input
-        if (!validateInput()) {
-            return false
-        }
+}
 
-        //validate user to database
-        val testUser: User? = userRepository.getUserByEmail(_loginUiState.value.userCredentials.email)
-        if (testUser == null) {
-            return false
-        } else if (testUser.password != loginUiState.value.userCredentials.password) {
-            return false
-        }
-
-        //if email and password is correct, return true and user is logged in
-        return true
-    }
-
-    //auxiliar: check if email and password is not empty
-    private fun validateInput(): Boolean {
-        return _loginUiState.value.userCredentials.email.isNotEmpty() && _loginUiState.value.userCredentials.password.isNotEmpty()
-    }
-
-    //get email and password from the users input
-    fun updateUiState(newUserDetail: UserCredentials) {
-        _loginUiState.value = _loginUiState.value.copy(userCredentials = newUserDetail)
-        Log.d("LoginViewModel", "updateUiState: $newUserDetail")
-    }
+interface AuthResponse {
+    data object Success: AuthResponse
+    data class Error(val message: String): AuthResponse
 }
