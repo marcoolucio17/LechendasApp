@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.lechendasapp.screens.ClimateScreen
 import com.example.lechendasapp.screens.ConfigurationScreen
 import com.example.lechendasapp.screens.ForgotPasswordScreen
 import com.example.lechendasapp.screens.FormularyInitialScreen
@@ -84,13 +85,23 @@ fun LechendasNavGraph(
                 currentRoute = LechendasDestinations.FORMULARY_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToConfiguration() }
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                onClimateClick = { navActions.navigateToClimate() }
             )
         }
         composable(route = LechendasDestinations.CONFIGURATION_ROUTE) {
             ConfigurationScreen(
                 onBack = { navController.navigateUp() },
                 currentRoute = LechendasDestinations.CONFIGURATION_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() }
+            )
+        }
+        composable(route = LechendasDestinations.CLIMATE_ROUTE) {
+            ClimateScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = LechendasDestinations.CLIMATE_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
                 onSettingsClick = { navActions.navigateToConfiguration() }

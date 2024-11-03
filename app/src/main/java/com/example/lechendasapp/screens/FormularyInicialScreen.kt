@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,16 +19,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.example.lechendasapp.R
-import com.example.lechendasapp.utils.BottomNavBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.lechendasapp.utils.TopBar3
-import com.example.lechendasapp.viewmodels.FormularioViewModel
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.lechendasapp.R
+import com.example.lechendasapp.data.model.MonitorLog
+import com.example.lechendasapp.data.repository.MonitorLogRepository
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
+import com.example.lechendasapp.utils.BottomNavBar
+import com.example.lechendasapp.utils.TopBar3
+import com.example.lechendasapp.viewmodels.Form
+import com.example.lechendasapp.viewmodels.FormularioViewModel
+import kotlinx.coroutines.flow.Flow
 
 
 @Composable
@@ -36,10 +40,20 @@ fun FormularyInitialScreen(
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
-//    viewModel: FormularioViewModel = hiltViewModel()
+
+    //all next forms
+    //onTransectClick: () -> Unit,
+    //onConteoClick: () -> Unit,
+    //onFreeClick: () -> Unit,
+    //onCoverageClick: () -> Unit,
+    //onVegetationClick: () -> Unit,
+    //onTrapClick: () -> Unit,
+    onClimateClick: () -> Unit,
+
+    viewModel: FormularioViewModel = hiltViewModel()
 ) {
     Scaffold(
-        topBar = { TopBar3(onBack = onBack, title="Formulario") },
+        topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {
             BottomNavBar(
                 currentRoute = currentRoute,
@@ -50,7 +64,8 @@ fun FormularyInitialScreen(
         }
     ) { innerPadding ->
         FormularioContent(
-//            viewModel = viewModel,
+            onClimateClick = onClimateClick,
+            viewModel = viewModel,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -58,6 +73,7 @@ fun FormularyInitialScreen(
 
 @Composable
 fun FormularioContent(
+    onClimateClick: () -> Unit,
     viewModel: FormularioViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -74,7 +90,7 @@ fun FormularioContent(
     ) {
         item {
             CustomTextField(
-                value =  uiState.form.observations.orEmpty(),
+                value = uiState.form.observations.orEmpty(),
                 onValueChange = { viewModel.updateUiState(uiState.form.copy(observations = it)) },
                 placeholder = "Observación"
             )
@@ -82,7 +98,13 @@ fun FormularioContent(
         item {
             CustomTextField(
                 value = uiState.form.id.toString(),
-                onValueChange = { date -> viewModel.updateUiState(uiState.form.copy(id = date.toLongOrNull() ?: 200L)) },
+                onValueChange = { date ->
+                    viewModel.updateUiState(
+                        uiState.form.copy(
+                            id = date.toLongOrNull() ?: 200L
+                        )
+                    )
+                },
                 placeholder = "0"
             )
         }
@@ -96,7 +118,7 @@ fun FormularioContent(
         item {
             Text("Estado del Tiempo:", fontWeight = FontWeight.Bold)
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                WeatherState.values().forEach { weatherState ->
+                WeatherState.entries.forEach { weatherState ->
                     WeatherIcon(
                         iconRes = R.drawable.capybara,
                         isSelected = uiState.form.climateType == weatherState.name,
@@ -108,7 +130,7 @@ fun FormularioContent(
         item {
             Text("Época:", fontWeight = FontWeight.Bold)
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Epoca.values().forEach { epoca ->
+                Epoca.entries.forEach { epoca ->
                     RadioButtonWithText(
                         text = epoca.name,
                         isSelected = uiState.form.seasons == epoca.name,
@@ -120,7 +142,7 @@ fun FormularioContent(
         item {
             Text("Tipo de Registro", fontWeight = FontWeight.Bold)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                TipoRegistro.values().forEach { tipo ->
+                TipoRegistro.entries.forEach { tipo ->
                     RadioButtonWithText(
                         text = tipo.displayName,
                         isSelected = uiState.form.logType == tipo.displayName,
@@ -134,6 +156,16 @@ fun FormularioContent(
                 onClick = {
                     Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
                     viewModel.addNewForm() // Save form to the database
+                    //move to next
+                    when (uiState.form.logType) {
+                        TipoRegistro.TRANSECTOS.displayName -> {}
+                        TipoRegistro.PUNTO_CONTEO.displayName -> {}
+                        TipoRegistro.BUSQUEDA_LIBRE.displayName -> {}
+                        TipoRegistro.VALIDACION_COBERTURA.displayName -> {}
+                        TipoRegistro.PARCELA_VEGETACION.displayName -> {}
+                        TipoRegistro.CAMARAS_TRAMPA.displayName -> {}
+                        TipoRegistro.VARIABLES_CLIMATICAS.displayName -> onClimateClick()
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -146,7 +178,8 @@ fun FormularioContent(
 
 @Composable
 fun CustomBoxFormLayout(
-    modifier: Modifier = Modifier, ) {
+    modifier: Modifier = Modifier,
+) {
     Box(modifier = modifier.height(80.dp)) {
         Image(
             painter = painterResource(id = R.drawable.semicircle),
@@ -184,7 +217,10 @@ fun CustomBoxFormLayout(
                 .align(Alignment.Center),
             contentAlignment = Alignment.Center
         ) {
-            Text("Formulario Inicial", style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold))
+            Text(
+                "Formulario Inicial",
+                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
+            )
         }
 
         Box(
@@ -235,10 +271,15 @@ fun WeatherIcon(iconRes: Int, isSelected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-fun RadioButtonWithText(text: String, isSelected: Boolean, onClick: () -> Unit) {
+fun RadioButtonWithText(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.clickable { onClick() }
+        modifier = modifier.clickable { onClick() }
     ) {
         RadioButton(selected = isSelected, onClick = onClick)
         Text(text = text)
@@ -267,7 +308,56 @@ fun FormularyInitialScreenPreview() {
             currentRoute = "formulary",
             onMenuClick = {},
             onSearchClick = {},
-            onSettingsClick = {}
+            onSettingsClick = {},
+            onClimateClick = {},
+            viewModel = rememberPreviewFormularioViewModel()
         )
+    }
+}
+
+class MockMonitorLogRepository2 : MonitorLogRepository {
+    override fun getMonitorLogsStream(): Flow<List<MonitorLog>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getMonitorLogByIdStream(monitorLogId: Long): Flow<MonitorLog> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getAllMonitorLogs(): List<MonitorLog> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getMonitorLogById(monitorLogId: Long): MonitorLog? {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun addMonitorLog(monitorLog: MonitorLog) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteMonitorLog(monitorLog: MonitorLog) {
+        TODO("Not yet implemented")
+    }
+}
+
+@Composable
+fun rememberPreviewFormularioViewModel(): FormularioViewModel {
+    val mockMonitorLogRepository = MockMonitorLogRepository2()
+
+    return remember {
+        FormularioViewModel(mockMonitorLogRepository).apply {
+            // Initialize with sample data for the preview
+            updateUiState(
+                Form(
+                    id = 1,
+                    gpsCoordinates = "15",
+                    climateType = "SUNNY",
+                    seasons = "VERANO",
+                    logType = "Fauna en Transectos",
+                    observations = "Observación"
+                )
+            )
+        }
     }
 }
