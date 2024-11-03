@@ -153,7 +153,6 @@ private fun LoginContent(
     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_extra_large)))
     Button(
         onClick = {
-            viewModel.fetchToken()
 //            authenticationManager.loginWithEmail(
 //                email = userName.value,
 //                password = userPass.value
@@ -194,7 +193,6 @@ private fun LoginContent(
         )
     }
 }
-
 @Composable
 fun TokenDisplay(
     viewModel: AuthViewModel = hiltViewModel(),
@@ -205,65 +203,60 @@ fun TokenDisplay(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        viewModel.fetchToken()
-    }
-
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(80.dp)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (tokenState.isNullOrEmpty()) {
-            Text(
-                text = "Your Token:",
-                style = MaterialTheme.typography.titleMedium
-            )
+        // Display Token if available
+        Text(
+            text = "Your Token:",
+            style = MaterialTheme.typography.titleMedium
+        )
 
-            Card(
-                modifier = Modifier.fillMaxWidth()
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    SelectionContainer {
-                        Text(
-                            text = tokenState ?: "",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace
-                        )
-                    }
+                SelectionContainer {
+                    Text(
+                        text = tokenState ?: "No token available",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace
+                    )
+                }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                val clipboardManager = context.getSystemService(
-                                    Context.CLIPBOARD_SERVICE
-                                ) as ClipboardManager
+                Button(
+                    onClick = {
+                        scope.launch {
+                            val clipboardManager = context.getSystemService(
+                                Context.CLIPBOARD_SERVICE
+                            ) as ClipboardManager
 
-                                val clip = ClipData.newPlainText("token", tokenState)
-                                clipboardManager.setPrimaryClip(clip)
+                            val clip = ClipData.newPlainText("token", tokenState)
+                            clipboardManager.setPrimaryClip(clip)
 
-                                Toast.makeText(
-                                    context,
-                                    "Token copied to clipboard",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            Toast.makeText(
+                                context,
+                                "Token copied to clipboard",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-                    ) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Copy Token")
-                    }
+                    },
+                    enabled = !tokenState.isNullOrEmpty()  // Disable button if token is empty
+                ) {
+                    Text("Copy Token")
                 }
             }
         }
 
-        if (errorState.isNullOrEmpty()) {
+        // Display Error if available
+        errorState?.let {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -271,7 +264,7 @@ fun TokenDisplay(
                 )
             ) {
                 Text(
-                    text = errorState ?: "",
+                    text = it,
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.onErrorContainer
                 )
