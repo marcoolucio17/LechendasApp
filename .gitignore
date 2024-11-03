@@ -20,6 +20,8 @@
 /.idea/render.experimental.xml
 /.idea/runConfigurations.xml
 
+/app/google-services.json
+
 .DS_Store
 /build
 /captures

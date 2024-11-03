@@ -5,6 +5,9 @@ plugins {
     id("com.google.devtools.ksp")
     id("androidx.room")
     id("com.google.dagger.hilt.android")
+
+
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -92,4 +95,9 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.core.splashscreen)
+
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+
 }
