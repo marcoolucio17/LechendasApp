@@ -1,33 +1,25 @@
 package com.example.lechendasapp.views
 
 import android.content.Context
-import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.lechendasapp.R
-import com.example.lechendasapp.data.model.User
-import com.example.lechendasapp.data.repository.UserRepository
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
-import javax.inject.Inject
 
-class AuthenticationManager(val context: Context){
+class AuthenticationManager (
+    val context: Context
+)  {
     private val auth = Firebase.auth
 
     fun createAccountWithEmail(email: String, password: String): Flow<AuthResponse> = callbackFlow {
@@ -46,17 +38,14 @@ class AuthenticationManager(val context: Context){
     }
 
     fun loginWithEmail(email: String, password: String): Flow<AuthResponse> = callbackFlow{
-        auth.signInWithEmailAndPassword(email, password)
-
+        val listener = auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful){
                     trySend(AuthResponse.Success)
                 } else {
                     trySend(AuthResponse.Error(message = task.exception?.message ?: ""))
-
                 }
             }
-
         awaitClose()
     }
 

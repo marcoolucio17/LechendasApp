@@ -16,25 +16,30 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.InitialFooter
 import com.example.lechendasapp.utils.TopBar1
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 
 @Composable
 fun LoginScreen(
     onBack: () -> Unit,
     onLoginSuccess: () -> Unit,
-    viewModel: LoginViewModel = hiltViewModel<LoginViewModel>(),
+    //viewModel: LoginViewModel = hiltViewModel<LoginViewModel>(),
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -42,9 +47,9 @@ fun LoginScreen(
         bottomBar = { InitialFooter() },
     ) { innerPadding ->
         LoginBody(
-            loginUiState = viewModel.loginUiState.value,
-            onUserChange = viewModel::updateUiState,
-            onVerify = { viewModel.checkUserCredentials(onLoginSuccess) },
+//            loginUiState = viewModel.loginUiState.value,
+//            onUserChange = viewModel::updateUiState,
+//            onVerify = { viewModel.checkUserCredentials(onLoginSuccess) },
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -53,12 +58,12 @@ fun LoginScreen(
 
 @Composable
 fun LoginBody(
-    loginUiState: LoginUiState,
-    onUserChange: (UserCredentials) -> Unit,
-    onVerify: () -> Unit,
+//    loginUiState: LoginUiState,
+//    onUserChange: (UserCredentials) -> Unit,
+//    onVerify: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box (modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -66,25 +71,39 @@ fun LoginBody(
                 .fillMaxSize()
                 .padding(dimensionResource(R.dimen.padding_medium))
         ) {
-            LoginContent(loginUiState, onUserChange, onVerify)
+            LoginContent(
+//                loginUiState,
+//                onUserChange,
+//                onVerify
+            )
         }
     }
 }
 
 @Composable
 private fun LoginContent(
-    loginUiState: LoginUiState,
-    onUserChange: (UserCredentials) -> Unit,
-    onVerify: () -> Unit
+//    loginUiState: LoginUiState,
+//    onUserChange: (UserCredentials) -> Unit,
+//    onVerify: () -> Unit
 ) {
-    val userDetail: UserCredentials = loginUiState.userCredentials
+//    val userDetail: UserCredentials = loginUiState.userCredentials
+
+    val context = LocalContext.current
+
+    val authenticationManager = remember { AuthenticationManager(context) }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val userName = remember { mutableStateOf("") }
+    val userPass = remember { mutableStateOf("") }
+
     Text(
         text = stringResource(R.string.iniciar_sesion),
         style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
     )
     OutlinedTextField(
-        value = userDetail.email,
-        onValueChange = { onUserChange(userDetail.copy(email = it)) },
+        value = userName.value, // userDetail.email,
+        onValueChange = { userName.value = it }, // { onUserChange(userDetail.copy(email = it)) },
         label = { Text(text = "Email") },
         singleLine = true,
         modifier = Modifier
@@ -92,8 +111,10 @@ private fun LoginContent(
             .padding(dimensionResource(R.dimen.padding_extra_large))
     )
     TextField(
-        value = userDetail.password,
-        onValueChange = { onUserChange(userDetail.copy(password = it)) },
+        value = userPass.value, // userDetail.password,
+        onValueChange = {
+            userPass.value = it
+        }, // { onUserChange(userDetail.copy(password = it)) },
         label = { Text("Contraseña") },
         singleLine = true,
         modifier = Modifier
@@ -108,18 +129,47 @@ private fun LoginContent(
                 vertical = dimensionResource(R.dimen.padding_large)
             )
             .clickable {
-            //TODO: Ir a pantalla de recuperar contraseña
+                //TODO: Ir a pantalla de recuperar contraseña
             },
     )
     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_extra_large)))
     Button(
-        onClick = onVerify,
+        onClick = {
+            authenticationManager.loginWithEmail(
+                email = userName.value,
+                password = userPass.value
+            ).onEach { response ->
+                if (response is AuthResponse.Success) {
+                    //TODO: Ir a pantalla principal
+                }
+            }
+                .launchIn(coroutineScope)
+        }, //onVerify,
         modifier = Modifier
             .width(dimensionResource(R.dimen.button_width))
             .height(dimensionResource(R.dimen.button_height))
     ) {
         Text(
             text = stringResource(R.string.entrar),
+            style = MaterialTheme.typography.titleLarge
+        )
+    }
+    Button(
+        onClick = {
+            authenticationManager.signInWithGoogle().onEach {
+                response ->
+                if (response is AuthResponse.Success) {
+                    //TODO: Ir a pantalla principal
+                }
+            }
+                .launchIn(coroutineScope)
+        }, //onVerify,
+        modifier = Modifier
+            .width(dimensionResource(R.dimen.button_width))
+            .height(dimensionResource(R.dimen.button_height))
+    ) {
+        Text(
+            text = "GOOGLE",
             style = MaterialTheme.typography.titleLarge
         )
     }

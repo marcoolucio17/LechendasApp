@@ -12,7 +12,7 @@ plugins {
 
 android {
     namespace = "com.example.lechendasapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.lechendasapp"
