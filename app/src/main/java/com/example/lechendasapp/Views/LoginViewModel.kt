@@ -1,9 +1,12 @@
 package com.example.lechendasapp.views
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.lechendasapp.R
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -11,14 +14,27 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AuthenticationManager (
-    val context: Context
+
+@Singleton
+class AuthenticationManager @Inject constructor(
+    @ApplicationContext private val context: Context
 )  {
     private val auth = Firebase.auth
 
@@ -115,9 +131,83 @@ class AuthenticationManager (
         awaitClose()
     }
 
+    fun getCurrentUserToken(): Flow<AuthResponse> = callbackFlow {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            currentUser.getIdToken(true)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val token = task.result?.token
+                        if (token != null) {
+                            Log.d("AuthenticationManager", "Token: $token")
+                            trySend(AuthResponse.TokenSuccess(token))
+                        } else {
+                            trySend(AuthResponse.Error("Token is null"))
+                        }
+                    } else {
+                        trySend(AuthResponse.Error(task.exception?.message ?: "Failed to get token"))
+                    }
+                    close()
+                }
+        } else {
+            trySend(AuthResponse.Error("No user logged in"))
+            close()
+        }
+        awaitClose()
+    }
+
+    sealed interface AuthResponse {
+        data object Success : AuthResponse
+        data class TokenSuccess(val token: String) : AuthResponse
+        data class Error(val message: String) : AuthResponse
+    }
+
 }
 
-interface AuthResponse {
-    data object Success: AuthResponse
-    data class Error(val message: String): AuthResponse
+
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val authManager: AuthenticationManager
+) : ViewModel() {
+
+    private val _tokenState = MutableStateFlow<String?>(null)
+    val tokenState = _tokenState.asStateFlow()
+
+    private val _errorState = MutableStateFlow<String?>(null)
+    val errorState = _errorState.asStateFlow()
+
+    fun fetchToken() {
+        viewModelScope.launch {
+            authManager.getCurrentUserToken().collect { response ->
+                when (response) {
+                    is AuthenticationManager.AuthResponse.TokenSuccess -> {
+                        _tokenState.value = response.token
+                        _errorState.value = null
+                    }
+                    is AuthenticationManager.AuthResponse.Error -> {
+                        _errorState.value = response.message
+                        _tokenState.value = null
+                    }
+                    else -> {
+                        _errorState.value = "Unexpected response"
+                        _tokenState.value = null
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Module for Hilt DI
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideAuthenticationManager(
+        @ApplicationContext context: Context
+    ): AuthenticationManager {
+        return AuthenticationManager(context)
+    }
 }
