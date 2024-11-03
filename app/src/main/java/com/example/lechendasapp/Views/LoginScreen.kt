@@ -153,15 +153,16 @@ private fun LoginContent(
     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_extra_large)))
     Button(
         onClick = {
-            authenticationManager.loginWithEmail(
-                email = userName.value,
-                password = userPass.value
-            ).onEach { response ->
-                if (response is AuthResponse.Success) {
-                    //TODO: Ir a pantalla principal
-                }
-            }
-                .launchIn(coroutineScope)
+            viewModel.fetchToken()
+//            authenticationManager.loginWithEmail(
+//                email = userName.value,
+//                password = userPass.value
+//            ).onEach { response ->
+//                if (response is AuthResponse.Success) {
+//                    //TODO: Ir a pantalla principal
+//                }
+//            }
+//                .launchIn(coroutineScope)
         }, //onVerify,
         modifier = Modifier
             .width(dimensionResource(R.dimen.button_width))
@@ -211,6 +212,7 @@ fun TokenDisplay(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .height(80.dp)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
