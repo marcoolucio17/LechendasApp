@@ -106,15 +106,13 @@ class AuthenticationManager (
                     } catch (e: GoogleIdTokenParsingException){
                         trySend(AuthResponse.Error(message = e.message ?: ""))
                     }
-
-                    awaitClose()
                 }
             }
 
         } catch (e: Exception){
             trySend(AuthResponse.Error(message = e.message ?: ""))
         }
-
+        awaitClose()
     }
 
 }
