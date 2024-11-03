@@ -214,7 +214,7 @@ fun TokenDisplay(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (!tokenState.isNullOrEmpty()) {
+        if (tokenState.isNullOrEmpty()) {
             Text(
                 text = "Your Token:",
                 style = MaterialTheme.typography.titleMedium
@@ -261,7 +261,7 @@ fun TokenDisplay(
             }
         }
 
-        if (!errorState.isNullOrEmpty()) {
+        if (errorState.isNullOrEmpty()) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
