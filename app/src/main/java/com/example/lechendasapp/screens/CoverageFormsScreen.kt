@@ -3,7 +3,6 @@ package com.example.lechendasapp.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +29,7 @@ import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
+import com.example.lechendasapp.utils.RadioButtonWithText
 import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 
@@ -184,7 +184,7 @@ fun CoverageFormsContent(
             ) {
                 DisturbanceOptions.entries.forEach { disturbanceOption ->
                     RadioButtonWithText(
-                        text = disturbanceOption.name,
+                        text = disturbanceOption.displayName,
                         isSelected = selectedDisturbance[disturbanceOption] == disturbanceOption.name,
                         onClick = { /*TODO*/ }
                     )
@@ -278,7 +278,7 @@ enum class DisturbanceOptions(val displayName: String) {
     INUNDATION("Inundación"),
     BURNING("Quema"),
     CHOP("Tala"),
-    EROTION("Erosión"),
+    EROSION("Erosión"),
     MINING("Minería"),
     FREEWAY("Carretera"),
     AQUATIC("Más plantas acuáticas"),

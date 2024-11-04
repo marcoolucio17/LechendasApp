@@ -1,6 +1,7 @@
 package com.example.lechendasapp.viewmodels
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,57 +12,33 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class FormsUiState(
-    val form: Form = Form()
-)
-
-data class Form(
-    val id: Long = 0,
-    val userId: Long = 0,
-
-    val dateMillis: Long = 0,
-    val gpsCoordinates: String = "",
-    val location: String = "",
-
     val climateType: String = "",
     val seasons: String = "",
-    val logType: String = "",
-
-    val observations: String? = null,
     val zone: String = "",
+    val logType: String = "",
 )
+
 
 fun MonitorLog.toFormsUiState(): FormsUiState = FormsUiState(
-    form = this.toForm()
-)
-
-fun MonitorLog.toForm(): Form = Form(
-    id = this.id,
-    userId = this.userId,
-
-    dateMillis = this.dateMillis,
-    gpsCoordinates = this.gpsCoordinates,
-    location = this.location,
-
     climateType = this.climateType,
     seasons = this.seasons,
-    logType = this.logType,
-
     zone = this.zone,
+    logType = this.logType,
 )
 
 fun FormsUiState.toMonitorLog(): MonitorLog = MonitorLog(
-    id = this.form.id,
-    userId = this.form.userId,
+    id = 0, //TODO: como es automático tal vez se pude dejar defautl 0 y que se encargue el DAO
 
-    dateMillis = this.form.dateMillis,
-    gpsCoordinates = this.form.gpsCoordinates,
-    location = this.form.location,
+    //TODO: get this values from the user or app
+    userId = 0,
+    dateMillis = 1,
+    gpsCoordinates = "g_",
+    location = "l_",
 
-    climateType = this.form.climateType,
-    seasons = this.form.seasons,
-    logType = this.form.logType,
-
-    zone = this.form.zone,
+    climateType = this.climateType,
+    seasons = this.seasons,
+    zone = this.zone,
+    logType = this.logType,
 )
 
 @HiltViewModel
@@ -71,22 +48,23 @@ class FormularioViewModel @Inject constructor(
     private val _formsUiState = mutableStateOf(FormsUiState())
     val formsUiState: State<FormsUiState> = _formsUiState
 
-    fun updateUiState(newForm: Form) {
-        _formsUiState.value = _formsUiState.value.copy(form = newForm)
+    private val _monitorLogId = mutableLongStateOf(0L)
+    val monitorLogId: State<Long> = _monitorLogId
+
+    fun updateUiState(newUi: FormsUiState) {
+        _formsUiState.value = newUi
     }
 
-    fun addNewForm() {
+    fun addNewForm(onFormAdded: (Long) -> Unit) {
         viewModelScope.launch {
-            //get last form id
-            monitorLogRepository.getAllMonitorLogs()
-
-            // update form id
-            _formsUiState.value = _formsUiState.value.copy(form = _formsUiState.value.form.copy(id = _formsUiState.value.form.id + 1))
-
-
             val newForm = _formsUiState.value.toMonitorLog()
-            monitorLogRepository.addMonitorLog(newForm)
 
+            //TODO: VALIDATE NOT BLANK FIELDS
+
+            val newId = monitorLogRepository.addMonitorLog(newForm)
+            _monitorLogId.longValue = newId
+
+            onFormAdded(newId)
         }
     }
 }

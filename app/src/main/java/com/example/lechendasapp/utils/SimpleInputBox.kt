@@ -10,21 +10,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.example.lechendasapp.R
 
 @Composable
 fun SimpleInputBox(
-    labelText: String,
+    labelText: String = "",
+    placeholder: String = "",
+    value: String = "",
+    onValueChange: (String) -> Unit = {},
     singleLine: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    var text by remember { mutableStateOf("") }
     OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
+        value = value,
+        onValueChange = { onValueChange },
         label = { Text(labelText) },
+        placeholder = { Text(placeholder, color = Color.Gray) },
         singleLine = singleLine,
         modifier = modifier
             .width(450.dp)

@@ -25,7 +25,7 @@ interface MonitorLogDao {
     suspend fun getById(id: Long): LocalMonitorLog?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(monitorLog: LocalMonitorLog)
+    suspend fun insert(monitorLog: LocalMonitorLog): Long
 
     @Update
     suspend fun update(monitorLog: LocalMonitorLog)

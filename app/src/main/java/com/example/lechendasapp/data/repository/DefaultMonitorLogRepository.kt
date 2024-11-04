@@ -27,8 +27,8 @@ class DefaultMonitorLogRepository @Inject constructor(
         return localDataSource.getById(monitorLogId)?.toExternal()
     }
 
-    override suspend fun addMonitorLog(monitorLog: MonitorLog) {
-        localDataSource.insert(monitorLog.toLocal())
+    override suspend fun addMonitorLog(monitorLog: MonitorLog): Long {
+        return localDataSource.insert(monitorLog.toLocal()).toLong()
     }
 
     override suspend fun deleteMonitorLog(monitorLog: MonitorLog) {

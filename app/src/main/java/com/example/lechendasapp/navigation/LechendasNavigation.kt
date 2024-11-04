@@ -1,8 +1,10 @@
 package com.example.lechendasapp.navigation
 
 import androidx.navigation.NavController
+import com.example.lechendasapp.navigation.LechendasDestinationsArgs.MONITOR_LOG_ID_ARG
 import com.example.lechendasapp.navigation.LechendasScreens.CLIMATE_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.CONFIGURATION_SCREEN
+import com.example.lechendasapp.navigation.LechendasScreens.COVERAGE_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.FORGOT_PASSWORD_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.FORMULARY_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.HOME_SCREEN
@@ -10,6 +12,8 @@ import com.example.lechendasapp.navigation.LechendasScreens.INTRO_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.LOGIN_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.NEW_PASSWORD_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.SEARCH_SCREEN
+import com.example.lechendasapp.navigation.LechendasScreens.TRAPS_SCREEN
+import com.example.lechendasapp.navigation.LechendasScreens.VEGETATION_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VERIFY_SCREEN
 
 /* screen used in the app */
@@ -24,11 +28,16 @@ private object LechendasScreens {
     const val FORMULARY_SCREEN = "formulary"
     const val CONFIGURATION_SCREEN = "configuration"
     const val CLIMATE_SCREEN = "climate"
+    const val TRAPS_SCREEN = "traps"
+    const val COVERAGE_SCREEN = "coverage"
+    const val VEGETATION_SCREEN = "vegetation"
 }
 
 /*For the future: arguments for the routes */
 @Suppress("UNUSED")
-object LechendasDestinationsArgs
+object LechendasDestinationsArgs {
+    const val MONITOR_LOG_ID_ARG = "monitorLogId"
+}
 
 /*Routes for the app (we can add arguments here if we need)
 * as shown here:
@@ -44,7 +53,10 @@ object LechendasDestinations {
     const val SEARCH_ROUTE = SEARCH_SCREEN
     const val FORMULARY_ROUTE = FORMULARY_SCREEN
     const val CONFIGURATION_ROUTE = CONFIGURATION_SCREEN
-    const val CLIMATE_ROUTE = CLIMATE_SCREEN
+    const val CLIMATE_ROUTE = "$CLIMATE_SCREEN/{$MONITOR_LOG_ID_ARG}"
+    const val TRAPS_ROUTE = TRAPS_SCREEN
+    const val COVERAGE_ROUTE = COVERAGE_SCREEN
+    const val VEGETATION_ROUTE = VEGETATION_SCREEN
 }
 
 class LechendasNavigationActions(private val navController: NavController) {
@@ -84,8 +96,19 @@ class LechendasNavigationActions(private val navController: NavController) {
         navController.navigate(LechendasDestinations.CONFIGURATION_ROUTE)
     }
 
-    fun navigateToClimate() {
-        navController.navigate(LechendasDestinations.CLIMATE_ROUTE)
+    fun navigateToClimate(monitorLogId: Long) {
+        navController.navigate("$CLIMATE_SCREEN/$monitorLogId")
+    }
+
+    fun navigateToTraps() {
+        navController.navigate(LechendasDestinations.TRAPS_ROUTE)
+    }
+    fun navigateToCoverage() {
+        navController.navigate(LechendasDestinations.COVERAGE_ROUTE)
+    }
+
+    fun navigateToVegetation() {
+        navController.navigate(LechendasDestinations.VEGETATION_ROUTE)
     }
 }
 

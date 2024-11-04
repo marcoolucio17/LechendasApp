@@ -13,7 +13,7 @@ interface MonitorLogRepository {
 
     suspend fun getMonitorLogById(monitorLogId: Long): MonitorLog?
 
-    suspend fun addMonitorLog(monitorLog: MonitorLog)
+    suspend fun addMonitorLog(monitorLog: MonitorLog): Long
 
     suspend fun deleteMonitorLog(monitorLog: MonitorLog)
 }

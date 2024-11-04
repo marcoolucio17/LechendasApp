@@ -33,7 +33,7 @@ fun TopBar3(
         actions = { // Add the actions parameter for additional icons
             IconButton(onClick = {/*TODO*/}) { // Set up onClick for the menu icon
                 Icon(
-                    painter = painterResource(id = R.drawable.more_vert), // Use a three-dot icon resource
+                    painter = painterResource(R.drawable.more_vert),
                     contentDescription = "More options"
                 )
             }

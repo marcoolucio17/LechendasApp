@@ -7,8 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,18 +15,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
 import com.example.lechendasapp.data.model.MonitorLog
 import com.example.lechendasapp.data.repository.MonitorLogRepository
+import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
+import com.example.lechendasapp.utils.RadioButtonWithText
 import com.example.lechendasapp.utils.TopBar3
-import com.example.lechendasapp.viewmodels.Form
+import com.example.lechendasapp.viewmodels.FormsUiState
 import com.example.lechendasapp.viewmodels.FormularioViewModel
 import kotlinx.coroutines.flow.Flow
 
@@ -45,10 +45,10 @@ fun FormularyInitialScreen(
     //onTransectClick: () -> Unit,
     //onConteoClick: () -> Unit,
     //onFreeClick: () -> Unit,
-    //onCoverageClick: () -> Unit,
-    //onVegetationClick: () -> Unit,
-    //onTrapClick: () -> Unit,
-    onClimateClick: () -> Unit,
+    onVegetationClick: () -> Unit,
+    onClimateClick: (Long) -> Unit,
+    onCoverageClick: () -> Unit,
+    onTrapClick: () -> Unit,
 
     viewModel: FormularioViewModel = hiltViewModel()
 ) {
@@ -65,194 +65,133 @@ fun FormularyInitialScreen(
     ) { innerPadding ->
         FormularioContent(
             onClimateClick = onClimateClick,
+            //onTransectClick = onTransectClick,
+            //onConteoClick = onConteoClick,
+            //onFreeClick = onFreeClick,
+            onCoverageClick = onCoverageClick,
+            onVegetationClick = onVegetationClick,
+            onTrapClick = onTrapClick,
             viewModel = viewModel,
             modifier = Modifier.padding(innerPadding)
         )
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FormularioContent(
-    onClimateClick: () -> Unit,
+    onClimateClick: (Long) -> Unit,
+    //onTransectClick: () -> Unit,
+    //onConteoClick: () -> Unit,
+    //onFreeClick: () -> Unit,
+    onCoverageClick: () -> Unit,
+    onVegetationClick: () -> Unit,
+    onTrapClick: () -> Unit,
     viewModel: FormularioViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    val uiState = viewModel.formsUiState.value // Collect UI state as a State
+    val uiState by viewModel.formsUiState
+
+    val monitorLogId by viewModel.monitorLogId
 
     val context = LocalContext.current
 
     LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(32.dp),
+        contentPadding = PaddingValues(16.dp),
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFE6F0D3))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            CustomTextField(
-                value = uiState.form.observations.orEmpty(),
-                onValueChange = { viewModel.updateUiState(uiState.form.copy(observations = it)) },
-                placeholder = "Observación"
+            Text(
+                "Estado del Tiempo:",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-        }
-        item {
-            CustomTextField(
-                value = uiState.form.id.toString(),
-                onValueChange = { date ->
-                    viewModel.updateUiState(
-                        uiState.form.copy(
-                            id = date.toLongOrNull() ?: 200L
-                        )
-                    )
-                },
-                placeholder = "0"
-            )
-        }
-        item {
-            CustomTextField(
-                value = uiState.form.gpsCoordinates,
-                onValueChange = { viewModel.updateUiState(uiState.form.copy(gpsCoordinates = it)) },
-                placeholder = "Localidad"
-            )
-        }
-        item {
-            Text("Estado del Tiempo:", fontWeight = FontWeight.Bold)
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 WeatherState.entries.forEach { weatherState ->
                     WeatherIcon(
                         iconRes = R.drawable.capybara,
-                        isSelected = uiState.form.climateType == weatherState.name,
-                        onClick = { viewModel.updateUiState(uiState.form.copy(climateType = weatherState.name)) }
+                        isSelected = uiState.climateType == weatherState.name,
+                        onClick = { viewModel.updateUiState(uiState.copy(climateType = weatherState.name)) }
                     )
+
                 }
             }
+
         }
         item {
-            Text("Época:", fontWeight = FontWeight.Bold)
+            Text("Época:", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Epoca.entries.forEach { epoca ->
                     RadioButtonWithText(
                         text = epoca.name,
-                        isSelected = uiState.form.seasons == epoca.name,
-                        onClick = { viewModel.updateUiState(uiState.form.copy(seasons = epoca.name)) }
+                        isSelected = uiState.seasons == epoca.name,
+                        onClick = { viewModel.updateUiState(uiState.copy(seasons = epoca.name)) }
                     )
                 }
             }
         }
         item {
-            Text("Tipo de Registro", fontWeight = FontWeight.Bold)
+            Text("Zona:", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Zone.entries.forEach { zone ->
+                    RadioButtonWithText(
+                        text = zone.displayName,
+                        isSelected = uiState.zone == zone.displayName,
+                        onClick = {
+                            viewModel.updateUiState(
+                                uiState.copy(
+                                    zone = zone.displayName
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+        }
+        item {
+            Text(
+                "Tipo de Registro",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 TipoRegistro.entries.forEach { tipo ->
                     RadioButtonWithText(
                         text = tipo.displayName,
-                        isSelected = uiState.form.logType == tipo.displayName,
-                        onClick = { viewModel.updateUiState(uiState.form.copy(logType = tipo.displayName)) }
+                        isSelected = uiState.logType == tipo.displayName,
+                        onClick = { viewModel.updateUiState(uiState.copy(logType = tipo.displayName)) }
                     )
                 }
             }
         }
-        item {
+        item(key = "boton") {
             Button(
                 onClick = {
                     Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
-                    viewModel.addNewForm() // Save form to the database
-                    //move to next
-                    when (uiState.form.logType) {
-                        TipoRegistro.TRANSECTOS.displayName -> {}
-                        TipoRegistro.PUNTO_CONTEO.displayName -> {}
-                        TipoRegistro.BUSQUEDA_LIBRE.displayName -> {}
-                        TipoRegistro.VALIDACION_COBERTURA.displayName -> {}
-                        TipoRegistro.PARCELA_VEGETACION.displayName -> {}
-                        TipoRegistro.CAMARAS_TRAMPA.displayName -> {}
-                        TipoRegistro.VARIABLES_CLIMATICAS.displayName -> onClimateClick()
+
+                    viewModel.addNewForm { newId ->
+                        when (uiState.logType) {
+                            TipoRegistro.TRANSECTOS.displayName -> {}
+                            TipoRegistro.PUNTO_CONTEO.displayName -> {}
+                            TipoRegistro.BUSQUEDA_LIBRE.displayName -> {}
+                            TipoRegistro.VALIDACION_COBERTURA.displayName -> onCoverageClick()
+                            TipoRegistro.PARCELA_VEGETACION.displayName -> onVegetationClick()
+                            TipoRegistro.CAMARAS_TRAMPA.displayName -> onTrapClick()
+                            TipoRegistro.VARIABLES_CLIMATICAS.displayName -> onClimateClick(newId)
+                        }
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .width(dimensionResource(R.dimen.button_width))
+                    .height(dimensionResource(R.dimen.button_height))
             ) {
                 Text("SIGUIENTE")
             }
         }
     }
-}
-
-
-@Composable
-fun CustomBoxFormLayout(
-    modifier: Modifier = Modifier,
-) {
-    Box(modifier = modifier.height(80.dp)) {
-        Image(
-            painter = painterResource(id = R.drawable.semicircle),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 10.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.capybara),
-                contentDescription = null,
-                modifier = Modifier.size(40.dp)
-            )
-
-            Image(
-                painter = painterResource(id = R.drawable.profilepicture),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "Formulario Inicial",
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-                .offset(y = 20.dp)
-                .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
-                .align(Alignment.BottomCenter),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.AddCircle,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-}
-
-// Componentes personalizados para el formulario
-@Composable
-fun CustomTextField(value: String, onValueChange: (String) -> Unit, placeholder: String) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        placeholder = { Text(placeholder, color = Color.Gray) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White, shape = MaterialTheme.shapes.small)
-            .padding(8.dp)
-    )
 }
 
 @Composable
@@ -270,25 +209,14 @@ fun WeatherIcon(iconRes: Int, isSelected: Boolean, onClick: () -> Unit) {
     )
 }
 
-@Composable
-fun RadioButtonWithText(
-    text: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.clickable { onClick() }
-    ) {
-        RadioButton(selected = isSelected, onClick = onClick)
-        Text(text = text)
-    }
-}
-
 // Enums para los diferentes tipos de opciones
+@Immutable
 enum class WeatherState { SUNNY, CLOUDY, RAINY }
+
+@Immutable
 enum class Epoca { VERANO, INVIERNO }
+
+@Immutable
 enum class TipoRegistro(val displayName: String) {
     TRANSECTOS("Fauna en Transectos"),
     PUNTO_CONTEO("Fauna en Punto de Conteo"),
@@ -299,7 +227,15 @@ enum class TipoRegistro(val displayName: String) {
     VARIABLES_CLIMATICAS("Variables Climáticas")
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Immutable
+enum class Zone(val displayName: String) {
+    A("Bosque"),
+    B("Arreglo Agroforestal"),
+    C("Cultivos Transitorios"),
+    D("Cultivos Permanentes")
+}
+
+@ScreenPreviews
 @Composable
 fun FormularyInitialScreenPreview() {
     LechendasAppTheme {
@@ -310,6 +246,9 @@ fun FormularyInitialScreenPreview() {
             onSearchClick = {},
             onSettingsClick = {},
             onClimateClick = {},
+            onCoverageClick = {},
+            onTrapClick = {},
+            onVegetationClick = {},
             viewModel = rememberPreviewFormularioViewModel()
         )
     }
@@ -332,7 +271,7 @@ class MockMonitorLogRepository2 : MonitorLogRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun addMonitorLog(monitorLog: MonitorLog) {
+    override suspend fun addMonitorLog(monitorLog: MonitorLog) : Long {
         TODO("Not yet implemented")
     }
 
@@ -349,13 +288,11 @@ fun rememberPreviewFormularioViewModel(): FormularioViewModel {
         FormularioViewModel(mockMonitorLogRepository).apply {
             // Initialize with sample data for the preview
             updateUiState(
-                Form(
-                    id = 1,
-                    gpsCoordinates = "15",
+                FormsUiState(
                     climateType = "SUNNY",
                     seasons = "VERANO",
                     logType = "Fauna en Transectos",
-                    observations = "Observación"
+                    zone = "Bosque"
                 )
             )
         }

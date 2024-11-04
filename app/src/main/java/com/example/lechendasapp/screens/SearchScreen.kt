@@ -242,7 +242,7 @@ class MockMonitorLogRepository : MonitorLogRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun addMonitorLog(monitorLog: MonitorLog) {
+    override suspend fun addMonitorLog(monitorLog: MonitorLog) : Long {
         TODO("Not yet implemented")
     }
 
