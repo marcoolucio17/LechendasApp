@@ -15,35 +15,35 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
 data class ClimateUiState(
-    val rainfall: Int = 0,
-    val maxTemp: Int = 0,
-    val minTemp: Int = 0,
-    val maxHumidity: Int = 0,
-    val minHumidity: Int = 0,
-    val ravineLevel: Int = 0,
+    val rainfall: String = "",
+    val maxTemp: String = "",
+    val minTemp: String = "",
+    val maxHumidity: String = "",
+    val minHumidity: String = "",
+    val ravineLevel: String = "",
     val observations: String = ""
 )
 
 fun Climate.toClimateUiState(): ClimateUiState = ClimateUiState(
-    rainfall = this.rainfall,
-    maxTemp = this.maxTemp,
-    minTemp = this.minTemp,
-    maxHumidity = this.maxHumidity,
-    minHumidity = this.minHumidity,
-    ravineLevel = this.ravineLevel,
+    rainfall = this.rainfall.toString(),
+    maxTemp = this.maxTemp.toString(),
+    minTemp = this.minTemp.toString(),
+    maxHumidity = this.maxHumidity.toString(),
+    minHumidity = this.minHumidity.toString(),
+    ravineLevel = this.ravineLevel.toString(),
 )
 
 fun ClimateUiState.toClimateLog(): Climate = Climate(
     id = 0, // This can be default or handled by DAO
 
-    monitorLogId = 0, //TODO: should be same as previous
+    monitorLogId = 0,
 
-    rainfall = this.rainfall,
-    maxTemp = this.maxTemp,
-    minTemp = this.minTemp,
-    maxHumidity = this.maxHumidity,
-    minHumidity = this.minHumidity,
-    ravineLevel = this.ravineLevel,
+    rainfall = this.rainfall.toInt(),
+    maxTemp = this.maxTemp.toInt(),
+    minTemp = this.minTemp.toInt(),
+    maxHumidity = this.maxHumidity.toInt(),
+    minHumidity = this.minHumidity.toInt(),
+    ravineLevel = this.ravineLevel.toInt(),
     observations = this.observations,
 )
 
@@ -51,26 +51,26 @@ fun ClimateUiState.toClimateLog(): Climate = Climate(
 class ClimateViewModel @Inject constructor(
     private val climateRepository: ClimateRepository
 ) : ViewModel() {
-    private var _climateUiState by mutableStateOf(ClimateUiState())
-    val climateUiState: ClimateUiState = _climateUiState
+    private val _climateUiState = mutableStateOf(ClimateUiState())
+    val climateUiState: State<ClimateUiState> = _climateUiState
 
-    private var _monitorLogId by mutableLongStateOf(0L)
-    val monitorLogId: Long = _monitorLogId
+    private val _monitorLogId = mutableLongStateOf(0L)
+    val monitorLogId: State<Long> = _monitorLogId
 
     fun updateUiState(newUi: ClimateUiState) {
-        _climateUiState = newUi
+        _climateUiState.value = newUi
     }
 
     fun setMonitorLogId(id: Long) {
-        _monitorLogId = id
+        _monitorLogId.longValue = id
     }
 
     fun addNewLog() {
         viewModelScope.launch {
-            val newLog = _climateUiState.toClimateLog()
+            val newLog = _climateUiState.value.toClimateLog()
 
             //update id values
-            val new = newLog.copy(monitorLogId = _monitorLogId)
+            val new = newLog.copy(monitorLogId = _monitorLogId.value)
 
             // TODO: VALIDATE NOT BLANK FIELDS
             Log.d("ClimateViewModel", "Adding new log: $new")

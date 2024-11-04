@@ -2,6 +2,7 @@ package com.example.lechendasapp.utils
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,14 +23,19 @@ fun SimpleInputBox(
     value: String = "",
     onValueChange: (String) -> Unit = {},
     singleLine: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
         value = value,
-        onValueChange = { onValueChange },
+        onValueChange = onValueChange,
+
         label = { Text(labelText) },
         placeholder = { Text(placeholder, color = Color.Gray) },
+
+        keyboardOptions = keyboardOptions,
         singleLine = singleLine,
+
         modifier = modifier
             .width(450.dp)
     )

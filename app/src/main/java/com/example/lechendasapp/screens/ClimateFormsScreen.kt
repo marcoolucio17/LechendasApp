@@ -8,15 +8,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
@@ -25,9 +27,8 @@ import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
 import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
+import com.example.lechendasapp.viewmodels.ClimateUiState
 import com.example.lechendasapp.viewmodels.ClimateViewModel
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 
 @Composable
@@ -54,7 +55,9 @@ fun ClimateScreen(
         }
     ) { innerPadding ->
         ClimateContent(
-            viewModel = viewModel,
+            climateUiState = viewModel.climateUiState.value,
+            updateUiState = viewModel::updateUiState,
+            addNewLog = viewModel::addNewLog,
             modifier = modifier.padding(innerPadding)
         )
     }
@@ -62,11 +65,11 @@ fun ClimateScreen(
 
 @Composable
 fun ClimateContent(
-    viewModel: ClimateViewModel = hiltViewModel(),
+    climateUiState: ClimateUiState,
+    addNewLog: () -> Unit,
+    updateUiState: (ClimateUiState) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val climateUiState = viewModel.climateUiState
-
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(36.dp),
@@ -78,78 +81,102 @@ fun ClimateContent(
             SimpleInputBox(
                 labelText = "Pluviosidad (mm)",
                 value = climateUiState.rainfall.toString(),
-                onValueChange = { newValue ->
-                    viewModel.updateUiState(
+                onValueChange = {
+                    updateUiState(
                         climateUiState.copy(
-                            rainfall = newValue.toIntOrNull() ?: 0
+                            rainfall = it
                         )
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Temperatura máxima",
                 value = climateUiState.maxTemp.toString(),
-                onValueChange = { newValue ->
-                    viewModel.updateUiState(
+                onValueChange = {
+                    updateUiState(
                         climateUiState.copy(
-                            maxTemp = newValue.toIntOrNull() ?: 0
+                            maxTemp = it
                         )
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Temperatura mínima",
                 value = climateUiState.minTemp.toString(),
-                onValueChange = { newValue ->
-                    viewModel.updateUiState(
+                onValueChange = {
+                    updateUiState(
                         climateUiState.copy(
-                            minTemp = newValue.toIntOrNull() ?: 0
+                            minTemp = it
                         )
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Húmedad máxima",
                 value = climateUiState.maxHumidity.toString(),
-                onValueChange = { newValue ->
-                    viewModel.updateUiState(
+                onValueChange = {
+                    updateUiState(
                         climateUiState.copy(
-                            maxHumidity = newValue.toIntOrNull() ?: 0
+                            maxHumidity = it
                         )
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Húmedad mínima",
                 value = climateUiState.minHumidity.toString(),
-                onValueChange = { newValue ->
-                    viewModel.updateUiState(
+                onValueChange = {
+                    updateUiState(
                         climateUiState.copy(
-                            minHumidity = newValue.toIntOrNull() ?: 0
+                            minHumidity = it
                         )
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Nivel de quebrada (mt)",
                 value = climateUiState.ravineLevel.toString(),
-                onValueChange = { newValue ->
-                    viewModel.updateUiState(
+                onValueChange = {
+                    updateUiState(
                         climateUiState.copy(
-                            ravineLevel = newValue.toIntOrNull() ?: 0
+                            ravineLevel = it
                         )
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
@@ -190,7 +217,7 @@ fun ClimateContent(
                 labelText = "Observaciones",
                 value = climateUiState.observations,
                 onValueChange = { newValue ->
-                    viewModel.updateUiState(climateUiState.copy(observations = newValue))
+                    updateUiState(climateUiState.copy(observations = newValue))
                 },
                 singleLine = false,
                 modifier = Modifier.height(150.dp)
@@ -198,7 +225,7 @@ fun ClimateContent(
         }
         item {
             Button(
-                onClick = { viewModel.addNewLog() },
+                onClick = { addNewLog() },
                 modifier = Modifier
                     .height(dimensionResource(R.dimen.small_button_height))
             ) {
