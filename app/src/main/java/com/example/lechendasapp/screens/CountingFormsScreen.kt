@@ -6,12 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,8 +22,8 @@ import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 
 @Composable
-fun TransectoFormScreen(
-    currentRoute: String = "transecto",
+fun CountingFormsScreen(
+    currentRoute: String = "counting",
     onBack: () -> Unit,
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
@@ -36,7 +31,7 @@ fun TransectoFormScreen(
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
-        topBar = { TopBar3(onBack = onBack, title = "Formulario") },
+        topBar = { TopBar3(onBack = onBack, title = "Formulario de Conteo") },
         bottomBar = {
             BottomNavBar(
                 currentRoute = currentRoute,
@@ -46,18 +41,19 @@ fun TransectoFormScreen(
             )
         }
     ) { innerPadding ->
-        TransectoFormContent(
+        CountingFormsContent(
             modifier = modifier.padding(innerPadding)
         )
     }
 }
 
 @Composable
-fun TransectoFormContent(
+fun CountingFormsContent(
     modifier: Modifier = Modifier
 ) {
     val (selectedAnimal, setSelectedAnimal) = remember { mutableStateOf<AnimalType?>(null) }
     val (selectedObservation, setSelectedObservation) = remember { mutableStateOf<ObservationType?>(ObservationType.VIO) }
+    val (selectedObservationHeight, setSelectedObservationHeight) = remember { mutableStateOf<ObservationHeight?>(ObservationHeight.BAJA) }
     val evidenceFiles = remember { mutableStateListOf<String>() }
 
     LazyColumn(
@@ -67,10 +63,6 @@ fun TransectoFormContent(
             .fillMaxSize()
             .padding(16.dp),
     ) {
-        item {
-            SimpleInputBox(labelText = "Número de Transecto")
-        }
-
         item {
             Text("Tipo de Animal", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
 
@@ -83,7 +75,7 @@ fun TransectoFormContent(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
                     AnimalType.values().take(3).forEach { animal ->
-                        AnimalOption(animal, selectedAnimal, setSelectedAnimal)
+                        AnimalOptionCounting(animal, selectedAnimal, setSelectedAnimal)
                     }
                 }
 
@@ -94,7 +86,7 @@ fun TransectoFormContent(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
                     AnimalType.values().drop(3).forEach { animal ->
-                        AnimalOption(animal, selectedAnimal, setSelectedAnimal)
+                        AnimalOptionCounting(animal, selectedAnimal, setSelectedAnimal)
                     }
                 }
             }
@@ -123,6 +115,23 @@ fun TransectoFormContent(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(observation.displayName)
+                    }
+                }
+            }
+        }
+
+        // Nueva sección de Altura de Observación
+        item {
+            Text("Altura de Observación", fontWeight = FontWeight.Bold)
+            Column {
+                ObservationHeight.values().forEach { height ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = selectedObservationHeight == height,
+                            onClick = { setSelectedObservationHeight(height) }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(height.displayName)
                     }
                 }
             }
@@ -164,14 +173,14 @@ fun TransectoFormContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
-                    onClick = { /* Acción para atrás */ }, //TODO
+                    onClick = { /* Acción para atrás */ },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(Color(0xFF4CAF50))
                 ) {
                     Text("Atrás", color = Color.White)
                 }
                 Button(
-                    onClick = { /* Acción para enviar */ }, //TODO: Implementar
+                    onClick = { /* Acción para enviar */ },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(Color(0xFF4CAF50))
                 ) {
@@ -183,7 +192,7 @@ fun TransectoFormContent(
 }
 
 @Composable
-fun AnimalOption(
+fun AnimalOptionCounting(
     animal: AnimalType,
     selectedAnimal: AnimalType?,
     setSelectedAnimal: (AnimalType) -> Unit
@@ -209,28 +218,18 @@ fun AnimalOption(
     }
 }
 
-
-enum class AnimalType(val displayName: String, val iconRes: Int) {
-    MAMIFERO("Mamífero", R.drawable.capybara), // TODO: Cambiar icono placeholder
-    AVE("Ave", R.drawable.capybara),
-    REPTIL("Reptil", R.drawable.capybara),
-    ANFIBIO("Anfibio", R.drawable.capybara),
-    INSECTO("Insecto", R.drawable.capybara)
-}
-
-enum class ObservationType(val displayName: String) {
-    VIO("La Vió"),
-    HUELLA("Huella"),
-    RASTRO("Rastro"),
-    CACERIA("Cacería"),
-    LE_DJERON("Le Dijeron")
+// Nueva enumeración para la altura de observación
+enum class ObservationHeight(val displayName: String) {
+    BAJA("Baja <1mt"),
+    MEDIA("Media 1-3mt"),
+    ALTA("Alta >3mt")
 }
 
 @ScreenPreviews
 @Composable
-fun TransectoFormScreenPreview() {
+fun CountingFormScreenPreview() {
     LechendasAppTheme {
-        TransectoFormScreen(
+        CountingFormsScreen(
             onBack = {},
             onMenuClick = {},
             onSearchClick = {},
