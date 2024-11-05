@@ -24,6 +24,7 @@ import com.example.lechendasapp.navigation.LechendasDestinations.VEGETATION_ROUT
 import com.example.lechendasapp.navigation.LechendasDestinations.VERIFY_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.COUNTING_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinationsArgs.MONITOR_LOG_ID_ARG
+import com.example.lechendasapp.navigation.LechendasDestinations.EDIT_PROFILE_ROUTE
 import com.example.lechendasapp.screens.ClimateScreen
 import com.example.lechendasapp.screens.ConfigurationScreen
 import com.example.lechendasapp.screens.CoverageFormsScreen
@@ -38,6 +39,7 @@ import com.example.lechendasapp.screens.TransectFormsScreen
 import com.example.lechendasapp.screens.TrapFormsScreen
 import com.example.lechendasapp.screens.VegetationFormsScreen
 import com.example.lechendasapp.screens.CountingFormsScreen
+import com.example.lechendasapp.screens.EditProfileScreen
 import com.example.lechendasapp.screens.VerifyUserScreen
 
 
@@ -120,7 +122,9 @@ fun LechendasNavGraph(
                 currentRoute = CONFIGURATION_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToConfiguration() }
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                onEditProfile = { navActions.navigateToEditProfile() },
+                onLogoutConfirmed = { navActions.navigateToLogin() }
             )
         }
         composable(route = CLIMATE_ROUTE) { backStackEntry ->
@@ -183,5 +187,12 @@ fun LechendasNavGraph(
                 monitorLogId = monitorLogId.toLong()
             )
         }
+
+        composable(route = EDIT_PROFILE_ROUTE) {
+            EditProfileScreen(
+                onBack = { navController.navigateUp() }
+            )
+        }
+
     }
 }
