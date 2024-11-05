@@ -29,6 +29,8 @@ import com.example.lechendasapp.navigation.LechendasScreens.TRAPS_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VEGETATION_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VERIFY_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.COUNTING_SCREEN
+import com.example.lechendasapp.navigation.LechendasScreens.EDIT_PROFILE_SCREEN
+
 
 /* screen used in the app */
 private object LechendasScreens {
@@ -47,6 +49,7 @@ private object LechendasScreens {
     const val VEGETATION_SCREEN = "vegetation"
     const val TRANSECT_SCREEN = "transect"
     const val COUNTING_SCREEN = "counting"
+    const val EDIT_PROFILE_SCREEN = "editProfile"
 }
 
 /*For the future: arguments for the routes */
@@ -74,6 +77,7 @@ object LechendasDestinations {
     const val VEGETATION_ROUTE = "$VEGETATION_SCREEN/{$MONITOR_LOG_ID_ARG}"
     const val TRANSECT_ROUTE = "$TRANSECT_SCREEN/{$MONITOR_LOG_ID_ARG}"
     const val COUNTING_ROUTE = COUNTING_SCREEN
+    const val EDIT_PROFILE_ROUTE = EDIT_PROFILE_SCREEN
 }
 
 class LechendasNavigationActions(private val navController: NavController) {
@@ -133,6 +137,9 @@ class LechendasNavigationActions(private val navController: NavController) {
     }
     fun navigateToCounting() {
         navController.navigate(LechendasDestinations.COUNTING_ROUTE)
+    }
+    fun navigateToEditProfile() {
+        navController.navigate(LechendasDestinations.EDIT_PROFILE_ROUTE)
     }
 }
 
