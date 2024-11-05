@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -27,14 +28,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
 import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
-
+import com.example.lechendasapp.viewmodels.VegetationViewModel
+import com.example.lechendasapp.viewmodels.VegetationUiState
 
 @Composable
 fun VegetationFormsScreen(
@@ -43,8 +48,11 @@ fun VegetationFormsScreen(
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    monitorLogId: Long,
+    viewModel: VegetationViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
+    viewModel.setMonitorLogId(monitorLogId)
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {
@@ -57,6 +65,13 @@ fun VegetationFormsScreen(
         }
     ) { innerPadding ->
         VegetationFormsContent(
+            vegetationUiState = viewModel.vegetationUiState.value,
+            updateUiState = viewModel::updateUiState,
+            onAddNewLog = viewModel::addNewLog,
+            updateCuadranteMain = viewModel::updateSelectedCuadranteMain,
+            updateCuadranteSecond = viewModel::updateSelectedCuadranteSecond,
+            updateSubCuadrante = viewModel::updateSelectedSubCuadrante,
+            updateHabito = viewModel::updateSelectedHabito,
             modifier = modifier.padding(innerPadding)
         )
     }
@@ -65,14 +80,15 @@ fun VegetationFormsScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VegetationFormsContent(
-
+    vegetationUiState: VegetationUiState,
+    updateUiState: (VegetationUiState) -> Unit,
+    updateCuadranteMain: (Int) -> Unit,
+    updateCuadranteSecond: (Int) -> Unit,
+    updateSubCuadrante: (Int) -> Unit,
+    updateHabito: (Int) -> Unit,
+    onAddNewLog: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedCuadranteMain by remember { mutableStateOf(0) }
-    var selectedCuadranteSecond by remember { mutableStateOf(0) }
-    var selectedSubCuadrante by remember { mutableStateOf(0) }
-    var selectedHabito by remember { mutableStateOf(0) }
-
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(36.dp),
@@ -83,6 +99,12 @@ fun VegetationFormsContent(
         item {
             SimpleInputBox(
                 labelText = "Código",
+                value = vegetationUiState.code,
+                onValueChange = { updateUiState(vegetationUiState.copy(code = it)) } ,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
@@ -102,30 +124,14 @@ fun VegetationFormsContent(
                     modifier = Modifier.padding(top = 8.dp, end = 32.dp)
                 ) {
                     CuadranteMain.entries.forEach {
-
-//                        val containerColor by animateColorAsState(
-//                            targetValue = if (selectedCuadranteMain == it.ordinal) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-//                            animationSpec = tween(durationMillis = 300)
-//                        )
-//
-//                        val contentColor by animateColorAsState(
-//                            targetValue = if (selectedCuadranteMain == it.ordinal) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-//                            animationSpec = tween(durationMillis = 300)
-//                        )
-//
-//                        val borderColor by animateColorAsState(
-//                            targetValue = if (selectedCuadranteMain == it.ordinal) MaterialTheme.colorScheme.primary else Color.Gray,
-//                            animationSpec = tween(durationMillis = 300)
-//                        )
-
                         Button(
-                            onClick = { selectedCuadranteMain = it.ordinal },
+                            onClick = { updateCuadranteMain(it.ordinal)  },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (selectedCuadranteMain == it.ordinal) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-                                contentColor = if (selectedCuadranteMain == it.ordinal) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                                containerColor = if (vegetationUiState.quadrant == it.name) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
+                                contentColor = if (vegetationUiState.quadrant == it.name) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                             ),
                             shape = MaterialTheme.shapes.small,
-                            border = BorderStroke(1.dp, if (selectedCuadranteMain == it.ordinal) MaterialTheme.colorScheme.primary else Color.Gray),
+                            border = BorderStroke(1.dp, if (vegetationUiState.quadrant == it.name) MaterialTheme.colorScheme.primary else Color.Gray),
                             modifier = Modifier
                                 .width(100.dp)
                                 .height(100.dp)
@@ -141,28 +147,14 @@ fun VegetationFormsContent(
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
                     CuadranteSecond.entries.forEach {
-//                        val containerColor by animateColorAsState(
-//                            targetValue = if (selectedCuadranteSecond == it.ordinal) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-//                            animationSpec = tween(durationMillis = 300)
-//                        )
-//
-//                        val contentColor by animateColorAsState(
-//                            targetValue = if (selectedCuadranteSecond == it.ordinal) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-//                            animationSpec = tween(durationMillis = 300)
-//                        )
-//
-//                        val borderColor by animateColorAsState(
-//                            targetValue = if (selectedCuadranteSecond == it.ordinal) MaterialTheme.colorScheme.primary else Color.Gray,
-//                            animationSpec = tween(durationMillis = 300)
-//                        )
                         Button(
-                            onClick = { selectedCuadranteSecond = it.ordinal },
+                            onClick = { updateCuadranteSecond(it.ordinal) },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor =  if (selectedCuadranteSecond == it.ordinal) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-                                contentColor = if (selectedCuadranteSecond == it.ordinal) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                                containerColor =  if (vegetationUiState.quadrantSecond == it.name) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
+                                contentColor = if (vegetationUiState.quadrantSecond == it.name) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                             ),
                             shape = MaterialTheme.shapes.medium,
-                            border = BorderStroke(1.dp, if (selectedCuadranteSecond == it.ordinal) MaterialTheme.colorScheme.primary else Color.Gray),
+                            border = BorderStroke(1.dp, if (vegetationUiState.quadrantSecond == it.name) MaterialTheme.colorScheme.primary else Color.Gray),
                         ) {
                             Text(
                                 text = it.name,
@@ -184,28 +176,14 @@ fun VegetationFormsContent(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
             ) {
                 SubCuadrante.entries.forEach {
-//                    val containerColor by animateColorAsState(
-//                        targetValue = if (selectedSubCuadrante == it.ordinal) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-//                        animationSpec = tween(durationMillis = 300)
-//                    )
-//
-//                    val contentColor by animateColorAsState(
-//                        targetValue = if (selectedSubCuadrante == it.ordinal) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-//                        animationSpec = tween(durationMillis = 300)
-//                    )
-//
-//                    val borderColor by animateColorAsState(
-//                        targetValue = if (selectedSubCuadrante == it.ordinal) MaterialTheme.colorScheme.primary else Color.Gray,
-//                        animationSpec = tween(durationMillis = 300)
-//                    )
                     Button(
-                        onClick = { selectedSubCuadrante = it.ordinal },
+                        onClick = { updateSubCuadrante(it.ordinal) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor =  if (selectedSubCuadrante == it.ordinal) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-                            contentColor =  if (selectedSubCuadrante == it.ordinal) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                            containerColor =  if ( vegetationUiState.subQuadrant == it.displayName ) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
+                            contentColor =  if ( vegetationUiState.subQuadrant == it.displayName ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                         ),
                         shape = MaterialTheme.shapes.large,
-                        border = BorderStroke(1.dp,  if (selectedSubCuadrante == it.ordinal) MaterialTheme.colorScheme.primary else Color.Gray,),
+                        border = BorderStroke(1.dp,  if ( vegetationUiState.subQuadrant == it.displayName ) MaterialTheme.colorScheme.primary else Color.Gray,),
                     ) {
                         Text(
                             text = it.displayName,
@@ -226,28 +204,14 @@ fun VegetationFormsContent(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
             ) {
                 Habito.entries.forEach {
-                    val containerColor by animateColorAsState(
-                        targetValue = if (selectedHabito == it.ordinal) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-                        animationSpec = tween(durationMillis = 300)
-                    )
-                    val contentColor by animateColorAsState(
-                        targetValue = if (selectedHabito == it.ordinal) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                        animationSpec = tween(durationMillis = 300)
-                    )
-
-                    val borderColor by animateColorAsState(
-                        targetValue = if (selectedHabito == it.ordinal) MaterialTheme.colorScheme.primary else Color.Gray,
-                        animationSpec = tween(durationMillis = 300)
-                    )
-
                     Button(
-                        onClick = { selectedHabito = it.ordinal },
+                        onClick = { updateHabito(it.ordinal) },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = containerColor,
-                            contentColor = contentColor,
-                            ),
+                            containerColor =  if ( vegetationUiState.growthHabit == it.name ) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
+                            contentColor =  if ( vegetationUiState.growthHabit == it.name ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                        ),
                         shape = MaterialTheme.shapes.large,
-                        border = BorderStroke(1.dp, borderColor),
+                        border =  BorderStroke(1.dp,  if ( vegetationUiState.subQuadrant == it.name ) MaterialTheme.colorScheme.primary else Color.Gray,),
                     ) {
                         Column (
                         ) {
@@ -263,38 +227,73 @@ fun VegetationFormsContent(
                     }
                 }
             }
+        }
+        item {
+            SimpleInputBox(
+                labelText = "Nombre común",
+                value = vegetationUiState.commonName,
+                onValueChange = { updateUiState(vegetationUiState.copy(commonName = it)) } ,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+            )
+        }
+        item {
+            SimpleInputBox(
+                labelText = "Nombre científico",
+                value = vegetationUiState.scientificName.toString(),
+                onValueChange = { updateUiState(vegetationUiState.copy(scientificName = it)) } ,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+            )
+        }
 
-        }
         item {
             SimpleInputBox(
-                labelText = "Nombre común"
-            )
-        }
-        item {
-            SimpleInputBox(
-                labelText = "Nombre científico"
-            )
-        }
-
-        item {
-            SimpleInputBox(
-                labelText = "Placa"
+                labelText = "Placa",
+                value = vegetationUiState.plate,
+                onValueChange = { updateUiState(vegetationUiState.copy(plate = it)) } ,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
 
         item {
             SimpleInputBox(
-                labelText = "Circunferencia (cm)"
+                labelText = "Circunferencia (cm)",
+                value = vegetationUiState.circumference,
+                onValueChange = { updateUiState(vegetationUiState.copy(circumference = it)) } ,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
             SimpleInputBox(
-                labelText = "Distancia (mt)"
+                labelText = "Distancia (mt)",
+                value = vegetationUiState.distance,
+                onValueChange = { updateUiState(vegetationUiState.copy(distance = it)) } ,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
             SimpleInputBox(
-                labelText = "Altura (mt)"
+                labelText = "Altura (mt)",
+                value = vegetationUiState.height,
+                onValueChange = { updateUiState(vegetationUiState.copy(height = it)) } ,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
@@ -337,7 +336,13 @@ fun VegetationFormsContent(
             SimpleInputBox(
                 labelText = "Observaciones",
                 singleLine = false,
-                modifier = Modifier.height(150.dp)
+                modifier = Modifier.height(150.dp),
+                value = vegetationUiState.observations.toString(),
+                onValueChange = { updateUiState(vegetationUiState.copy(observations = it)) } ,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
             )
         }
         item {
@@ -351,19 +356,7 @@ fun VegetationFormsContent(
                     )
             ) {
                 Button(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-
-                        .height(dimensionResource(R.dimen.small_button_height))
-                        .weight(1f)
-                ) {
-                    Text(
-                        text = "Atrás",
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
-                Button(
-                    onClick = { /*TODO*/ },
+                    onClick = onAddNewLog,
                     modifier = Modifier
 
                         .height(dimensionResource(R.dimen.small_button_height))
@@ -415,7 +408,8 @@ fun VegetationFormsContent() {
             onBack = {},
             onMenuClick = {},
             onSearchClick = {},
-            onSettingsClick = {}
+            onSettingsClick = {},
+            monitorLogId = 1
         )
     }
 }

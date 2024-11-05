@@ -18,10 +18,10 @@ import com.example.lechendasapp.navigation.LechendasDestinations.INTRO_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.LOGIN_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.NEW_PASSWORD_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.SEARCH_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.TRANSECT_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.TRAPS_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.VEGETATION_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.VERIFY_ROUTE
-import com.example.lechendasapp.navigation.LechendasDestinations.TRANSECTS_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinationsArgs.MONITOR_LOG_ID_ARG
 import com.example.lechendasapp.screens.ClimateScreen
 import com.example.lechendasapp.screens.ConfigurationScreen
@@ -33,9 +33,9 @@ import com.example.lechendasapp.screens.IntroScreen
 import com.example.lechendasapp.screens.LoginScreen
 import com.example.lechendasapp.screens.NewPasswordScreen
 import com.example.lechendasapp.screens.SearchScreen
+import com.example.lechendasapp.screens.TransectFormsScreen
 import com.example.lechendasapp.screens.TrapFormsScreen
 import com.example.lechendasapp.screens.VegetationFormsScreen
-import com.example.lechendasapp.screens.TransectoFormScreen
 import com.example.lechendasapp.screens.VerifyUserScreen
 
 
@@ -95,7 +95,7 @@ fun LechendasNavGraph(
                 currentRoute = SEARCH_ROUTE,
                 onHome = { navActions.navigateToHome() },
                 onSearch = { navActions.navigateToSearch() },
-                onSettings = { navActions.navigateToConfiguration() }
+                onSettings = { navActions.navigateToConfiguration() },
             )
         }
         composable(route = FORMULARY_ROUTE) {
@@ -105,20 +105,11 @@ fun LechendasNavGraph(
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
                 onSettingsClick = { navActions.navigateToConfiguration() },
+                onTransectClick = {monitorLogId -> navActions.navigateToTransect(monitorLogId) },
                 onClimateClick = {monitorLogId -> navActions.navigateToClimate(monitorLogId) },
-                onCoverageClick = { navActions.navigateToCoverage() },
-                onTrapClick = { navActions.navigateToTraps() },
-                onVegetationClick = { navActions.navigateToVegetation() },
-                onTransectClick = { navActions.navigateToTransects() }
-            )
-        }
-        composable(route = TRANSECTS_ROUTE) {
-            TransectoFormScreen(
-                onBack = { navController.navigateUp() },
-                currentRoute = TRANSECTS_ROUTE,
-                onMenuClick = { navActions.navigateToHome() },
-                onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToConfiguration() }
+                onCoverageClick = {monitorLogId -> navActions.navigateToCoverage(monitorLogId) },
+                onTrapClick = { monitorLogId -> navActions.navigateToTraps(monitorLogId) },
+                onVegetationClick = {monitorLogId -> navActions.navigateToVegetation(monitorLogId) }
             )
         }
         composable(route = CONFIGURATION_ROUTE) {
@@ -142,31 +133,52 @@ fun LechendasNavGraph(
                 monitorLogId = monitorLogId.toLong()
             )
         }
-        composable(route = TRAPS_ROUTE) {
+        composable(route = TRAPS_ROUTE) {backStackEntry ->
+            val monitorLogId = backStackEntry.arguments?.getString(MONITOR_LOG_ID_ARG)
+            requireNotNull(monitorLogId) { "MonitorLogId is required as an argument" }
             TrapFormsScreen(
                 onBack = { navController.navigateUp() },
                 currentRoute = TRAPS_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToConfiguration() }
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                monitorLogId = monitorLogId.toLong()
             )
         }
-        composable(route = COVERAGE_ROUTE) {
+        composable(route = COVERAGE_ROUTE) { backStackEntry ->
+            val monitorLogId = backStackEntry.arguments?.getString(MONITOR_LOG_ID_ARG)
+            requireNotNull(monitorLogId) { "MonitorLogId is required as an argument" }
             CoverageFormsScreen(
                 onBack = { navController.navigateUp() },
                 currentRoute = COVERAGE_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToConfiguration() }
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                monitorLogId = monitorLogId.toLong()
             )
         }
-        composable(route = VEGETATION_ROUTE) {
+        composable(route = VEGETATION_ROUTE) { backStackEntry ->
+            val monitorLogId = backStackEntry.arguments?.getString(MONITOR_LOG_ID_ARG)
+            requireNotNull(monitorLogId) { "MonitorLogId is required as an argument" }
             VegetationFormsScreen(
                 onBack = { navController.navigateUp() },
                 currentRoute = VEGETATION_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToConfiguration() }
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                monitorLogId = monitorLogId.toLong()
+            )
+        }
+        composable(route = TRANSECT_ROUTE) { backStackEntry ->
+            val monitorLogId = backStackEntry.arguments?.getString(MONITOR_LOG_ID_ARG)
+            requireNotNull(monitorLogId) { "MonitorLogId is required as an argument" }
+            TransectFormsScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = TRANSECT_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                monitorLogId = monitorLogId.toLong()
             )
         }
     }

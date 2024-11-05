@@ -10,6 +10,7 @@ data class Trap(
     val roadWidth: Int,
     val installationDate : String,
     val lensHeight: Int,
+    val objectiveDistance: Int,
     val checkList: String,
     val observations: String? = null,
 )

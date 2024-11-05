@@ -11,7 +11,7 @@ exportSchema = True for production, False for development
     entities = [LocalUser::class, LocalMonitorLog::class, LocalPhoto::class, LocalAnimal::class,
         LocalClimate::class, LocalCoverage::class, LocalVegetation::class,
         LocalTrap::class],
-    version = 4,
+    version = 6,
     exportSchema = false
 )
 abstract class AwaqDatabase : RoomDatabase() {

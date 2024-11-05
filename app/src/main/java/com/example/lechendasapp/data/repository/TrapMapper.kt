@@ -14,6 +14,7 @@ fun Trap.toLocal() = LocalTrap(
     installationDate = installationDate,
     lensHeight = lensHeight,
     checkList = checkList,
+    objectiveDistance = objectiveDistance,
     observations = observations,
 )
 
@@ -30,6 +31,7 @@ fun LocalTrap.toExternal() = Trap(
     installationDate = installationDate,
     lensHeight = lensHeight,
     checkList = checkList,
+    objectiveDistance = objectiveDistance,
     observations = observations,
 )
 

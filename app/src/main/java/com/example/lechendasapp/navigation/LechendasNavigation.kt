@@ -1,6 +1,18 @@
 package com.example.lechendasapp.navigation
 
 import androidx.navigation.NavController
+import com.example.lechendasapp.navigation.LechendasDestinations.CONFIGURATION_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.COVERAGE_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.FORGOT_PASSWORD_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.FORMULARY_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.HOME_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.INTRO_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.LOGIN_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.NEW_PASSWORD_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.SEARCH_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.TRAPS_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.VEGETATION_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.VERIFY_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinationsArgs.MONITOR_LOG_ID_ARG
 import com.example.lechendasapp.navigation.LechendasScreens.CLIMATE_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.CONFIGURATION_SCREEN
@@ -12,10 +24,10 @@ import com.example.lechendasapp.navigation.LechendasScreens.INTRO_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.LOGIN_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.NEW_PASSWORD_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.SEARCH_SCREEN
+import com.example.lechendasapp.navigation.LechendasScreens.TRANSECT_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.TRAPS_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VEGETATION_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VERIFY_SCREEN
-import com.example.lechendasapp.navigation.LechendasScreens.TRANSECTS_SCREEN
 
 /* screen used in the app */
 private object LechendasScreens {
@@ -32,11 +44,10 @@ private object LechendasScreens {
     const val TRAPS_SCREEN = "traps"
     const val COVERAGE_SCREEN = "coverage"
     const val VEGETATION_SCREEN = "vegetation"
-    const val TRANSECTS_SCREEN = "transects"
+    const val TRANSECT_SCREEN = "transect"
 }
 
 /*For the future: arguments for the routes */
-@Suppress("UNUSED")
 object LechendasDestinationsArgs {
     const val MONITOR_LOG_ID_ARG = "monitorLogId"
 }
@@ -56,65 +67,66 @@ object LechendasDestinations {
     const val FORMULARY_ROUTE = FORMULARY_SCREEN
     const val CONFIGURATION_ROUTE = CONFIGURATION_SCREEN
     const val CLIMATE_ROUTE = "$CLIMATE_SCREEN/{$MONITOR_LOG_ID_ARG}"
-    const val TRAPS_ROUTE = TRAPS_SCREEN
-    const val COVERAGE_ROUTE = COVERAGE_SCREEN
-    const val VEGETATION_ROUTE = VEGETATION_SCREEN
-    const val TRANSECTS_ROUTE = TRANSECTS_SCREEN
+    const val TRAPS_ROUTE = "$TRAPS_SCREEN/{$MONITOR_LOG_ID_ARG}"
+    const val COVERAGE_ROUTE = "$COVERAGE_SCREEN/{$MONITOR_LOG_ID_ARG}"
+    const val VEGETATION_ROUTE = "$VEGETATION_SCREEN/{$MONITOR_LOG_ID_ARG}"
+    const val TRANSECT_ROUTE = "$TRANSECT_SCREEN/{$MONITOR_LOG_ID_ARG}"
 }
 
 class LechendasNavigationActions(private val navController: NavController) {
     fun navigateToIntro() {
-        navController.navigate(LechendasDestinations.INTRO_ROUTE)
+        navController.navigate(INTRO_ROUTE)
     }
 
     fun navigateToLogin() {
-        navController.navigate(LechendasDestinations.LOGIN_ROUTE)
+        navController.navigate(LOGIN_ROUTE)
     }
 
     fun navigateToNewPassword() {
-        navController.navigate(LechendasDestinations.NEW_PASSWORD_ROUTE)
+        navController.navigate(NEW_PASSWORD_ROUTE)
     }
 
     fun navigateToVerify() {
-        navController.navigate(LechendasDestinations.VERIFY_ROUTE)
+        navController.navigate(VERIFY_ROUTE)
     }
 
     fun navigateToForgotPassword() {
-        navController.navigate(LechendasDestinations.FORGOT_PASSWORD_ROUTE)
+        navController.navigate(FORGOT_PASSWORD_ROUTE)
     }
 
     fun navigateToHome() {
-        navController.navigate(LechendasDestinations.HOME_ROUTE)
+        navController.navigate(HOME_ROUTE)
     }
 
     fun navigateToSearch() {
-        navController.navigate(LechendasDestinations.SEARCH_ROUTE)
+        navController.navigate(SEARCH_ROUTE)
     }
 
     fun navigateToFormulary() {
-        navController.navigate(LechendasDestinations.FORMULARY_ROUTE)
+        navController.navigate(FORMULARY_ROUTE)
     }
 
     fun navigateToConfiguration() {
-        navController.navigate(LechendasDestinations.CONFIGURATION_ROUTE)
+        navController.navigate(CONFIGURATION_ROUTE)
     }
 
     fun navigateToClimate(monitorLogId: Long) {
         navController.navigate("$CLIMATE_SCREEN/$monitorLogId")
     }
 
-    fun navigateToTraps() {
-        navController.navigate(LechendasDestinations.TRAPS_ROUTE)
+    fun navigateToTraps(monitorLogId: Long) {
+        navController.navigate("$TRAPS_SCREEN/$monitorLogId")
     }
-    fun navigateToCoverage() {
-        navController.navigate(LechendasDestinations.COVERAGE_ROUTE)
+    fun navigateToCoverage(monitorLogId: Long) {
+        navController.navigate("$COVERAGE_SCREEN/$monitorLogId")
     }
 
-    fun navigateToVegetation() {
-        navController.navigate(LechendasDestinations.VEGETATION_ROUTE)
+    fun navigateToVegetation(monitorLogId: Long) {
+        navController.navigate("$VEGETATION_SCREEN/$monitorLogId")
     }
-    fun navigateToTransects() {
-        navController.navigate(LechendasDestinations.TRANSECTS_ROUTE)
+
+    fun navigateToTransect(monitorLogId: Long) {
+        navController.navigate("$TRANSECT_SCREEN/$monitorLogId")
     }
 }
 

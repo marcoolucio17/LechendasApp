@@ -42,13 +42,13 @@ fun FormularyInitialScreen(
     onSettingsClick: () -> Unit,
 
     //all next forms
-    onTransectClick: () -> Unit,
     //onConteoClick: () -> Unit,
     //onFreeClick: () -> Unit,
-    onVegetationClick: () -> Unit,
+    onTransectClick: (Long) -> Unit,
+    onVegetationClick: (Long) -> Unit,
     onClimateClick: (Long) -> Unit,
-    onCoverageClick: () -> Unit,
-    onTrapClick: () -> Unit,
+    onCoverageClick: (Long) -> Unit,
+    onTrapClick: (Long) -> Unit,
 
     viewModel: FormularioViewModel = hiltViewModel()
 ) {
@@ -81,12 +81,12 @@ fun FormularyInitialScreen(
 @Composable
 fun FormularioContent(
     onClimateClick: (Long) -> Unit,
-    onTransectClick: () -> Unit,
+    onTransectClick: (Long) -> Unit,
     //onConteoClick: () -> Unit,
     //onFreeClick: () -> Unit,
-    onCoverageClick: () -> Unit,
-    onVegetationClick: () -> Unit,
-    onTrapClick: () -> Unit,
+    onCoverageClick: (Long) -> Unit,
+    onVegetationClick: (Long) -> Unit,
+    onTrapClick: (Long) -> Unit,
     viewModel: FormularioViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -174,12 +174,12 @@ fun FormularioContent(
 
                     viewModel.addNewForm { newId ->
                         when (uiState.logType) {
-                            TipoRegistro.TRANSECTOS.displayName -> onTransectClick()
-                            TipoRegistro.PUNTO_CONTEO.displayName -> {}
-                            TipoRegistro.BUSQUEDA_LIBRE.displayName -> {}
-                            TipoRegistro.VALIDACION_COBERTURA.displayName -> onCoverageClick()
-                            TipoRegistro.PARCELA_VEGETACION.displayName -> onVegetationClick()
-                            TipoRegistro.CAMARAS_TRAMPA.displayName -> onTrapClick()
+                            TipoRegistro.TRANSECTOS.displayName -> onTransectClick(newId)
+                            TipoRegistro.PUNTO_CONTEO.displayName ->  onTransectClick(newId)
+                            TipoRegistro.BUSQUEDA_LIBRE.displayName ->  onTransectClick(newId)
+                            TipoRegistro.VALIDACION_COBERTURA.displayName -> onCoverageClick(newId)
+                            TipoRegistro.PARCELA_VEGETACION.displayName -> onVegetationClick(newId)
+                            TipoRegistro.CAMARAS_TRAMPA.displayName -> onTrapClick(newId)
                             TipoRegistro.VARIABLES_CLIMATICAS.displayName -> onClimateClick(newId)
                         }
                     }
@@ -250,6 +250,8 @@ fun FormularyInitialScreenPreview() {
             onTrapClick = {},
             onVegetationClick = {},
             onTransectClick = {},
+            //onConteoClick = {},
+            //onFreeClick = {},
             viewModel = rememberPreviewFormularioViewModel()
         )
     }

@@ -175,7 +175,9 @@ fun SearchItem(
                 )
             }
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    /*TODO*/
+                },
             ) {
                 Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
             }

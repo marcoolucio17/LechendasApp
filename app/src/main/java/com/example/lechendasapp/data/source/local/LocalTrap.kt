@@ -15,6 +15,7 @@ data class LocalTrap (
     val roadWidth: Int,
     @ColumnInfo(name = "installation_date") val installationDate : String,
     @ColumnInfo(name = "lens_height")  val lensHeight: Int,
+    @ColumnInfo(name = "objective_distance") val objectiveDistance: Int,
     val checkList: String,
     val observations: String? = null,
 )

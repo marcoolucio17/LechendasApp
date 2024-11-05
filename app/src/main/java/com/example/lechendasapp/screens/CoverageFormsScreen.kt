@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,8 +24,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
@@ -32,6 +36,8 @@ import com.example.lechendasapp.utils.BottomNavBar
 import com.example.lechendasapp.utils.RadioButtonWithText
 import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
+import com.example.lechendasapp.viewmodels.CoverageViewModel
+import com.example.lechendasapp.viewmodels.CoverageUiState
 
 @Composable
 fun CoverageFormsScreen(
@@ -40,8 +46,11 @@ fun CoverageFormsScreen(
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    viewModel : CoverageViewModel = hiltViewModel(),
+    monitorLogId: Long,
     modifier: Modifier = Modifier,
 ) {
+    viewModel.setMonitorLogId(monitorLogId)
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {
@@ -54,6 +63,13 @@ fun CoverageFormsScreen(
         }
     ) { innerPadding ->
         CoverageFormsContent(
+            updateUiState = viewModel::updateUiState,
+            saveCoverage = viewModel::saveCoverage,
+            coverageUiState = viewModel.coverageUiState.value,
+            updateTrackingOption = viewModel::updateTrackingOption,
+            updateChangeOption = viewModel::updateChangeOption,
+            updateCoverageOption = viewModel::updateCoverageOption,
+            updateDisturbanceOption = viewModel::updateDisturbanceOption,
             modifier = modifier.padding(innerPadding)
         )
     }
@@ -62,27 +78,15 @@ fun CoverageFormsScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CoverageFormsContent(
-
+    updateUiState: (CoverageUiState) -> Unit,
+    saveCoverage: () -> Unit,
+    coverageUiState: CoverageUiState,
+    updateTrackingOption: (SINO) -> Unit,
+    updateChangeOption: (SINO) -> Unit,
+    updateCoverageOption: (CoverageOptions) -> Unit,
+    updateDisturbanceOption: (DisturbanceOptions) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedSeguimiento = remember {
-        mutableStateMapOf<SINO, Boolean>().apply {
-            SINO.entries.forEach { this[it] = false }
-        }
-    }
-
-    val selectedCoverages = remember {
-        mutableStateMapOf<CoverageOptions, String>().apply {
-            CoverageOptions.entries.forEach { this[it] = "" }
-        }
-    }
-
-    val selectedDisturbance = remember {
-        mutableStateMapOf<DisturbanceOptions, String>().apply {
-            DisturbanceOptions.entries.forEach { this[it] = "" }
-        }
-    }
-
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(36.dp),
@@ -93,11 +97,12 @@ fun CoverageFormsContent(
         item {
             SimpleInputBox(
                 labelText = "Código",
-            )
-        }
-        item {
-            SimpleInputBox(
-                labelText = "Tipo de cultivo"
+                value = coverageUiState.code,
+                onValueChange = { updateUiState(coverageUiState.copy(code = it)) },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                )
             )
         }
         item {
@@ -121,9 +126,9 @@ fun CoverageFormsContent(
                     SINO.entries.forEach { option ->
                         RadioButtonWithText(
                             text = option.displayName,
-                            isSelected = selectedSeguimiento[option] == true,
+                            isSelected = coverageUiState.tracking[option] == true,
                             onClick = {
-                                selectedSeguimiento[option] = !selectedSeguimiento[option]!!
+                                updateTrackingOption(option)
                             },
                             modifier = Modifier.weight(1f)
                         )
@@ -147,9 +152,9 @@ fun CoverageFormsContent(
                     SINO.entries.forEach { option ->
                         RadioButtonWithText(
                             text = option.displayName,
-                            isSelected = selectedSeguimiento[option] == true,
+                            isSelected = coverageUiState.change[option] == true ,
                             onClick = {
-                                selectedSeguimiento[option] = !selectedSeguimiento[option]!!
+                                 updateChangeOption(option)
                             },
                             modifier = Modifier.weight(1f)
                         )
@@ -166,15 +171,23 @@ fun CoverageFormsContent(
                 CoverageOptions.entries.forEach { coverageOption ->
                     RadioButtonWithText(
                         text = coverageOption.name,
-                        isSelected = selectedCoverages[coverageOption] == coverageOption.name,
-                        onClick = { /*TODO*/ }
+                        isSelected = coverageUiState.coverage[coverageOption] == true,
+                        onClick = {
+                            updateCoverageOption(coverageOption)
+                        }
                     )
                 }
             }
         }
         item {
             SimpleInputBox(
-                labelText = "Tipo de cultivo"
+                labelText = "Tipo de cultivo",
+                value = coverageUiState.cropType,
+                onValueChange = { updateUiState(coverageUiState.copy(cropType = it)) },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                )
             )
         }
         item {
@@ -185,8 +198,10 @@ fun CoverageFormsContent(
                 DisturbanceOptions.entries.forEach { disturbanceOption ->
                     RadioButtonWithText(
                         text = disturbanceOption.displayName,
-                        isSelected = selectedDisturbance[disturbanceOption] == disturbanceOption.name,
-                        onClick = { /*TODO*/ }
+                        isSelected = coverageUiState.disturbance[disturbanceOption] == true,
+                        onClick = { 
+                            updateDisturbanceOption(disturbanceOption)
+                        }
                     )
                 }
             }
@@ -231,7 +246,13 @@ fun CoverageFormsContent(
             SimpleInputBox(
                 labelText = "Observaciones",
                 singleLine = false,
-                modifier = Modifier.height(150.dp)
+                modifier = Modifier.height(150.dp),
+                value = coverageUiState.observations.toString(),
+                onValueChange = { updateUiState(coverageUiState.copy(observations = it)) },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                )
             )
         }
         item {
@@ -245,19 +266,7 @@ fun CoverageFormsContent(
                     )
             ) {
                 Button(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-
-                        .height(dimensionResource(R.dimen.small_button_height))
-                        .weight(1f)
-                ) {
-                    Text(
-                        text = "Atrás",
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
-                Button(
-                    onClick = { /*TODO*/ },
+                    onClick = saveCoverage,
                     modifier = Modifier
 
                         .height(dimensionResource(R.dimen.small_button_height))
@@ -314,7 +323,8 @@ fun CoverageFormsScreenPreview() {
             onBack = {},
             onMenuClick = {},
             onSearchClick = {},
-            onSettingsClick = {}
+            onSettingsClick = {},
+            monitorLogId = 0
         )
     }
 }
