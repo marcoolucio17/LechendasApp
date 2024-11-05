@@ -22,6 +22,7 @@ import com.example.lechendasapp.navigation.LechendasDestinations.TRANSECT_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.TRAPS_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.VEGETATION_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.VERIFY_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.COUNTING_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinationsArgs.MONITOR_LOG_ID_ARG
 import com.example.lechendasapp.screens.ClimateScreen
 import com.example.lechendasapp.screens.ConfigurationScreen
@@ -36,6 +37,7 @@ import com.example.lechendasapp.screens.SearchScreen
 import com.example.lechendasapp.screens.TransectFormsScreen
 import com.example.lechendasapp.screens.TrapFormsScreen
 import com.example.lechendasapp.screens.VegetationFormsScreen
+import com.example.lechendasapp.screens.CountingFormsScreen
 import com.example.lechendasapp.screens.VerifyUserScreen
 
 

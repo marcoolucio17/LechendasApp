@@ -28,6 +28,7 @@ import com.example.lechendasapp.navigation.LechendasScreens.TRANSECT_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.TRAPS_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VEGETATION_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VERIFY_SCREEN
+import com.example.lechendasapp.navigation.LechendasScreens.COUNTING_SCREEN
 
 /* screen used in the app */
 private object LechendasScreens {
@@ -45,6 +46,7 @@ private object LechendasScreens {
     const val COVERAGE_SCREEN = "coverage"
     const val VEGETATION_SCREEN = "vegetation"
     const val TRANSECT_SCREEN = "transect"
+    const val COUNTING_SCREEN = "counting"
 }
 
 /*For the future: arguments for the routes */
@@ -71,6 +73,7 @@ object LechendasDestinations {
     const val COVERAGE_ROUTE = "$COVERAGE_SCREEN/{$MONITOR_LOG_ID_ARG}"
     const val VEGETATION_ROUTE = "$VEGETATION_SCREEN/{$MONITOR_LOG_ID_ARG}"
     const val TRANSECT_ROUTE = "$TRANSECT_SCREEN/{$MONITOR_LOG_ID_ARG}"
+    const val COUNTING_ROUTE = COUNTING_SCREEN
 }
 
 class LechendasNavigationActions(private val navController: NavController) {
@@ -127,6 +130,9 @@ class LechendasNavigationActions(private val navController: NavController) {
 
     fun navigateToTransect(monitorLogId: Long) {
         navController.navigate("$TRANSECT_SCREEN/$monitorLogId")
+    }
+    fun navigateToCounting() {
+        navController.navigate(LechendasDestinations.COUNTING_ROUTE)
     }
 }
 
