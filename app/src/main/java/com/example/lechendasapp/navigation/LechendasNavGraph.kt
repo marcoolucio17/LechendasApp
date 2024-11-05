@@ -21,6 +21,7 @@ import com.example.lechendasapp.navigation.LechendasDestinations.SEARCH_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.TRAPS_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.VEGETATION_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.VERIFY_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.TRANSECTS_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinationsArgs.MONITOR_LOG_ID_ARG
 import com.example.lechendasapp.screens.ClimateScreen
 import com.example.lechendasapp.screens.ConfigurationScreen
@@ -34,6 +35,7 @@ import com.example.lechendasapp.screens.NewPasswordScreen
 import com.example.lechendasapp.screens.SearchScreen
 import com.example.lechendasapp.screens.TrapFormsScreen
 import com.example.lechendasapp.screens.VegetationFormsScreen
+import com.example.lechendasapp.screens.TransectoFormScreen
 import com.example.lechendasapp.screens.VerifyUserScreen
 
 
@@ -106,7 +108,17 @@ fun LechendasNavGraph(
                 onClimateClick = {monitorLogId -> navActions.navigateToClimate(monitorLogId) },
                 onCoverageClick = { navActions.navigateToCoverage() },
                 onTrapClick = { navActions.navigateToTraps() },
-                onVegetationClick = { navActions.navigateToVegetation() }
+                onVegetationClick = { navActions.navigateToVegetation() },
+                onTransectClick = { navActions.navigateToTransects() }
+            )
+        }
+        composable(route = TRANSECTS_ROUTE) {
+            TransectoFormScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = TRANSECTS_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() }
             )
         }
         composable(route = CONFIGURATION_ROUTE) {

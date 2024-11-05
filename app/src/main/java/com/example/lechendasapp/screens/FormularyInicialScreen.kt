@@ -42,7 +42,7 @@ fun FormularyInitialScreen(
     onSettingsClick: () -> Unit,
 
     //all next forms
-    //onTransectClick: () -> Unit,
+    onTransectClick: () -> Unit,
     //onConteoClick: () -> Unit,
     //onFreeClick: () -> Unit,
     onVegetationClick: () -> Unit,
@@ -65,7 +65,7 @@ fun FormularyInitialScreen(
     ) { innerPadding ->
         FormularioContent(
             onClimateClick = onClimateClick,
-            //onTransectClick = onTransectClick,
+            onTransectClick = onTransectClick,
             //onConteoClick = onConteoClick,
             //onFreeClick = onFreeClick,
             onCoverageClick = onCoverageClick,
@@ -81,7 +81,7 @@ fun FormularyInitialScreen(
 @Composable
 fun FormularioContent(
     onClimateClick: (Long) -> Unit,
-    //onTransectClick: () -> Unit,
+    onTransectClick: () -> Unit,
     //onConteoClick: () -> Unit,
     //onFreeClick: () -> Unit,
     onCoverageClick: () -> Unit,
@@ -174,7 +174,7 @@ fun FormularioContent(
 
                     viewModel.addNewForm { newId ->
                         when (uiState.logType) {
-                            TipoRegistro.TRANSECTOS.displayName -> {}
+                            TipoRegistro.TRANSECTOS.displayName -> onTransectClick()
                             TipoRegistro.PUNTO_CONTEO.displayName -> {}
                             TipoRegistro.BUSQUEDA_LIBRE.displayName -> {}
                             TipoRegistro.VALIDACION_COBERTURA.displayName -> onCoverageClick()
@@ -249,6 +249,7 @@ fun FormularyInitialScreenPreview() {
             onCoverageClick = {},
             onTrapClick = {},
             onVegetationClick = {},
+            onTransectClick = {},
             viewModel = rememberPreviewFormularioViewModel()
         )
     }

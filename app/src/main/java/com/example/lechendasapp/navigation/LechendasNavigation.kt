@@ -15,6 +15,7 @@ import com.example.lechendasapp.navigation.LechendasScreens.SEARCH_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.TRAPS_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VEGETATION_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.VERIFY_SCREEN
+import com.example.lechendasapp.navigation.LechendasScreens.TRANSECTS_SCREEN
 
 /* screen used in the app */
 private object LechendasScreens {
@@ -31,6 +32,7 @@ private object LechendasScreens {
     const val TRAPS_SCREEN = "traps"
     const val COVERAGE_SCREEN = "coverage"
     const val VEGETATION_SCREEN = "vegetation"
+    const val TRANSECTS_SCREEN = "transects"
 }
 
 /*For the future: arguments for the routes */
@@ -57,6 +59,7 @@ object LechendasDestinations {
     const val TRAPS_ROUTE = TRAPS_SCREEN
     const val COVERAGE_ROUTE = COVERAGE_SCREEN
     const val VEGETATION_ROUTE = VEGETATION_SCREEN
+    const val TRANSECTS_ROUTE = TRANSECTS_SCREEN
 }
 
 class LechendasNavigationActions(private val navController: NavController) {
@@ -109,6 +112,9 @@ class LechendasNavigationActions(private val navController: NavController) {
 
     fun navigateToVegetation() {
         navController.navigate(LechendasDestinations.VEGETATION_ROUTE)
+    }
+    fun navigateToTransects() {
+        navController.navigate(LechendasDestinations.TRANSECTS_ROUTE)
     }
 }
 
