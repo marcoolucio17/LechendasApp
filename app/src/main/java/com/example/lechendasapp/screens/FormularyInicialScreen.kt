@@ -43,7 +43,7 @@ fun FormularyInitialScreen(
 
     //all next forms
     onTransectClick: () -> Unit,
-    //onConteoClick: () -> Unit,
+    onConteoClick: () -> Unit,
     //onFreeClick: () -> Unit,
     onVegetationClick: () -> Unit,
     onClimateClick: (Long) -> Unit,
@@ -66,7 +66,7 @@ fun FormularyInitialScreen(
         FormularioContent(
             onClimateClick = onClimateClick,
             onTransectClick = onTransectClick,
-            //onConteoClick = onConteoClick,
+            onConteoClick = onConteoClick,
             //onFreeClick = onFreeClick,
             onCoverageClick = onCoverageClick,
             onVegetationClick = onVegetationClick,
@@ -82,7 +82,7 @@ fun FormularyInitialScreen(
 fun FormularioContent(
     onClimateClick: (Long) -> Unit,
     onTransectClick: () -> Unit,
-    //onConteoClick: () -> Unit,
+    onConteoClick: () -> Unit,
     //onFreeClick: () -> Unit,
     onCoverageClick: () -> Unit,
     onVegetationClick: () -> Unit,
@@ -175,7 +175,7 @@ fun FormularioContent(
                     viewModel.addNewForm { newId ->
                         when (uiState.logType) {
                             TipoRegistro.TRANSECTOS.displayName -> onTransectClick()
-                            TipoRegistro.PUNTO_CONTEO.displayName -> {}
+                            TipoRegistro.PUNTO_CONTEO.displayName -> onConteoClick()
                             TipoRegistro.BUSQUEDA_LIBRE.displayName -> {}
                             TipoRegistro.VALIDACION_COBERTURA.displayName -> onCoverageClick()
                             TipoRegistro.PARCELA_VEGETACION.displayName -> onVegetationClick()
@@ -247,6 +247,8 @@ fun FormularyInitialScreenPreview() {
             onSettingsClick = {},
             onClimateClick = {},
             onCoverageClick = {},
+            onConteoClick = {},
+            //onFreeClick = {},
             onTrapClick = {},
             onVegetationClick = {},
             onTransectClick = {},
