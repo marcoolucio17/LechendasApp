@@ -33,7 +33,6 @@ import com.example.lechendasapp.utils.TopBar3
 import androidx.compose.ui.res.painterResource
 import com.example.lechendasapp.R
 import androidx.compose.runtime.*
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun ConfigurationScreen(
