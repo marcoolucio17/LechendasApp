@@ -3,11 +3,13 @@ package com.example.lechendasapp.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.auth0.android.Auth0
 import com.example.lechendasapp.navigation.LechendasDestinations.CLIMATE_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.CONFIGURATION_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.COVERAGE_ROUTE
@@ -37,12 +39,14 @@ import com.example.lechendasapp.screens.TransectFormsScreen
 import com.example.lechendasapp.screens.TrapFormsScreen
 import com.example.lechendasapp.screens.VegetationFormsScreen
 import com.example.lechendasapp.screens.VerifyUserScreen
+import com.example.lechendasapp.viewmodels.AuthViewModel
 
 
 @Composable
 fun LechendasNavGraph(
     startDestination: String = LechendasDestinations.INTRO_ROUTE,
     navController: NavHostController = rememberNavController(),
+    auth0: AuthViewModel = hiltViewModel(),
     navActions: LechendasNavigationActions = remember(NavController) {
         LechendasNavigationActions(navController)
     },
