@@ -7,6 +7,6 @@
     <string name="entrar">Entrar</string>
     <string name="bienvenido">Bienvenido</string>
     <string name="enviar">Enviar</string>
-    <string name="com_auth0_domain">dev-67qpzdvqxn066uwp.us.auth0.com</string>
-    <string name="com_auth0_client_id">Mn2CFGxW8mDw57U1O3R2vtOZOBm91Jkv</string>
+    <string name="com_auth0_domain">dev-fltwqcj6anshzwek.us.auth0.com</string>
+    <string name="com_auth0_client_id">QJbLlR2HCriN27HXC8XQYLqmu6eDcNMy</string>
 </resources>

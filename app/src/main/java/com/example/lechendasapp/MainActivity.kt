@@ -44,8 +44,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         account = Auth0.getInstance(
-            "Mn2CFGxW8mDw57U1O3R2vtOZOBm91Jkv",
-            "dev-67qpzdvqxn066uwp.us.auth0.com"
+            clientId = "QJbLlR2HCriN27HXC8XQYLqmu6eDcNMy",
+            domain = "dev-fltwqcj6anshzwek.us.auth0.com"
         )
         enableEdgeToEdge()
         setContent {
