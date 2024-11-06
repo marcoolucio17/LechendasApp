@@ -43,6 +43,10 @@ import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.SearchViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,14 +127,15 @@ fun SearchItem(
     log: MonitorLog,
     modifier: Modifier = Modifier
 ) {
+    val expanded = remember { mutableStateOf(false) } // Estado para el menú desplegable
+
     Card(
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
             MaterialTheme.colorScheme.onPrimary
         ),
         modifier = Modifier.padding(bottom = 20.dp)
-    )
-    {
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -138,7 +143,7 @@ fun SearchItem(
                 .fillMaxWidth()
                 .padding(15.dp)
         ) {
-            //State
+            // Icono de notificación
             Icon(
                 imageVector = Icons.Filled.Notifications,
                 contentDescription = null,
@@ -157,29 +162,45 @@ fun SearchItem(
                     .padding(horizontal = 10.dp)
             ) {
                 Text(
-                    //ID
-                    //text = "#FM00001",
                     text = log.id.toString(),
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Text(
-                    //TIPO DE OBSERVACIÓN
-                    //text = "Fauna de Transectos",
                     text = log.logType ?: "Fauna de Transectos",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    //text = "Date: 15/10/2024 @ 4:20",
                     text = log.dateMillis.toString(),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
             IconButton(
-                onClick = {
-                    /*TODO*/
-                },
+                onClick = { expanded.value = true } // Abre el menú
             ) {
-                Icon(painter = painterResource(R.drawable.more_vert), contentDescription = null)
+                Icon(
+                    painter = painterResource(R.drawable.more_vert),
+                    contentDescription = "More options"
+                )
+            }
+            // Menú desplegable con opciones "Editar" y "Borrar"
+            DropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false }
+            ) {
+                DropdownMenuItem(
+                    onClick = {
+                        expanded.value = false
+                        // Lógica para la opción "Editar"
+                    },
+                    text = { Text("Editar") }
+                )
+                DropdownMenuItem(
+                    onClick = {
+                        expanded.value = false
+                        // Lógica para la opción "Borrar"
+                    },
+                    text = { Text("Borrar") }
+                )
             }
         }
     }
