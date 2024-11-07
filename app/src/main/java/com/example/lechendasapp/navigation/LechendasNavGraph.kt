@@ -1,6 +1,7 @@
 package com.example.lechendasapp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -10,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.auth0.android.Auth0
+import com.auth0.android.result.Credentials
 import com.example.lechendasapp.navigation.LechendasDestinations.CLIMATE_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.CONFIGURATION_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.COVERAGE_ROUTE
@@ -40,6 +42,8 @@ import com.example.lechendasapp.screens.TrapFormsScreen
 import com.example.lechendasapp.screens.VegetationFormsScreen
 import com.example.lechendasapp.screens.VerifyUserScreen
 import com.example.lechendasapp.viewmodels.AuthViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 
 @Composable
@@ -52,6 +56,11 @@ fun LechendasNavGraph(
     },
     modifier: Modifier = Modifier
 ) {
+    var credentials by remember { mutableStateOf<Credentials?>(null) }
+    var loggedIn by remember { mutableStateOf(false) }
+    //TODO: if logged in true, change starter destination to home
+    //TODO: if logged in true,
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -65,7 +74,11 @@ fun LechendasNavGraph(
         composable(route = LOGIN_ROUTE) {
             LoginScreen(
                 onBack = { navController.navigateUp() },
-                onLoginSuccess = { navActions.navigateToHome() }
+                onLoginSuccess = {
+                    navActions.navigateToHome()
+                    credentials = it
+                    loggedIn = true
+                }
             )
         }
         composable(route = NEW_PASSWORD_ROUTE) {

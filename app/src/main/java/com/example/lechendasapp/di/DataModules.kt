@@ -125,7 +125,7 @@ object AuthModule {
     fun provideAuth0(@ApplicationContext context: Context): Auth0 {
         return Auth0.getInstance(
             clientId = "QJbLlR2HCriN27HXC8XQYLqmu6eDcNMy",
-            domain = "dev-fltwqcj6anshzwek.us.auth0.com"
+            domain = "dev-fltwqcj6anshzwek.us.auth0.com",
         )
     }
 }
