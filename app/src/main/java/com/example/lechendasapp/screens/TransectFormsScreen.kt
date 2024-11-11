@@ -1,5 +1,10 @@
 package com.example.lechendasapp.screens
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
+import android.os.Build
+import android.widget.Toast
+import com.example.lechendasapp.viewmodels.CameraViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,6 +43,7 @@ fun TransectFormsScreen(
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
     monitorLogId: Long,
+    cameraViewModel: CameraViewModel = viewModel(), // Agregamos el ViewModel de la cámara
     viewModel: AnimalViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
@@ -280,6 +286,50 @@ fun AnimalOptions(
                 .clickable { onSelect() }
         )
         Text(animal.displayName)
+    }
+}
+
+@Composable
+fun TransectsScreen(cameraViewModel: CameraViewModel = viewModel()) {
+    val context = LocalContext.current
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Mostrar la cámara
+        CameraPreview(
+            modifier = Modifier.fillMaxSize(),
+            onUseCaseError = { error ->
+                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+            }
+        )
+
+        // Botón para tomar foto
+        Button(
+            onClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    cameraViewModel.takePhoto(
+                        context = context,
+                        saveToMediaStore = true,
+                        onImageSaved = { file ->
+                            Toast.makeText(context, "Foto guardada: ${file.path}", Toast.LENGTH_LONG).show()
+                        },
+                        onError = { exception ->
+                            Toast.makeText(context, "Error: ${exception.message}", Toast.LENGTH_LONG).show()
+                        }
+                    )
+                } else {
+                    Toast.makeText(
+                        context,
+                        "La funcionalidad de la cámara requiere Android 9 (API 28) o superior",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+        ) {
+            Text("Tomar Foto")
+        }
     }
 }
 

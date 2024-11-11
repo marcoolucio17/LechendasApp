@@ -38,7 +38,6 @@ import com.example.lechendasapp.screens.SearchScreen
 import com.example.lechendasapp.screens.TransectFormsScreen
 import com.example.lechendasapp.screens.TrapFormsScreen
 import com.example.lechendasapp.screens.VegetationFormsScreen
-import com.example.lechendasapp.screens.CountingFormsScreen
 import com.example.lechendasapp.screens.EditProfileScreen
 import com.example.lechendasapp.screens.VerifyUserScreen
 
