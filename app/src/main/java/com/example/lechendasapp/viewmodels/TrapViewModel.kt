@@ -52,10 +52,10 @@ fun TrapUiState.toTrap(): Trap = Trap(
     cameraName = this.cameraName,
     cameraPlate = this.cameraPlate,
     guayaPlate = this.guayaPlate,
-    roadWidth = this.roadWidth.toInt(),
+    roadWidth = this.roadWidth.toIntOrNull() ?: 0,
     installationDate = this.installationDate,
-    lensHeight = this.lensHeight.toInt(),
-    objectiveDistance = this.objectiveDistance.toInt(),
+    lensHeight = this.lensHeight.toIntOrNull() ?: 0,
+    objectiveDistance = this.objectiveDistance.toIntOrNull() ?: 0,
     checkList = this.checkList.filterValues { it }.keys.joinToString(","),
     observations = this.observations,
 )
@@ -71,18 +71,24 @@ class TrapViewModel @Inject constructor(
     private val _monitorLogId = mutableLongStateOf(0L)
     val monitorLogId: State<Long> = _monitorLogId
 
+    private val _logId = mutableLongStateOf(0L)
+    val logId: State<Long> = _logId
+
+
     fun updateUiState(newUi: TrapUiState) {
         _trapUiState.value = newUi
     }
 
-    // edit -> mande el id
-    // traes
-    // 1 Funcion en viewodel que traiga los datos
-    // 2 esos datos los traes del defaultRepository
-    //
-
     fun setMonitorLogId(id: Long) {
         _monitorLogId.longValue = id
+    }
+
+    fun setTrapId(id: Long) {
+        _logId.longValue = id
+        viewModelScope.launch {
+            trapRepository.getTrapById(id)
+            _trapUiState.value = trapRepository.getTrapById(id)?.toTrapUiState()!!
+        }
     }
 
     fun updateCheckList(check: CheckList, isChecked: Boolean) {
@@ -94,15 +100,23 @@ class TrapViewModel @Inject constructor(
 
 
     fun addNewLog() {
-        viewModelScope.launch {
-            val newLog = _trapUiState.value.toTrap()
-
-            //update id values
-            val new = newLog.copy(monitorLogId = _monitorLogId.longValue)
-
-            // TODO: VALIDATE NOT BLANK FIELDS
-
-            trapRepository.insertTrap(new)
+        if (_logId.longValue == 0L) {
+            //Insert new log
+            val newTrap = _trapUiState.value.toTrap().copy(
+                monitorLogId = _monitorLogId.longValue
+            )
+            viewModelScope.launch {
+                trapRepository.insertTrap(newTrap)
+            }
+        } else {
+            //Update log
+            val newTrap = _trapUiState.value.toTrap().copy(
+                id = _logId.longValue,
+                monitorLogId = _monitorLogId.longValue
+            )
+            viewModelScope.launch {
+                trapRepository.updateTrap(newTrap)
+            }
         }
     }
 }

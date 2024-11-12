@@ -33,4 +33,8 @@ interface MonitorLogDao {
     @Delete
     suspend fun delete(monitorLog: LocalMonitorLog)
 
+    @Query("DELETE FROM monitor_logs WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
+
 }

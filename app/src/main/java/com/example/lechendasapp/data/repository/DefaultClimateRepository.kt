@@ -12,8 +12,14 @@ class DefaultClimateRepository @Inject constructor(
     private val localDataSource: ClimateDao,
 ) : ClimateRepository {
     override fun getClimateStream(): Flow<List<Climate>> {
-        return localDataSource.observeAll().map { animals ->
-            animals.toExternal()
+        return localDataSource.observeAll().map { climate ->
+            climate.toExternal()
+        }
+    }
+
+    override fun getClimateStreamByMonitorLogId(monitorLogId: Long): Flow<List<Climate>> {
+        return localDataSource.observeByMonitorLogId(monitorLogId).map { climate ->
+            climate.toExternal()
         }
     }
 
@@ -40,4 +46,9 @@ class DefaultClimateRepository @Inject constructor(
     override suspend fun deleteClimate(climate: Climate) {
         localDataSource.delete(climate.toLocal())
     }
+
+    override suspend fun deleteClimateById(climateId: Long) {
+        localDataSource.deleteById(climateId)
+    }
+
 }

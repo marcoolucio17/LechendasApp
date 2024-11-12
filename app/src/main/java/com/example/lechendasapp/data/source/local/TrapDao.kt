@@ -13,6 +13,9 @@ interface TrapDao {
     @Query("SELECT * FROM trap")
     fun observeAll(): Flow<List<LocalTrap>>
 
+    @Query("SELECT * FROM trap WHERE monitor_log_id = :monitorLogId")
+    fun observeByMonitorLogId(monitorLogId: Long): Flow<List<LocalTrap>>
+
     @Query("SELECT * FROM trap WHERE id = :id")
     fun observeById(id: Long): Flow<LocalTrap>
 
@@ -32,5 +35,8 @@ interface TrapDao {
 
     @Delete
     suspend fun delete(trap: LocalTrap)
+
+    @Query("DELETE FROM trap WHERE id = :id")
+    suspend fun deleteById(id: Long)
 
 }

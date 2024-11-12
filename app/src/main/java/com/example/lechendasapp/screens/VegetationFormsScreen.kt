@@ -49,10 +49,14 @@ fun VegetationFormsScreen(
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
     monitorLogId: Long,
+    id: Long? = null,
     viewModel: VegetationViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
     viewModel.setMonitorLogId(monitorLogId)
+    if (id != null) {
+        viewModel.setVegetationId(id)
+    }
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {

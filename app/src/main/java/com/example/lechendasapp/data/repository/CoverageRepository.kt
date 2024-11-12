@@ -6,6 +6,8 @@ import com.example.lechendasapp.data.model.Coverage
 interface CoverageRepository {
     fun getConverageStream(): Flow<List<Coverage>>
 
+    fun getConverageStreamByMonitorLogId(monitorLogId: Long): Flow<List<Coverage>>
+
     fun getIndividualConverageStream(converageId: Long): Flow<Coverage>
 
     suspend fun getConverage(): List<Coverage>
@@ -17,4 +19,7 @@ interface CoverageRepository {
     suspend fun updateConverage(converage: Coverage)
 
     suspend fun deleteConverage(converage: Coverage)
+
+    suspend fun deleteConverageById(converageId: Long)
+
 }
