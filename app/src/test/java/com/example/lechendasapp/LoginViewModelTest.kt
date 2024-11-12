@@ -4,7 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.lechendasapp.data.model.User
 import com.example.lechendasapp.data.repository.UserRepository
 import com.example.lechendasapp.viewmodels.LoginViewModel
-import com.example.lechendasapp.viewmodels.UserCredentials
+import com.example.lechendasapp.viewmodels.LoginUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -14,7 +14,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.mock
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
@@ -51,7 +52,7 @@ class LoginViewModelTest {
 
         // Intentamos hacer login utilizando estas credenciales
         whenever(userRepository.getUserByEmail("valid@example.com")).thenReturn(user)
-        viewModel.updateUiState(UserCredentials(email = "valid@example.com", password = "correctPassword"))
+        viewModel.updateUiState(LoginUiState(email = "valid@example.com", password = "correctPassword"))
 
         // Checamos si pudo realizar login o no
         var isLoginSuccess = true
