@@ -12,8 +12,14 @@ class DefaultTrapRepository @Inject constructor(
     private val localDataSource: TrapDao,
 ) : TrapRepository {
     override fun getTrapStream(): Flow<List<Trap>> {
-        return localDataSource.observeAll().map { animals ->
-            animals.toExternal()
+        return localDataSource.observeAll().map { traps ->
+            traps.toExternal()
+        }
+    }
+
+    override fun getTrapStreamByMonitorLogId(monitorLogId: Long): Flow<List<Trap>> {
+        return localDataSource.observeByMonitorLogId(monitorLogId).map { traps ->
+            traps.toExternal()
         }
     }
 
@@ -41,6 +47,10 @@ class DefaultTrapRepository @Inject constructor(
 
     override suspend fun deleteTrap(trap: Trap) {
         localDataSource.delete(trap.toLocal())
+    }
+
+    override suspend fun deleteTrapById(trapId: Long) {
+        localDataSource.deleteById(trapId)
     }
 
 }

@@ -48,9 +48,13 @@ fun CoverageFormsScreen(
     onSettingsClick: () -> Unit,
     viewModel : CoverageViewModel = hiltViewModel(),
     monitorLogId: Long,
+    id: Long? = null,
     modifier: Modifier = Modifier,
 ) {
     viewModel.setMonitorLogId(monitorLogId)
+    if (id != null) {
+        viewModel.setCoverageId(id)
+    }
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {

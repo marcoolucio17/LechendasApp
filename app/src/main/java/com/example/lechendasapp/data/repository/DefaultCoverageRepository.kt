@@ -17,6 +17,12 @@ class DefaultCoverageRepository @Inject constructor(
         }
     }
 
+    override fun getConverageStreamByMonitorLogId(monitorLogId: Long): Flow<List<Coverage>> {
+        return localDataSource.observeByMonitorLogId(monitorLogId).map { coverage ->
+            coverage.toExternal()
+        }
+    }
+
     override fun getIndividualConverageStream(converageId: Long): Flow<Coverage> {
         return localDataSource.observeById(converageId).map { it.toExternal() }
     }
@@ -40,4 +46,9 @@ class DefaultCoverageRepository @Inject constructor(
     override suspend fun deleteConverage(converage: Coverage) {
         localDataSource.delete(converage.toLocal())
     }
+
+    override suspend fun deleteConverageById(converageId: Long) {
+        localDataSource.deleteById(converageId)
+    }
+
 }

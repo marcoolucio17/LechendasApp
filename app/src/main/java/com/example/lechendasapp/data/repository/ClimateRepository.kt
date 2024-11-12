@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 interface ClimateRepository {
     fun getClimateStream(): Flow<List<Climate>>
 
+    fun getClimateStreamByMonitorLogId(monitorLogId: Long): Flow<List<Climate>>
+
     fun getIndividualClimateStream(climateId: Long): Flow<Climate>
 
     suspend fun getClimate(): List<Climate>
@@ -18,4 +20,7 @@ interface ClimateRepository {
     suspend fun updateClimate(climate: Climate)
 
     suspend fun deleteClimate(climate: Climate)
+
+    suspend fun deleteClimateById(climateId: Long)
+
 }
