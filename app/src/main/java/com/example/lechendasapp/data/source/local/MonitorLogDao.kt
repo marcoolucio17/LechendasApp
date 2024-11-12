@@ -12,21 +12,20 @@ import kotlinx.coroutines.flow.Flow
 interface MonitorLogDao {
 
     //Basic methods
-
     @Query("SELECT * FROM monitor_logs")
     fun observeAll(): Flow<List<LocalMonitorLog>>
 
     @Query("SELECT * FROM monitor_logs WHERE id = :id")
-    fun observeById(id: Int): Flow<LocalMonitorLog?>
+    fun observeById(id: Long): Flow<LocalMonitorLog>
 
     @Query("SELECT * FROM monitor_logs")
     suspend fun getAll(): List<LocalMonitorLog>
 
     @Query("SELECT * FROM monitor_logs WHERE id = :id")
-    suspend fun getById(id: Int): LocalMonitorLog?
+    suspend fun getById(id: Long): LocalMonitorLog?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(monitorLog: LocalMonitorLog)
+    suspend fun insert(monitorLog: LocalMonitorLog): Long
 
     @Update
     suspend fun update(monitorLog: LocalMonitorLog)

@@ -14,16 +14,6 @@ interface UserRepository {
 
     suspend fun getUserByEmail(email: String): User?
 
-    suspend fun addUser(
-        firstName: String,
-        lastName: String,
-        email: String,
-        password: String,
-        birthDate: String,
-        country: String,
-        occupation: String?,
-    )
-
     suspend fun insertUser(user: User)
 
     suspend fun deleteUser(user: User)

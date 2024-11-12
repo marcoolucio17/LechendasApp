@@ -8,14 +8,37 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.lechendasapp.views.HomeScreen
-import com.example.lechendasapp.views.ForgotPasswordScreen
-import com.example.lechendasapp.views.IntroScreen
-import com.example.lechendasapp.views.LoginScreen
-import com.example.lechendasapp.views.NewPasswordScreen
-import com.example.lechendasapp.views.SearchScreen
-import com.example.lechendasapp.views.VerifyUserScreen
-import com.example.lechendasapp.views.FormularyInitialScreen
+import com.example.lechendasapp.navigation.LechendasDestinations.CLIMATE_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.CONFIGURATION_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.COVERAGE_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.FORGOT_PASSWORD_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.FORMULARY_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.HOME_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.INTRO_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.LOGIN_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.NEW_PASSWORD_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.SEARCH_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.TRAPS_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.VEGETATION_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.VERIFY_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.TRANSECTS_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinations.COUNTING_ROUTE
+import com.example.lechendasapp.navigation.LechendasDestinationsArgs.MONITOR_LOG_ID_ARG
+import com.example.lechendasapp.screens.ClimateScreen
+import com.example.lechendasapp.screens.ConfigurationScreen
+import com.example.lechendasapp.screens.CoverageFormsScreen
+import com.example.lechendasapp.screens.ForgotPasswordScreen
+import com.example.lechendasapp.screens.FormularyInitialScreen
+import com.example.lechendasapp.screens.HomeScreen
+import com.example.lechendasapp.screens.IntroScreen
+import com.example.lechendasapp.screens.LoginScreen
+import com.example.lechendasapp.screens.NewPasswordScreen
+import com.example.lechendasapp.screens.SearchScreen
+import com.example.lechendasapp.screens.TrapFormsScreen
+import com.example.lechendasapp.screens.VegetationFormsScreen
+import com.example.lechendasapp.screens.TransectFormsScreen
+import com.example.lechendasapp.screens.CountingFormsScreen
+import com.example.lechendasapp.screens.VerifyUserScreen
 
 
 @Composable
@@ -32,57 +55,130 @@ fun LechendasNavGraph(
         startDestination = startDestination,
         modifier = modifier
     ) {
-        composable(route = LechendasDestinations.INTRO_ROUTE) {
+        composable(route = INTRO_ROUTE) {
             IntroScreen(
                 onLogin = { navActions.navigateToLogin() },
             )
         }
-        composable(route = LechendasDestinations.LOGIN_ROUTE) {
+        composable(route = LOGIN_ROUTE) {
             LoginScreen(
                 onBack = { navController.navigateUp() },
                 onLoginSuccess = { navActions.navigateToHome() }
             )
         }
-        composable(route = LechendasDestinations.NEW_PASSWORD_ROUTE) {
+        composable(route = NEW_PASSWORD_ROUTE) {
             NewPasswordScreen(
                 onBack = { navController.navigateUp() },
             )
         }
-        composable(route = LechendasDestinations.VERIFY_ROUTE) {
+        composable(route = VERIFY_ROUTE) {
             VerifyUserScreen(
                 onBack = { navController.navigateUp() },
             )
         }
-        composable(route = LechendasDestinations.FORGOT_PASSWORD_ROUTE) {
+        composable(route = FORGOT_PASSWORD_ROUTE) {
             ForgotPasswordScreen(
                 onBack = { navController.navigateUp() },
             )
         }
-        composable(route = LechendasDestinations.HOME_ROUTE) {
+        composable(route = HOME_ROUTE) {
             HomeScreen(
                 onBack = { navController.navigateUp() },
-                currentRoute = LechendasDestinations.HOME_ROUTE,
+                currentRoute = HOME_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToVerify() }
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                onAddClick = { navActions.navigateToFormulary() }
             )
         }
-        composable (route = LechendasDestinations.SEARCH_ROUTE) {
+        composable (route = SEARCH_ROUTE) {
             SearchScreen(
                 onBack = { navController.navigateUp() },
-                currentRoute = LechendasDestinations.SEARCH_ROUTE,
+                currentRoute = SEARCH_ROUTE,
                 onHome = { navActions.navigateToHome() },
                 onSearch = { navActions.navigateToSearch() },
-                onSettings = { navActions.navigateToVerify() }
+                onSettings = { navActions.navigateToConfiguration() }
             )
         }
-        composable (route = LechendasDestinations.FORMULARY_ROUTE) {
+        composable(route = FORMULARY_ROUTE) {
             FormularyInitialScreen(
                 onBack = { navController.navigateUp() },
-                currentRoute = LechendasDestinations.FORMULARY_ROUTE,
+                currentRoute = FORMULARY_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToVerify() }
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                onClimateClick = {monitorLogId -> navActions.navigateToClimate(monitorLogId) },
+                onCoverageClick = { navActions.navigateToCoverage() },
+                onTrapClick = { navActions.navigateToTraps() },
+                onVegetationClick = { navActions.navigateToVegetation() },
+                onTransectClick = { navActions.navigateToTransects() },
+                onConteoClick = { navActions.navigateToCounting() }
+            )
+        }
+        composable(route = TRANSECTS_ROUTE) {
+            TransectFormsScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = TRANSECTS_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() }
+            )
+        }
+        composable(route = COUNTING_ROUTE) {
+            CountingFormsScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = COUNTING_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() }
+            )
+        }
+        composable(route = CONFIGURATION_ROUTE) {
+            ConfigurationScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = CONFIGURATION_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() }
+            )
+        }
+        composable(route = CLIMATE_ROUTE) { backStackEntry ->
+            val monitorLogId = backStackEntry.arguments?.getString(MONITOR_LOG_ID_ARG)
+            requireNotNull(monitorLogId) { "MonitorLogId is required as an argument" }
+            ClimateScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = CLIMATE_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                monitorLogId = monitorLogId.toLong()
+            )
+        }
+        composable(route = TRAPS_ROUTE) {
+            TrapFormsScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = TRAPS_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() }
+            )
+        }
+        composable(route = COVERAGE_ROUTE) {
+            CoverageFormsScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = COVERAGE_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() }
+            )
+        }
+        composable(route = VEGETATION_ROUTE) {
+            VegetationFormsScreen(
+                onBack = { navController.navigateUp() },
+                currentRoute = VEGETATION_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() }
             )
         }
     }

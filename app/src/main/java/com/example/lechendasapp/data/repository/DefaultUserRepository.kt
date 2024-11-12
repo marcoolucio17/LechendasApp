@@ -32,28 +32,7 @@ class DefaultUserRepository @Inject constructor(
     override suspend fun getUserByEmail(email: String): User? {
         return localDataSource.getByEmail(email)?.toExternal()
     }
-
-    override suspend fun addUser(
-        firstName: String,
-        lastName: String,
-        email: String,
-        password: String,
-        birthDate: String,
-        country: String,
-        occupation: String?,
-    ) {
-        //create external User then convert it to local User and insert it
-        val newUser = User(
-            firstName = firstName,
-            lastName = lastName,
-            email = email,
-            password = password,
-            birthDate = birthDate,
-            country = country,
-            occupation = occupation,
-        )
-        localDataSource.insert(newUser.toLocal())
-    }
+    
 
     override suspend fun insertUser(user: User) {
         localDataSource.insert(user.toLocal())

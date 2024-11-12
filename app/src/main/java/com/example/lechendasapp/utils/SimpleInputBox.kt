@@ -2,6 +2,7 @@ package com.example.lechendasapp.utils
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,20 +11,32 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.example.lechendasapp.R
 
 @Composable
-fun SimpleInputBox(labelText: String) {
-    var text by remember { mutableStateOf("") }
+fun SimpleInputBox(
+    labelText: String = "",
+    placeholder: String = "",
+    value: String = "",
+    onValueChange: (String) -> Unit = {},
+    singleLine: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    modifier: Modifier = Modifier
+) {
     OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
+        value = value,
+        onValueChange = onValueChange,
+
         label = { Text(labelText) },
-        singleLine = true,
-        modifier = Modifier
+        placeholder = { Text(placeholder, color = Color.Gray) },
+
+        keyboardOptions = keyboardOptions,
+        singleLine = singleLine,
+
+        modifier = modifier
             .width(450.dp)
-            .padding(dimensionResource(R.dimen.padding_extra_large))
     )
 }

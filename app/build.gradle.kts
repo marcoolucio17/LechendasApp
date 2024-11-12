@@ -19,9 +19,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        vectorDrawables.useSupportLibrary = true
     }
 
     room {
@@ -92,4 +90,9 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.core.splashscreen)
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }

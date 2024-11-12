@@ -16,13 +16,13 @@ interface PhotoDao {
     fun observeAll(): Flow<List<LocalPhoto>>
 
     @Query("SELECT * FROM photos WHERE id = :id")
-    fun observeById(id: String): Flow<LocalPhoto>
+    fun observeById(id: Long): Flow<LocalPhoto>
 
     @Query("SELECT * FROM photos")
     suspend fun getAll(): List<LocalPhoto>
 
     @Query("SELECT * FROM photos WHERE id = :id")
-    suspend fun getById(id: String): LocalPhoto?
+    suspend fun getById(id: Long): LocalPhoto?
 
     @Insert
     suspend fun insert(photo: LocalPhoto)
