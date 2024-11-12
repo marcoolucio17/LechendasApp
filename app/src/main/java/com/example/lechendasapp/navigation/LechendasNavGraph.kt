@@ -1,13 +1,21 @@
 package com.example.lechendasapp.navigation
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.auth0.android.Auth0
+import com.auth0.android.result.Credentials
 import com.example.lechendasapp.navigation.LechendasDestinations.CLIMATE_EDIT_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.CLIMATE_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.CONFIGURATION_ROUTE
@@ -56,17 +64,53 @@ import com.example.lechendasapp.screens.SearchTransectScreen
 import com.example.lechendasapp.screens.SearchTrapScreen
 import com.example.lechendasapp.screens.SearchVegetationScreen
 import com.example.lechendasapp.screens.VerifyUserScreen
+import com.example.lechendasapp.viewmodels.AuthViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 
 @Composable
 fun LechendasNavGraph(
     startDestination: String = LechendasDestinations.INTRO_ROUTE,
     navController: NavHostController = rememberNavController(),
+    auth0: AuthViewModel = hiltViewModel(),
     navActions: LechendasNavigationActions = remember(NavController) {
         LechendasNavigationActions(navController)
     },
     modifier: Modifier = Modifier
 ) {
+    var credentials by remember { mutableStateOf<Credentials?>(null) }
+    var loggedIn by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
+    // Logout Dialog
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Sign Out") },
+            text = { Text("Are you sure you want to sign out?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        loggedIn = false
+                        credentials = null
+                        navController.navigate(INTRO_ROUTE) {
+                            popUpTo(HOME_ROUTE) { inclusive = true }
+                        }
+                    }
+                ) {
+                    Text("Sign Out")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -80,7 +124,25 @@ fun LechendasNavGraph(
         composable(route = LOGIN_ROUTE) {
             LoginScreen(
                 onBack = { navController.navigateUp() },
-                onLoginSuccess = { navActions.navigateToHome() }
+                onLoginSuccess = {
+                    navActions.navigateToHome()
+                    credentials = it
+                    loggedIn = true
+                }
+            )
+        }
+        composable(route = HOME_ROUTE) {
+            BackHandler {
+                showLogoutDialog = true
+            }
+            HomeScreen(
+                onBack = { showLogoutDialog = true },
+                //onBack = { navController.navigateUp() },
+                currentRoute = HOME_ROUTE,
+                onMenuClick = { navActions.navigateToHome() },
+                onSearchClick = { navActions.navigateToSearch() },
+                onSettingsClick = { navActions.navigateToConfiguration() },
+                onAddClick = { navActions.navigateToFormulary() },
             )
         }
         composable(route = NEW_PASSWORD_ROUTE) {
@@ -96,16 +158,6 @@ fun LechendasNavGraph(
         composable(route = FORGOT_PASSWORD_ROUTE) {
             ForgotPasswordScreen(
                 onBack = { navController.navigateUp() },
-            )
-        }
-        composable(route = HOME_ROUTE) {
-            HomeScreen(
-                onBack = { navController.navigateUp() },
-                currentRoute = HOME_ROUTE,
-                onMenuClick = { navActions.navigateToHome() },
-                onSearchClick = { navActions.navigateToSearch() },
-                onSettingsClick = { navActions.navigateToConfiguration() },
-                onAddClick = { navActions.navigateToFormulary() }
             )
         }
         composable (route = SEARCH_ROUTE) {

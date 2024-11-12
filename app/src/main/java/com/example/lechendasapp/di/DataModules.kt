@@ -2,6 +2,7 @@ package com.example.lechendasapp.di
 
 import android.content.Context
 import androidx.room.Room
+import com.auth0.android.Auth0
 import com.example.lechendasapp.data.repository.AnimalRepository
 import com.example.lechendasapp.data.repository.ClimateRepository
 import com.example.lechendasapp.data.repository.CoverageRepository
@@ -113,4 +114,18 @@ object DatabaseModule {
     @Provides
     fun providePhotoDao(database: AwaqDatabase): PhotoDao = database.photoDao()
 
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AuthModule {
+
+    @Provides
+    @Singleton
+    fun provideAuth0(@ApplicationContext context: Context): Auth0 {
+        return Auth0.getInstance(
+            clientId = "QJbLlR2HCriN27HXC8XQYLqmu6eDcNMy",
+            domain = "dev-fltwqcj6anshzwek.us.auth0.com",
+        )
+    }
 }

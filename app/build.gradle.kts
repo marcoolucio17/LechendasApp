@@ -18,9 +18,15 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        manifestPlaceholders.clear()
+        manifestPlaceholders["auth0Domain"] = "@string/com_auth0_domain"
+        manifestPlaceholders["auth0Scheme"] = "https"
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+
+
 
     room {
         schemaDirectory("$projectDir/app/data/source/local/schemas")
@@ -90,6 +96,8 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.core.splashscreen)
+
+    implementation (libs.auth0)
 }
 java {
     toolchain {
