@@ -98,6 +98,14 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
     implementation (libs.auth0)
+
+    // For unit testing
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+
+    // For ViewModel testing
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
+
 }
 java {
     toolchain {
