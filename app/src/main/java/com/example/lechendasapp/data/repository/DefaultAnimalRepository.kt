@@ -17,6 +17,12 @@ class DefaultAnimalRepository @Inject constructor(
         }
     }
 
+    override fun getAnimalsStreamByMonitorLogId(monitorLogId: Long): Flow<List<Animal>> {
+        return localDataSource.observeByMonitorLogId(monitorLogId).map { animals ->
+            animals.toExternal()
+        }
+    }
+
     override fun getIndividualAnimalStream(animalId: Long): Flow<Animal> {
         return localDataSource.observeById(animalId).map { it.toExternal() }
     }
@@ -41,4 +47,7 @@ class DefaultAnimalRepository @Inject constructor(
         localDataSource.delete(animal.toLocal())
     }
 
+    override suspend fun deleteAnimalById(id: Long) {
+        localDataSource.deleteById(id)
+    }
 }

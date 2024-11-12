@@ -11,13 +11,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +32,7 @@ import com.example.lechendasapp.utils.BottomNavBar
 import com.example.lechendasapp.utils.TopBar3
 import androidx.compose.ui.res.painterResource
 import com.example.lechendasapp.R
+import androidx.compose.runtime.*
 
 @Composable
 fun ConfigurationScreen(
@@ -37,10 +41,12 @@ fun ConfigurationScreen(
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onEditProfile: () -> Unit,
+    onLogoutConfirmed: () -> Unit,
     modifier: Modifier = Modifier
 )  {
     Scaffold(
-    topBar = { TopBar3(onBack, "Configuración") },
+    topBar = { TopBar3(onBack, "Configuración", false) },
     bottomBar = {
         BottomNavBar(
             currentRoute = currentRoute,
@@ -51,16 +57,21 @@ fun ConfigurationScreen(
     }
     ) { innerPadding ->
         ConfigurationContent(
+            onEditProfile = onEditProfile,
+            onLogoutConfirmed = onLogoutConfirmed,
             modifier = Modifier.padding(innerPadding)
         )
     }
 }
 
 @Composable
-fun ConfigurationContent(modifier: Modifier) {
+fun ConfigurationContent(modifier: Modifier, onEditProfile: () -> Unit, onLogoutConfirmed: () -> Unit) {
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    var showNotifications by remember { mutableStateOf(true) }
+
     Column(modifier = Modifier.fillMaxSize().padding(top = 110.dp)) {
         SectionTitle("GENERAL")
-        SettingItem(title = "Editar Perfil", onClick = { /* handle action */ })
+        SettingItem(title = "Editar Perfil", onClick = onEditProfile)
 
         Spacer(
             modifier = Modifier
@@ -70,22 +81,34 @@ fun ConfigurationContent(modifier: Modifier) {
                 .background(Color.Black)
         )
 
-        SettingItem(title = "Cambiar contraseña", onClick = { /* handle action */ })
+        SettingItem(title = "Cambiar contraseña", onClick = onEditProfile)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         SectionTitle("NOTIFICACIONES")
         SettingSwitchItem(
             title = "Notificaciones",
-            checked = true,
-            onCheckedChange = { /* handle switch action */ }
+            checked = showNotifications,
+            onCheckedChange = {
+                showNotifications = it
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Actions Section
         SectionTitle("ACCIONES")
-        SettingItem(title = "Cerrar sesión", onClick = { /* handle action */ })
+        SettingItem(title = "Cerrar sesión", onClick = { showLogoutDialog = true })
+
+        if (showLogoutDialog) {
+            LogoutConfirmationDialog(
+                onDismiss = { showLogoutDialog = false },
+                onConfirm = {
+                    showLogoutDialog = false
+                    onLogoutConfirmed()
+                }
+            )
+        }
+
     }
 }
 
@@ -95,6 +118,25 @@ fun SectionTitle(title: String) {
         text = title,
         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+    )
+}
+
+@Composable
+fun LogoutConfirmationDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Cerrar sesión") },
+        text = { Text("¿Estás seguro de que quieres cerrar sesión?") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Cerrar sesión", color = MaterialTheme.colorScheme.primary)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
     )
 }
 
@@ -128,6 +170,8 @@ fun SettingSwitchItem(title: String, checked: Boolean, onCheckedChange: (Boolean
     }
 }
 
+
+
 @ScreenPreviews
 @Composable
 fun ConfigurationScreenPreview() {
@@ -137,7 +181,9 @@ fun ConfigurationScreenPreview() {
             currentRoute = "home",
             onMenuClick = {},
             onSearchClick = {},
-            onSettingsClick = {}
+            onSettingsClick = {},
+            onEditProfile = {},
+            onLogoutConfirmed = {}
         )
     }
 }

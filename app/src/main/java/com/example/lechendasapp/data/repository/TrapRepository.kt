@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface TrapRepository {
     fun getTrapStream(): Flow<List<Trap>>
+    fun getTrapStreamByMonitorLogId(monitorLogId: Long): Flow<List<Trap>>
     fun getIndividualTrapStream(trapId: Long): Flow<Trap>
 
     suspend fun getTrap(): List<Trap>
@@ -13,5 +14,7 @@ interface TrapRepository {
     suspend fun insertTrap(trap: Trap)
     suspend fun updateTrap(trap: Trap)
     suspend fun deleteTrap(trap: Trap)
+    suspend fun deleteTrapById(trapId: Long)
+
 
 }

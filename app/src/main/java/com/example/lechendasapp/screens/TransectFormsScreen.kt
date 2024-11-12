@@ -38,10 +38,14 @@ fun TransectFormsScreen(
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
     monitorLogId: Long,
+    id: Long? = null,
     viewModel: AnimalViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
     viewModel.setMonitorLogId(monitorLogId)
+    if (id != null) {
+        viewModel.setAnimalId(id)
+    }
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {

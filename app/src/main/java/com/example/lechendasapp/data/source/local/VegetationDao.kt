@@ -13,6 +13,9 @@ interface VegetationDao {
     @Query("SELECT * FROM vegetation")
     fun observeAll(): Flow<List<LocalVegetation>>
 
+    @Query("SELECT * FROM vegetation WHERE monitor_log_id = :monitorLogId")
+    fun observeByMonitorLogId(monitorLogId: Long): Flow<List<LocalVegetation>>
+
     @Query("SELECT * FROM vegetation WHERE id = :id")
     fun observeById(id: Long): Flow<LocalVegetation>
 
@@ -31,5 +34,7 @@ interface VegetationDao {
     @Delete
     suspend fun delete(vegetation: LocalVegetation)
 
+    @Query("DELETE FROM vegetation WHERE id = :id")
+    suspend fun deleteById(id: Long)
 
 }

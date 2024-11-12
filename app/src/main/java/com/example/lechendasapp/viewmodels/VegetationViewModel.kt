@@ -33,7 +33,8 @@ data class VegetationUiState(
 
 fun Vegetation.toVegetationUiState(): VegetationUiState = VegetationUiState(
     code = this.code,
-    quadrant = this.quadrant, //TODO: separate quadrants
+    quadrant = this.quadrant.substring(0, 1),
+    quadrantSecond = this.quadrant.substring(1),
     subQuadrant = this.subQuadrant,
     growthHabit = this.growthHabit,
     commonName = this.commonName,
@@ -74,6 +75,9 @@ class VegetationViewModel @Inject constructor(
     private val _monitorLogId = mutableLongStateOf(0L)
     val monitorLogId: State<Long> = _monitorLogId
 
+    private val _vegetationId = mutableLongStateOf(0L)
+    val vegetationId: State<Long> = _vegetationId
+
     fun updateUiState(newUi: VegetationUiState) {
         _vegetationUiState.value = newUi
     }
@@ -104,16 +108,36 @@ class VegetationViewModel @Inject constructor(
         _monitorLogId.longValue = id
     }
 
-    fun addNewLog() {
+    fun setVegetationId(id: Long) {
+        _vegetationId.longValue = id
         viewModelScope.launch {
-            val newLog = _vegetationUiState.value.toVegetation()
+            val vegetation = vegetationRepository.getVegetationById(id)
+            _vegetationUiState.value = vegetation?.toVegetationUiState()!!
+        }
+    }
 
-            //update id values
-            val new = newLog.copy(monitorLogId = _monitorLogId.longValue)
+    fun addNewLog() {
+        if (_vegetationId.longValue == 0L) {
+            Log.d("ADD NEW LOG", "ADD NEW LOG")
+            //Insert new log
+            viewModelScope.launch {
+                val newLog = _vegetationUiState.value.toVegetation()
 
-            // TODO: VALIDATE NOT BLANK FIELDS
+                //update id values
+                val new = newLog.copy(monitorLogId = _monitorLogId.longValue)
 
-            vegetationRepository.insertVegetation(new)
+                // TODO: VALIDATE NOT BLANK FIELDS
+
+                vegetationRepository.insertVegetation(new)
+            }
+        } else {
+            Log.d("UPDATE LOG", "UPDATE LOG")
+            // Update existing log
+            viewModelScope.launch {
+                var newLog = _vegetationUiState.value.toVegetation()
+                val new = newLog.copy(id = _vegetationId.longValue, monitorLogId = _monitorLogId.longValue)
+                vegetationRepository.updateVegetation(new)
+            }
         }
     }
 }

@@ -50,9 +50,13 @@ fun TrapFormsScreen(
     onSettingsClick: () -> Unit,
     viewModel: TrapViewModel = hiltViewModel(),
     monitorLogId: Long,
+    id: Long? = null,
     modifier: Modifier = Modifier,
 ) {
     viewModel.setMonitorLogId(monitorLogId)
+    if (id != null) {
+        viewModel.setTrapId(id)
+    }
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {

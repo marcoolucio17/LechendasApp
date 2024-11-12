@@ -17,7 +17,9 @@ import com.example.lechendasapp.R
 @Composable
 fun TopBar3(
     onBack: () -> Unit,
-    title: String = "Búsqueda"
+    title: String = "Búsqueda",
+    showMenu: Boolean = true,
+    useDefaultColors: Boolean = true
 ) {
     TopAppBar(
         navigationIcon = {
@@ -30,16 +32,23 @@ fun TopBar3(
             }
         },
         title = { Text(text = title) },
-        actions = { // Add the actions parameter for additional icons
-            IconButton(onClick = {/*TODO*/}) { // Set up onClick for the menu icon
-                Icon(
-                    painter = painterResource(R.drawable.more_vert),
-                    contentDescription = "More options"
-                )
+        actions = {
+            // Show the menu icon only if showMenu is true
+            if (showMenu) {
+                IconButton(onClick = {/* TODO: Handle menu click */}) {
+                    Icon(
+                        painter = painterResource(R.drawable.more_vert),
+                        contentDescription = "More options"
+                    )
+                }
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
+        colors = if (useDefaultColors) {
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        } else {
+            TopAppBarDefaults.topAppBarColors()
+        }
     )
 }

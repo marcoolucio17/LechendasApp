@@ -13,6 +13,9 @@ interface CoverageDao {
     @Query("SELECT * FROM coverage")
     fun observeAll(): Flow<List<LocalCoverage>>
 
+    @Query("SELECT * FROM coverage WHERE monitor_log_id = :monitorLogId")
+    fun observeByMonitorLogId(monitorLogId: Long): Flow<List<LocalCoverage>>
+
     @Query("SELECT * FROM coverage WHERE id = :id")
     fun observeById(id: Long): Flow<LocalCoverage>
 
@@ -31,5 +34,7 @@ interface CoverageDao {
     @Delete
     suspend fun delete(coverage: LocalCoverage)
 
+    @Query("DELETE FROM coverage WHERE id = :id")
+    suspend fun deleteById(id: Long)
 
 }

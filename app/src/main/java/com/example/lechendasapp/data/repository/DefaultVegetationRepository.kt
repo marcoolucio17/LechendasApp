@@ -12,8 +12,14 @@ class DefaultVegetationRepository @Inject constructor(
     private val localDataSource: VegetationDao,
 ) : VegetationRepository {
     override fun getVegetationStream(): Flow<List<Vegetation>> {
-        return localDataSource.observeAll().map { animals ->
-            animals.toExternal()
+        return localDataSource.observeAll().map { vegetation ->
+            vegetation.toExternal()
+        }
+    }
+
+    override fun getVegetationStreamByMonitorLogId(monitorLogId: Long): Flow<List<Vegetation>> {
+        return localDataSource.observeByMonitorLogId(monitorLogId).map { vegetation ->
+            vegetation.toExternal()
         }
     }
 
@@ -40,5 +46,10 @@ class DefaultVegetationRepository @Inject constructor(
     override suspend fun deleteVegetation(vegetation: Vegetation) {
         localDataSource.delete(vegetation.toLocal())
     }
+
+    override suspend fun deleteVegetationById(vegetationId: Long) {
+        localDataSource.deleteById(vegetationId)
+    }
+
 
 }

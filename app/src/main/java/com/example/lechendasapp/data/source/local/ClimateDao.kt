@@ -13,6 +13,9 @@ interface ClimateDao {
     @Query("SELECT * FROM climate")
     fun observeAll(): Flow<List<LocalClimate>>
 
+    @Query("SELECT * FROM climate WHERE monitor_log_id = :monitorLogId")
+    fun observeByMonitorLogId(monitorLogId: Long): Flow<List<LocalClimate>>
+
     @Query("SELECT * FROM climate WHERE id = :id")
     fun observeById(id: Long): Flow<LocalClimate>
 
@@ -30,4 +33,7 @@ interface ClimateDao {
 
     @Delete
     suspend fun delete(climate: LocalClimate)
+
+    @Query("DELETE FROM climate WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }
