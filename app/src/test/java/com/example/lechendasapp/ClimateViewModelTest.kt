@@ -1,26 +1,25 @@
 package com.example.lechendasapp
 
 import com.example.lechendasapp.data.model.Climate
-import com.example.lechendasapp.data.repository.ClimateRepository
+import com.example.lechendasapp.fakes.FakeClimateRepository
 import com.example.lechendasapp.viewmodels.ClimateUiState
 import com.example.lechendasapp.viewmodels.ClimateViewModel
 import com.example.lechendasapp.viewmodels.toClimateLog
 import com.example.lechendasapp.viewmodels.toClimateUiState
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
 
 class ClimateViewModelTest {
 
-    private lateinit var testRepository: TestClimateRepository
+    private lateinit var fakeRepository: FakeClimateRepository
     private lateinit var viewModel: ClimateViewModel
 
     @Before
     fun setup() {
-        testRepository = TestClimateRepository()
-        viewModel = ClimateViewModel(testRepository)
+        // Use FakeClimateRepository from the "fakes" package
+        fakeRepository = FakeClimateRepository()
+        viewModel = ClimateViewModel(fakeRepository)
     }
 
     @Test
@@ -107,7 +106,7 @@ class ClimateViewModelTest {
             observations = "Test observation"
         )
 
-        assertEquals(expectedClimate, testRepository.lastInsertedClimate)
+        assertEquals(expectedClimate, fakeRepository.lastInsertedClimate)
     }
 
     @Test
@@ -161,39 +160,5 @@ class ClimateViewModelTest {
         assertEquals(40, climate.minHumidity)
         assertEquals(5, climate.ravineLevel)
         assertEquals("Test", climate.observations)
-    }
-}
-
-// Simple Test Repository Implementation
-class TestClimateRepository : ClimateRepository {
-    var lastInsertedClimate: Climate? = null
-    private val climateList = mutableListOf<Climate>()
-
-    override fun getClimateStream(): Flow<List<Climate>> = flowOf(climateList)
-
-    override fun getIndividualClimateStream(climateId: Long): Flow<Climate> {
-        return flowOf(climateList.first { it.id == climateId })
-    }
-
-    override suspend fun getClimate(): List<Climate> = climateList
-
-    override suspend fun getClimateById(climateId: Long): Climate? {
-        return climateList.find { it.id == climateId }
-    }
-
-    override suspend fun insertClimate(climate: Climate) {
-        lastInsertedClimate = climate
-        climateList.add(climate)
-    }
-
-    override suspend fun updateClimate(climate: Climate) {
-        val index = climateList.indexOfFirst { it.id == climate.id }
-        if (index != -1) {
-            climateList[index] = climate
-        }
-    }
-
-    override suspend fun deleteClimate(climate: Climate) {
-        climateList.removeIf { it.id == climate.id }
     }
 }
