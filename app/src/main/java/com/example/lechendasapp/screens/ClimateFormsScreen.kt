@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -15,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +33,7 @@ import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.ClimateUiState
 import com.example.lechendasapp.viewmodels.ClimateViewModel
-
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -75,7 +77,7 @@ fun ClimateScreen(
 @Composable
 fun ClimateContent(
     climateUiState: ClimateUiState,
-    validateFields: () -> Boolean, // Asegúrate de incluir este parámetro
+    validateFields: () -> Boolean,
     addNewLog: () -> Unit,
     resetForm: () -> Unit,
     updateUiState: (ClimateUiState) -> Unit,
@@ -83,8 +85,11 @@ fun ClimateContent(
 ) {
 
     val context = LocalContext.current
+    val listState = rememberLazyListState() // Estado para controlar el scroll
+    val coroutineScope = rememberCoroutineScope() // Para ejecutar scroll en un coroutine
 
     LazyColumn(
+        state = listState, // Asocia el estado de scroll
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(36.dp),
         modifier = modifier
@@ -230,6 +235,9 @@ fun ClimateContent(
                         addNewLog()
                         resetForm() // Resetea el formulario
                         Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
+                        coroutineScope.launch {
+                            listState.scrollToItem(0) // Mueve al inicio
+                        }
                     }
                 },
                 enabled = climateUiState.errors.isEmpty(),
@@ -241,8 +249,6 @@ fun ClimateContent(
                     style = MaterialTheme.typography.titleSmall
                 )
             }
-
-
         }
     }
 }
