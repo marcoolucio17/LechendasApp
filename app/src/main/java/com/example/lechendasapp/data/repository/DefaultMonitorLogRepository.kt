@@ -34,4 +34,9 @@ class DefaultMonitorLogRepository @Inject constructor(
     override suspend fun deleteMonitorLog(monitorLog: MonitorLog) {
         localDataSource.delete(monitorLog.toLocal())
     }
+
+    override suspend fun deleteMonitorLogById(monitorLogId: Long) {
+        localDataSource.deleteById(monitorLogId)
+    }
+
 }

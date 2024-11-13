@@ -1,6 +1,5 @@
 package com.example.lechendasapp.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,14 +15,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.auth0.android.Auth0
+import com.auth0.android.result.Credentials
 import com.example.lechendasapp.R
 import com.example.lechendasapp.data.model.User
 import com.example.lechendasapp.data.repository.UserRepository
@@ -33,7 +38,6 @@ import com.example.lechendasapp.utils.InitialFooter
 import com.example.lechendasapp.utils.TopBar1
 import com.example.lechendasapp.viewmodels.LoginUiState
 import com.example.lechendasapp.viewmodels.LoginViewModel
-import com.example.lechendasapp.viewmodels.UserCredentials
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -41,7 +45,7 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun LoginScreen(
     onBack: () -> Unit,
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (Credentials) -> Unit,
     viewModel: LoginViewModel = hiltViewModel<LoginViewModel>(),
     modifier: Modifier = Modifier
 ) {
@@ -52,7 +56,8 @@ fun LoginScreen(
         LoginBody(
             loginUiState = viewModel.loginUiState.value,
             onUserChange = viewModel::updateUiState,
-            onVerify = onLoginSuccess,
+            onLoginWithUsernamePassword = viewModel::loginWithUsernamePassword,
+            onLoginSuccess = onLoginSuccess,
             //onVerify = { viewModel.checkUserCredentials(onLoginSuccess) },
             modifier = Modifier.padding(innerPadding)
         )
@@ -63,11 +68,12 @@ fun LoginScreen(
 @Composable
 fun LoginBody(
     loginUiState: LoginUiState,
-    onUserChange: (UserCredentials) -> Unit,
-    onVerify: () -> Unit,
+    onUserChange: (LoginUiState) -> Unit,
+    onLoginWithUsernamePassword: (String, String, (Credentials) -> Unit, (String) -> Unit) -> Unit,
+    onLoginSuccess: (Credentials) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box (modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -75,8 +81,12 @@ fun LoginBody(
                 .fillMaxSize()
                 .padding(dimensionResource(R.dimen.padding_medium))
         ) {
-            LoginContent(loginUiState, onUserChange, onVerify)
-//            LoginContent({})
+            LoginContent(
+                loginUiState,
+                onUserChange,
+                onLoginWithUsernamePassword,
+                onLoginSuccess
+            )
         }
     }
 }
@@ -84,10 +94,12 @@ fun LoginBody(
 @Composable
 private fun LoginContent(
     loginUiState: LoginUiState,
-    onUserChange: (UserCredentials) -> Unit,
-    onVerify: () -> Unit
+    onUserChange: (LoginUiState) -> Unit,
+    onLoginWithUsernamePassword: (String, String, (Credentials) -> Unit, (String) -> Unit) -> Unit,
+    onLoginSuccess: (Credentials) -> Unit
 ) {
-    val userDetail: UserCredentials = loginUiState.userCredentials
+    val userDetail: LoginUiState = loginUiState
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     Text(
         text = stringResource(R.string.iniciar_sesion),
         style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
@@ -110,20 +122,20 @@ private fun LoginContent(
             .width(450.dp)
             .padding(dimensionResource(R.dimen.padding_extra_large))
     )
-    Text(
-        text = stringResource(R.string.olvidaste_la_contrasena),
-        modifier = Modifier.Companion
-            .padding(
-                horizontal = dimensionResource(R.dimen.padding_large),
-                vertical = dimensionResource(R.dimen.padding_large)
-            )
-            .clickable {
-            //TODO: Ir a pantalla de recuperar contraseña
-            },
-    )
+    errorMessage?.let {
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "Error: $it", color = Color.Red)
+    }
     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_extra_large)))
     Button(
-        onClick = onVerify,
+        onClick = { onLoginWithUsernamePassword(
+            userDetail.email,
+            userDetail.password,
+            onLoginSuccess
+        ) { message ->
+            errorMessage = message // Actualiza el mensaje de error si ocurre un problema
+        }
+        },
         modifier = Modifier
             .width(dimensionResource(R.dimen.button_width))
             .height(dimensionResource(R.dimen.button_height))
@@ -197,9 +209,15 @@ class MockUserRepository : UserRepository {
 fun rememberPreviewLoginViewModel(): LoginViewModel {
     val mockUserRepository = MockUserRepository()
     return remember {
-        LoginViewModel(mockUserRepository).apply {
+        LoginViewModel(
+            mockUserRepository,
+            auth0 = Auth0.getInstance(
+                clientId = "",
+                domain = ""
+            )
+        ).apply {
             // Initialize with sample data for the preview
-            updateUiState(UserCredentials(email = "preview@example.com", password = "password"))
+            updateUiState(LoginUiState(email = "preview@example.com", password = "password"))
         }
     }
 }

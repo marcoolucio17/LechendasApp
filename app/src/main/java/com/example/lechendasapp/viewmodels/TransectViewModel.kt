@@ -8,6 +8,8 @@ import com.example.lechendasapp.data.model.Animal
 import com.example.lechendasapp.data.repository.AnimalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 data class AnimalUiSate (
     val animalType: String = "",
@@ -56,6 +58,9 @@ class AnimalViewModel @Inject constructor(
     private val _monitorLogId = mutableLongStateOf(0L)
     val monitorLogId: State<Long> = _monitorLogId
 
+    private val _animalId = mutableLongStateOf(0L)
+    val animalId: State<Long> = _animalId
+
     fun updateUiState(newUiState: AnimalUiSate) {
         _animalUiState.value = newUiState
     }
@@ -64,9 +69,33 @@ class AnimalViewModel @Inject constructor(
         _monitorLogId.longValue = id
     }
 
+    fun setAnimalId(id: Long) {
+        _animalId.longValue = id
+        viewModelScope.launch {
+            val animal = animalRepository.getAnimalById(id)
+            _animalUiState.value = animal?.toAnimalUiState()!!
+        }
+    }
+
     fun saveAnimal() {
-        val newAnimal = _animalUiState.value.toAnimal().copy(
-            monitorLogId = _monitorLogId.longValue
-        )
+        if (_animalId.longValue == 0L) {
+            //Insert new log
+            val newAnimal = _animalUiState.value.toAnimal().copy(
+                monitorLogId = _monitorLogId.longValue
+            )
+            viewModelScope.launch {
+                animalRepository.insertAnimal(newAnimal)
+            }
+        }
+        else {
+            //Update existing log
+            val newAnimal = _animalUiState.value.toAnimal().copy(
+                id = _animalId.longValue,
+                monitorLogId = _monitorLogId.longValue
+            )
+            viewModelScope.launch {
+                animalRepository.updateAnimal(newAnimal)
+            }
+        }
     }
 }

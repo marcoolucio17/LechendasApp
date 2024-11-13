@@ -39,10 +39,14 @@ fun ClimateScreen(
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
     monitorLogId: Long,
+    id: Long? = null,
     viewModel: ClimateViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
     viewModel.setMonitorLogId(monitorLogId)
+    if (id != null) {
+        viewModel.setClimateId(id)
+    }
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {

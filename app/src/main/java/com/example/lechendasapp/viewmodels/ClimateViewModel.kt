@@ -33,7 +33,7 @@ fun Climate.toClimateUiState(): ClimateUiState = ClimateUiState(
     ravineLevel = this.ravineLevel.toString(),
 )
 
-fun ClimateUiState.toClimateLog(): Climate = Climate(
+fun ClimateUiState.toClimate(): Climate = Climate(
     id = 0, // This can be default or handled by DAO
 
     monitorLogId = 0,
@@ -57,6 +57,9 @@ class ClimateViewModel @Inject constructor(
     private val _monitorLogId = mutableLongStateOf(0L)
     val monitorLogId: State<Long> = _monitorLogId
 
+    private val _climateId = mutableLongStateOf(0L)
+    val climateId: State<Long> = _climateId
+
     fun updateUiState(newUi: ClimateUiState) {
         _climateUiState.value = newUi
     }
@@ -65,17 +68,32 @@ class ClimateViewModel @Inject constructor(
         _monitorLogId.longValue = id
     }
 
-    fun addNewLog() {
+    fun setClimateId(id: Long) {
+        _climateId.longValue = id
         viewModelScope.launch {
-            val newLog = _climateUiState.value.toClimateLog()
+            val climate = climateRepository.getClimateById(id)
+            _climateUiState.value = climate?.toClimateUiState()!!
+        }
+    }
 
-            //update id values
-            val new = newLog.copy(monitorLogId = _monitorLogId.value)
-
-            // TODO: VALIDATE NOT BLANK FIELDS
-            Log.d("ClimateViewModel", "Adding new log: $new")
-
-            climateRepository.insertClimate(new)
+    fun addNewLog() {
+        if (_climateId.longValue == 0L) {
+            //Insert new climate
+            val newLog = _climateUiState.value.toClimate().copy(
+                monitorLogId = _monitorLogId.longValue
+            )
+            viewModelScope.launch {
+                climateRepository.insertClimate(newLog)
+            }
+        } else {
+            //Update new climate
+            val newClimate = _climateUiState.value.toClimate().copy(
+                id = _climateId.longValue,
+                monitorLogId = _monitorLogId.longValue
+            )
+            viewModelScope.launch {
+                climateRepository.updateClimate(newClimate)
+            }
         }
     }
 }

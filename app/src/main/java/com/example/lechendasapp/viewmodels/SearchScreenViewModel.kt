@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -21,7 +22,7 @@ data class SearchUiState(
 class SearchViewModel @Inject constructor(
     private val monitorLogRepository: MonitorLogRepository
 ) : ViewModel() {
-    val _searchUiState: StateFlow<SearchUiState> =
+    private val _searchUiState: StateFlow<SearchUiState> =
         monitorLogRepository.getMonitorLogsStream()
             .map { SearchUiState(it) }
             .stateIn(
@@ -29,4 +30,13 @@ class SearchViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = SearchUiState()
             )
+
+    val searchUiState: StateFlow<SearchUiState> = _searchUiState
+
+    fun deleteMonitorLog(monitorLogId: Long) {
+        //TODO: borrar recursivamente los datos de la base de datos
+        viewModelScope.launch {
+            monitorLogRepository.deleteMonitorLogById(monitorLogId)
+        }
+    }
 }

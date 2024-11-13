@@ -59,12 +59,23 @@ class CoverageViewModel @Inject constructor(
     private val _monitorLogId = mutableLongStateOf(0L)
     val monitorLogId: State<Long> = _monitorLogId
 
+    private val _coverageId = mutableLongStateOf(0L)
+    val coverageId: State<Long> = _coverageId
+
     fun updateUiState(newUiState: CoverageUiState) {
         _coverageUiState.value = newUiState
     }
 
     fun setMonitorLogId(id: Long) {
         _monitorLogId.longValue = id
+    }
+
+    fun setCoverageId(id: Long) {
+        _coverageId.longValue = id
+        viewModelScope.launch {
+            val coverage = coverageRepository.getConverageById(id)
+            _coverageUiState.value = coverage?.toCoverageUiState()!!
+        }
     }
 
     fun updateTrackingOption(option: SINO) {
@@ -88,13 +99,23 @@ class CoverageViewModel @Inject constructor(
     }
 
     fun saveCoverage() {
-        viewModelScope.launch {
+        if (_coverageId.longValue == 0L) {
+            //Insert new coverage
             val newCoverage = _coverageUiState.value.toCoverage().copy(
                 monitorLogId = _monitorLogId.longValue
             )
-
-            // Insert newCoverage into repository (assuming suspend function)
-            coverageRepository.insertConverage(newCoverage)
+            viewModelScope.launch {
+                coverageRepository.insertConverage(newCoverage)
+            }
+        } //Update new coverage
+        else {
+            val newCoverage = _coverageUiState.value.toCoverage().copy(
+                id = _coverageId.longValue,
+                monitorLogId = _monitorLogId.longValue
+            )
+            viewModelScope.launch {
+                coverageRepository.updateConverage(newCoverage)
+            }
         }
     }
 }

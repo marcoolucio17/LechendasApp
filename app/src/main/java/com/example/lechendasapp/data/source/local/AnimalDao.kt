@@ -13,6 +13,9 @@ interface AnimalDao {
     @Query("SELECT * FROM animals")
     fun observeAll(): Flow<List<LocalAnimal>>
 
+    @Query("SELECT * FROM animals WHERE monitor_log_id = :monitorLogId")
+    fun observeByMonitorLogId(monitorLogId: Long): Flow<List<LocalAnimal>>
+
     @Query("SELECT * FROM animals WHERE id = :id")
     fun observeById(id: Long): Flow<LocalAnimal>
 
@@ -30,4 +33,7 @@ interface AnimalDao {
 
     @Delete
     suspend fun delete(animal: LocalAnimal)
+
+    @Query("DELETE FROM animals WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }
