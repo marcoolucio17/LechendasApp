@@ -66,6 +66,7 @@ fun ClimateScreen(
             updateUiState = viewModel::updateUiState,
             addNewLog = viewModel::addNewLog,
             validateFields = viewModel::validateFields,
+            resetForm = viewModel::resetForm,
             modifier = modifier.padding(innerPadding)
         )
     }
@@ -76,6 +77,7 @@ fun ClimateContent(
     climateUiState: ClimateUiState,
     validateFields: () -> Boolean, // Asegúrate de incluir este parámetro
     addNewLog: () -> Unit,
+    resetForm: () -> Unit,
     updateUiState: (ClimateUiState) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -226,6 +228,7 @@ fun ClimateContent(
                 onClick = {
                     if (validateFields()) {
                         addNewLog()
+                        resetForm() // Resetea el formulario
                         Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
                     }
                 },
@@ -238,6 +241,7 @@ fun ClimateContent(
                     style = MaterialTheme.typography.titleSmall
                 )
             }
+
 
         }
     }

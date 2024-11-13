@@ -23,7 +23,11 @@ data class ClimateUiState(
     val ravineLevel: String = "",
     val observations: String = "",
     val errors: Map<String, String> = emptyMap() // Para almacenar mensajes de error
-)
+) {
+    companion object {
+        fun empty() = ClimateUiState()
+    }
+}
 
 
 fun Climate.toClimateUiState(): ClimateUiState = ClimateUiState(
@@ -81,7 +85,11 @@ class ClimateViewModel @Inject constructor(
         }
     }
 
-     fun validateFields(): Boolean {
+    fun resetForm() {
+        _climateUiState.value = ClimateUiState.empty()
+    }
+
+    fun validateFields(): Boolean {
         val uiState = _climateUiState.value
         val errors = mutableMapOf<String, String>()
 
