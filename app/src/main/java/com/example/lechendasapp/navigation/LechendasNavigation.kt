@@ -1,6 +1,7 @@
 package com.example.lechendasapp.navigation
 
 import androidx.navigation.NavController
+import com.example.lechendasapp.navigation.LechendasDestinations.CAMERA_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.CONFIGURATION_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.COVERAGE_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinations.FORGOT_PASSWORD_ROUTE
@@ -15,6 +16,7 @@ import com.example.lechendasapp.navigation.LechendasDestinations.VEGETATION_ROUT
 import com.example.lechendasapp.navigation.LechendasDestinations.VERIFY_ROUTE
 import com.example.lechendasapp.navigation.LechendasDestinationsArgs.ID_ARG
 import com.example.lechendasapp.navigation.LechendasDestinationsArgs.MONITOR_LOG_ID_ARG
+import com.example.lechendasapp.navigation.LechendasScreens.CAMERA_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.CLIMATE_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.CONFIGURATION_SCREEN
 import com.example.lechendasapp.navigation.LechendasScreens.COVERAGE_SCREEN
@@ -61,6 +63,7 @@ private object LechendasScreens {
     const val SEARCH_CLIMATE_SCREEN = "searchClimate"
     const val SEARCH_COVERAGE_SCREEN = "searchCoverage"
     const val SEARCH_VEGETATION_SCREEN = "searchVegetation"
+    const val CAMERA_SCREEN = "camera"
 }
 
 /*For the future: arguments for the routes */
@@ -109,6 +112,8 @@ object LechendasDestinations {
     const val SEARCH_CLIMATE_ROUTE = "$SEARCH_CLIMATE_SCREEN/{$MONITOR_LOG_ID_ARG}"
     const val SEARCH_COVERAGE_ROUTE = "$SEARCH_COVERAGE_SCREEN/{$MONITOR_LOG_ID_ARG}"
     const val SEARCH_VEGETATION_ROUTE = "$SEARCH_VEGETATION_SCREEN/{$MONITOR_LOG_ID_ARG}"
+
+    const val CAMERA_ROUTE = CAMERA_SCREEN
 }
 
 class LechendasNavigationActions(private val navController: NavController) {
@@ -204,6 +209,9 @@ class LechendasNavigationActions(private val navController: NavController) {
     }
     fun navigateToSearchVegetation(monitorLogId: Long) {
         navController.navigate("$SEARCH_VEGETATION_SCREEN/$monitorLogId")
+    }
+    fun navigateToCamera() {
+        navController.navigate(CAMERA_ROUTE)
     }
 }
 
