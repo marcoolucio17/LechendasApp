@@ -21,8 +21,10 @@ data class ClimateUiState(
     val maxHumidity: String = "",
     val minHumidity: String = "",
     val ravineLevel: String = "",
-    val observations: String = ""
+    val observations: String = "",
+    val errors: Map<String, String> = emptyMap() // Para almacenar mensajes de error
 )
+
 
 fun Climate.toClimateUiState(): ClimateUiState = ClimateUiState(
     rainfall = this.rainfall.toString(),
@@ -79,40 +81,22 @@ class ClimateViewModel @Inject constructor(
         }
     }
 
-    private fun validateFields(): Boolean {
+     fun validateFields(): Boolean {
         val uiState = _climateUiState.value
-        return when {
-            uiState.rainfall.isBlank() -> {
-                _errorMessage.value = "Por favor llena todos los campos."
-                false
-            }
-            uiState.maxTemp.isBlank() -> {
-                _errorMessage.value = "Por favor llena todos los campos."
-                false
-            }
-            uiState.minTemp.isBlank() -> {
-                _errorMessage.value = "Por favor llena todos los campos."
-                false
-            }
-            uiState.maxHumidity.isBlank() -> {
-                _errorMessage.value = "Por favor llena todos los campos."
-                false
-            }
-            uiState.minHumidity.isBlank() -> {
-                _errorMessage.value = "Por favor llena todos los campos."
-                false
-            }
-            uiState.ravineLevel.isBlank() -> {
-                _errorMessage.value = "Por favor llena todos los campos."
-                false
-            }
+        val errors = mutableMapOf<String, String>()
 
-            else -> {
-                _errorMessage.value = ""
-                true
-            }
-        }
+        if (uiState.rainfall.isBlank()) errors["rainfall"] = "Este campo es obligatorio."
+        if (uiState.maxTemp.isBlank()) errors["maxTemp"] = "Este campo es obligatorio."
+        if (uiState.minTemp.isBlank()) errors["minTemp"] = "Este campo es obligatorio."
+        if (uiState.maxHumidity.isBlank()) errors["maxHumidity"] = "Este campo es obligatorio."
+        if (uiState.minHumidity.isBlank()) errors["minHumidity"] = "Este campo es obligatorio."
+        if (uiState.ravineLevel.isBlank()) errors["ravineLevel"] = "Este campo es obligatorio."
+
+        _climateUiState.value = uiState.copy(errors = errors)
+
+        return errors.isEmpty()
     }
+
 
     fun addNewLog() {
         if (validateFields()) { // Verifica que los campos no estén vacíos

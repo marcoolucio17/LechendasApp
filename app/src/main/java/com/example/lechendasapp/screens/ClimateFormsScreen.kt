@@ -65,6 +65,7 @@ fun ClimateScreen(
             climateUiState = viewModel.climateUiState.value,
             updateUiState = viewModel::updateUiState,
             addNewLog = viewModel::addNewLog,
+            validateFields = viewModel::validateFields,
             modifier = modifier.padding(innerPadding)
         )
     }
@@ -73,6 +74,7 @@ fun ClimateScreen(
 @Composable
 fun ClimateContent(
     climateUiState: ClimateUiState,
+    validateFields: () -> Boolean, // Asegúrate de incluir este parámetro
     addNewLog: () -> Unit,
     updateUiState: (ClimateUiState) -> Unit,
     modifier: Modifier = Modifier
@@ -90,11 +92,12 @@ fun ClimateContent(
         item {
             SimpleInputBox(
                 labelText = "Pluviosidad (mm)",
-                value = climateUiState.rainfall.toString(),
+                value = climateUiState.rainfall,
                 onValueChange = {
                     updateUiState(
                         climateUiState.copy(
-                            rainfall = it
+                            rainfall = it,
+                            errors = climateUiState.errors - "rainfall"
                         )
                     )
                 },
@@ -102,16 +105,20 @@ fun ClimateContent(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
+                isError = climateUiState.errors.containsKey("rainfall"),
+                errorText = climateUiState.errors["rainfall"]
             )
+
         }
         item {
             SimpleInputBox(
                 labelText = "Temperatura máxima",
-                value = climateUiState.maxTemp.toString(),
+                value = climateUiState.maxTemp,
                 onValueChange = {
                     updateUiState(
                         climateUiState.copy(
-                            maxTemp = it
+                            maxTemp = it,
+                            errors = climateUiState.errors - "maxTemp" // Limpia el error al cambiar el valor
                         )
                     )
                 },
@@ -119,16 +126,19 @@ fun ClimateContent(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
+                isError = climateUiState.errors.containsKey("maxTemp"),
+                errorText = climateUiState.errors["maxTemp"]
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Temperatura mínima",
-                value = climateUiState.minTemp.toString(),
+                value = climateUiState.minTemp,
                 onValueChange = {
                     updateUiState(
                         climateUiState.copy(
-                            minTemp = it
+                            minTemp = it,
+                            errors = climateUiState.errors - "minTemp" // Limpia el error al cambiar el valor
                         )
                     )
                 },
@@ -136,16 +146,19 @@ fun ClimateContent(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
+                isError = climateUiState.errors.containsKey("minTemp"),
+                errorText = climateUiState.errors["minTemp"]
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Húmedad máxima",
-                value = climateUiState.maxHumidity.toString(),
+                value = climateUiState.maxHumidity,
                 onValueChange = {
                     updateUiState(
                         climateUiState.copy(
-                            maxHumidity = it
+                            maxHumidity = it,
+                            errors = climateUiState.errors - "maxHumidity" // Limpia el error al cambiar el valor
                         )
                     )
                 },
@@ -153,16 +166,19 @@ fun ClimateContent(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
+                isError = climateUiState.errors.containsKey("maxHumidity"),
+                errorText = climateUiState.errors["maxHumidity"]
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Húmedad mínima",
-                value = climateUiState.minHumidity.toString(),
+                value = climateUiState.minHumidity,
                 onValueChange = {
                     updateUiState(
                         climateUiState.copy(
-                            minHumidity = it
+                            minHumidity = it,
+                            errors = climateUiState.errors - "minHumidity" // Limpia el error al cambiar el valor
                         )
                     )
                 },
@@ -170,16 +186,19 @@ fun ClimateContent(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
+                isError = climateUiState.errors.containsKey("minHumidity"),
+                errorText = climateUiState.errors["minHumidity"]
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Nivel de quebrada (mt)",
-                value = climateUiState.ravineLevel.toString(),
+                value = climateUiState.ravineLevel,
                 onValueChange = {
                     updateUiState(
                         climateUiState.copy(
-                            ravineLevel = it
+                            ravineLevel = it,
+                            errors = climateUiState.errors - "ravineLevel" // Limpia el error al cambiar el valor
                         )
                     )
                 },
@@ -187,40 +206,9 @@ fun ClimateContent(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
+                isError = climateUiState.errors.containsKey("ravineLevel"),
+                errorText = climateUiState.errors["ravineLevel"]
             )
-        }
-        item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier
-                    .width(450.dp)
-                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-            ) {
-                Button(
-                    onClick = { /*TODO*/ },
-                    shape = RoundedCornerShape(topStart = 16.dp, bottomEnd = 32.dp),
-                    modifier = Modifier
-                        .height(dimensionResource(R.dimen.small_button_height))
-                        .weight(1f)
-                ) {
-                    Text(
-                        text = "Tomar foto",
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
-                Button(
-                    onClick = { /*TODO*/ },
-                    shape = RoundedCornerShape(topStart = 32.dp, bottomEnd = 16.dp),
-                    modifier = Modifier
-                        .height(dimensionResource(R.dimen.small_button_height))
-                        .weight(1f)
-                ) {
-                    Text(
-                        text = "Cargar foto",
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
-            }
         }
         item {
             SimpleInputBox(
@@ -236,8 +224,12 @@ fun ClimateContent(
         item {
             Button(
                 onClick = {
-                    Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
-                    addNewLog() },
+                    if (validateFields()) {
+                        addNewLog()
+                        Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                enabled = climateUiState.errors.isEmpty(),
                 modifier = Modifier
                     .height(dimensionResource(R.dimen.small_button_height))
             ) {
@@ -246,6 +238,7 @@ fun ClimateContent(
                     style = MaterialTheme.typography.titleSmall
                 )
             }
+
         }
     }
 }
