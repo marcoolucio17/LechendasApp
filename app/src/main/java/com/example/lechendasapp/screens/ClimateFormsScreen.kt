@@ -1,5 +1,6 @@
 package com.example.lechendasapp.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -29,6 +31,7 @@ import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.ClimateUiState
 import com.example.lechendasapp.viewmodels.ClimateViewModel
+
 
 
 @Composable
@@ -74,6 +77,9 @@ fun ClimateContent(
     updateUiState: (ClimateUiState) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val context = LocalContext.current
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(36.dp),
@@ -229,7 +235,9 @@ fun ClimateContent(
         }
         item {
             Button(
-                onClick = { addNewLog() },
+                onClick = {
+                    Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
+                    addNewLog() },
                 modifier = Modifier
                     .height(dimensionResource(R.dimen.small_button_height))
             ) {

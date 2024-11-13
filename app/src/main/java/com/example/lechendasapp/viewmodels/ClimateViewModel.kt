@@ -60,6 +60,9 @@ class ClimateViewModel @Inject constructor(
     private val _climateId = mutableLongStateOf(0L)
     val climateId: State<Long> = _climateId
 
+    private val _errorMessage = mutableStateOf("")
+    val errorMessage: State<String> = _errorMessage
+
     fun updateUiState(newUi: ClimateUiState) {
         _climateUiState.value = newUi
     }
@@ -76,23 +79,60 @@ class ClimateViewModel @Inject constructor(
         }
     }
 
-    fun addNewLog() {
-        if (_climateId.longValue == 0L) {
-            //Insert new climate
-            val newLog = _climateUiState.value.toClimate().copy(
-                monitorLogId = _monitorLogId.longValue
-            )
-            viewModelScope.launch {
-                climateRepository.insertClimate(newLog)
+    private fun validateFields(): Boolean {
+        val uiState = _climateUiState.value
+        return when {
+            uiState.rainfall.isBlank() -> {
+                _errorMessage.value = "Por favor llena todos los campos."
+                false
             }
-        } else {
-            //Update new climate
-            val newClimate = _climateUiState.value.toClimate().copy(
-                id = _climateId.longValue,
-                monitorLogId = _monitorLogId.longValue
-            )
-            viewModelScope.launch {
-                climateRepository.updateClimate(newClimate)
+            uiState.maxTemp.isBlank() -> {
+                _errorMessage.value = "Por favor llena todos los campos."
+                false
+            }
+            uiState.minTemp.isBlank() -> {
+                _errorMessage.value = "Por favor llena todos los campos."
+                false
+            }
+            uiState.maxHumidity.isBlank() -> {
+                _errorMessage.value = "Por favor llena todos los campos."
+                false
+            }
+            uiState.minHumidity.isBlank() -> {
+                _errorMessage.value = "Por favor llena todos los campos."
+                false
+            }
+            uiState.ravineLevel.isBlank() -> {
+                _errorMessage.value = "Por favor llena todos los campos."
+                false
+            }
+
+            else -> {
+                _errorMessage.value = ""
+                true
+            }
+        }
+    }
+
+    fun addNewLog() {
+        if (validateFields()) { // Verifica que los campos no estén vacíos
+            if (_climateId.longValue == 0L) {
+                //Insert new climate
+                val newLog = _climateUiState.value.toClimate().copy(
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    climateRepository.insertClimate(newLog)
+                }
+            } else {
+                //Update new climate
+                val newClimate = _climateUiState.value.toClimate().copy(
+                    id = _climateId.longValue,
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    climateRepository.updateClimate(newClimate)
+                }
             }
         }
     }
