@@ -42,6 +42,7 @@ fun TransectFormsScreen(
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onCameraClick: () -> Unit,
     monitorLogId: Long,
     id: Long? = null,
     viewModel: AnimalViewModel = hiltViewModel(),
@@ -66,6 +67,7 @@ fun TransectFormsScreen(
             onUpdateUiState = viewModel::updateUiState,
             onAddNewAnimal = viewModel::saveAnimal,
             animalUiState = viewModel.animalUiState.value,
+            onCameraClick = onCameraClick,
             modifier = modifier.padding(innerPadding)
         )
     }
@@ -76,6 +78,7 @@ fun TransectFormsContent(
     onUpdateUiState: (AnimalUiSate) -> Unit,
     onAddNewAnimal: () -> Unit,
     animalUiState: AnimalUiSate,
+    onCameraClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val (selectedAnimal, setSelectedAnimal) = remember { mutableStateOf<AnimalTypes?>(null) }
@@ -213,7 +216,7 @@ fun TransectFormsContent(
                     )
             ) {
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { onCameraClick() },
                     shape = RoundedCornerShape(topStart = 16.dp, bottomEnd = 32.dp),
                     modifier = Modifier
                         .height(dimensionResource(R.dimen.small_button_height))
