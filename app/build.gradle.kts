@@ -96,18 +96,19 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.core.splashscreen)
-
-    implementation (libs.auth0)
-
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-    testImplementation ("org.mockito:mockito-core:3.12.4")
-    testImplementation ("org.mockito.kotlin:mockito-kotlin:4.0.0")
-    testImplementation ("androidx.arch.core:core-testing:2.1.0")
+    implementation("com.google.dagger:hilt-android:<version>")
+    kapt("com.google.dagger:hilt-compiler:<version>")
 
 }
+
+
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+fun kapt(s: String) {
+
 }
