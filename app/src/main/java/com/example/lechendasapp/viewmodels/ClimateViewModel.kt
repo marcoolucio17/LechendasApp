@@ -116,6 +116,7 @@ class ClimateViewModel @Inject constructor(
                 viewModelScope.launch {
                     climateRepository.insertClimate(newLog)
                 }
+                resetForm()
             } else {
                 //Update new climate
                 val newClimate = _climateUiState.value.toClimate().copy(
