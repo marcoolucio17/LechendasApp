@@ -1,6 +1,9 @@
 package com.example.lechendasapp.navigation
 
+import android.annotation.SuppressLint
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,8 +70,12 @@ import com.example.lechendasapp.screens.VerifyUserScreen
 import com.example.lechendasapp.viewmodels.AuthViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.lechendasapp.MainActivity
+import com.example.lechendasapp.navigation.LechendasDestinations.CAMERA_ROUTE
+import com.example.lechendasapp.screens.CameraPreview
 
 
+@SuppressLint("NewApi") /*TODO: fix this*/
 @Composable
 fun LechendasNavGraph(
     startDestination: String = LechendasDestinations.INTRO_ROUTE,
@@ -158,6 +165,11 @@ fun LechendasNavGraph(
         composable(route = FORGOT_PASSWORD_ROUTE) {
             ForgotPasswordScreen(
                 onBack = { navController.navigateUp() },
+            )
+        }
+        composable(route = CAMERA_ROUTE) {
+            CameraPreview(
+                activity = navController.context as MainActivity,
             )
         }
         composable (route = SEARCH_ROUTE) {
@@ -325,6 +337,7 @@ fun LechendasNavGraph(
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
                 onSettingsClick = { navActions.navigateToConfiguration() },
+                onCameraClick = { navActions.navigateToCamera() },
                 monitorLogId = monitorLogId.toLong()
             )
         }
@@ -339,6 +352,7 @@ fun LechendasNavGraph(
                 onMenuClick = { navActions.navigateToHome() },
                 onSearchClick = { navActions.navigateToSearch() },
                 onSettingsClick = { navActions.navigateToConfiguration() },
+                onCameraClick = { navActions.navigateToCamera() },
                 monitorLogId = monitorLogId.toLong(),
                 id = id.toLong()
             )
