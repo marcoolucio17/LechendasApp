@@ -43,7 +43,7 @@ class SearchCoverageViewModel @Inject constructor(
     fun setMonitorLogId(id: Long) {
         _monitorLogId.value = id
         //update searchTransectUiState by triggering a recomposition
-        Log.d("SearchTransectViewModel", "setMonitorLogId: $id")
+        // Log.d("SearchTransectViewModel", "setMonitorLogId: $id")
     }
 
     fun deleteCoverage(id: Long) {

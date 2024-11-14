@@ -98,6 +98,7 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation("com.google.dagger:hilt-android:<version>")
     kapt("com.google.dagger:hilt-compiler:<version>")
+    implementation (libs.auth0)
 
 }
 

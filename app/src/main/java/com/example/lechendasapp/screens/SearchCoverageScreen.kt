@@ -82,7 +82,7 @@ fun SearchCoverageContent(
     onEdit: (Long, Long) -> Unit
 ) {
     if (logList.isEmpty()) {
-        Log.d("SearchCoverageScreen", "Empty List")
+        // Log.d("SearchCoverageScreen", "Empty List")
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -93,7 +93,7 @@ fun SearchCoverageContent(
             )
         }
     } else {
-        Log.d("SearchGCoverageScreen", "Not Empty List")
+        // Log.d("SearchGCoverageScreen", "Not Empty List")
         CoverageLogList(
             logList = logList,
             onDelete = onDelete,
