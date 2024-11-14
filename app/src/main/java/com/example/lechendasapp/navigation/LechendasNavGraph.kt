@@ -103,8 +103,10 @@ fun LechendasNavGraph(
                         loggedIn = false
                         credentials = null
                         navController.navigate(INTRO_ROUTE) {
-                            popUpTo(HOME_ROUTE) { inclusive = true }
+                            popUpTo(0) { inclusive = true }
                         }
+                        // Optionally, clear any stored authentication data
+                        // auth0.clearAuthState()
                     }
                 ) {
                     Text("Sign Out")
@@ -116,6 +118,22 @@ fun LechendasNavGraph(
                 }
             }
         )
+    }
+
+    navController.addOnDestinationChangedListener { _, destination, _ ->
+        val protectedRoutes = listOf(
+            HOME_ROUTE,
+            CONFIGURATION_ROUTE,
+            FORMULARY_ROUTE,
+            SEARCH_ROUTE,
+            // Add other protected routes here
+        )
+
+        if (protectedRoutes.contains(destination.route) && !loggedIn) {
+            navController.navigate(INTRO_ROUTE) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
     }
 
     NavHost(
