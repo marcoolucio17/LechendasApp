@@ -97,20 +97,26 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.core.splashscreen)
-
-
+    implementation("com.google.dagger:hilt-android:<version>")
+    kapt("com.google.dagger:hilt-compiler:<version>")
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.extensions)
+    implementation(libs.auth0)
 
-
-    implementation (libs.auth0)
 }
+
+
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+fun kapt(s: String) {
+
 }
