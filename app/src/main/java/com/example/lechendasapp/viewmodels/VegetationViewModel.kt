@@ -118,7 +118,7 @@ class VegetationViewModel @Inject constructor(
 
     fun addNewLog() {
         if (_vegetationId.longValue == 0L) {
-            Log.d("ADD NEW LOG", "ADD NEW LOG")
+           // Log.d("ADD NEW LOG", "ADD NEW LOG")
             //Insert new log
             viewModelScope.launch {
                 val newLog = _vegetationUiState.value.toVegetation()
@@ -131,7 +131,7 @@ class VegetationViewModel @Inject constructor(
                 vegetationRepository.insertVegetation(new)
             }
         } else {
-            Log.d("UPDATE LOG", "UPDATE LOG")
+           // Log.d("UPDATE LOG", "UPDATE LOG")
             // Update existing log
             viewModelScope.launch {
                 var newLog = _vegetationUiState.value.toVegetation()

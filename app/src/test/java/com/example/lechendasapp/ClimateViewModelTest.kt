@@ -8,6 +8,7 @@ import com.example.lechendasapp.viewmodels.toClimateUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -64,8 +65,8 @@ class ClimateViewModelTest {
             observations = "Test observations"
         )
         climateRepository.insertClimate(mockClimate)
-
         climateViewModel.setClimateId(1L)
+        advanceUntilIdle()
 
         val uiState = climateViewModel.climateUiState.value
         assertEquals(mockClimate.toClimateUiState(), uiState)
@@ -87,8 +88,11 @@ class ClimateViewModelTest {
         )
 
         climateViewModel.addNewLog()
+        advanceUntilIdle()
 
         val climates = climateRepository.getClimate()
+
+
         assertEquals(1, climates.size)
         val insertedClimate = climates.first()
         assertEquals(123L, insertedClimate.monitorLogId)
@@ -126,6 +130,7 @@ class ClimateViewModelTest {
         )
 
         climateViewModel.addNewLog()
+        advanceUntilIdle()
 
         val updatedClimate = climateRepository.getClimateById(1L)
         assertNotNull(updatedClimate)

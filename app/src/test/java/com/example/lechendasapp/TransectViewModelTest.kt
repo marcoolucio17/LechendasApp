@@ -1,20 +1,41 @@
-package com.example.lechendasapp.viewmodels
+package com.example.lechendasapp
 
 import com.example.lechendasapp.data.model.Animal
 import com.example.lechendasapp.fakes.FakeTransectRepository
+import com.example.lechendasapp.viewmodels.AnimalUiSate
+import com.example.lechendasapp.viewmodels.AnimalViewModel
+import com.example.lechendasapp.viewmodels.toAnimal
+import com.example.lechendasapp.viewmodels.toAnimalUiState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class TransectViewModelTest {
 
     private lateinit var fakeRepository: FakeTransectRepository
     private lateinit var viewModel: AnimalViewModel
+    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
+        Dispatchers.setMain(testDispatcher)
         fakeRepository = FakeTransectRepository()
         viewModel = AnimalViewModel(fakeRepository)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -72,7 +93,7 @@ class TransectViewModelTest {
     }
 
     @Test
-    fun testSaveAnimal() {
+    fun testSaveAnimal() = runTest {
         // Given
         val testUiState = AnimalUiSate(
             animalType = "Mammal",
@@ -90,6 +111,8 @@ class TransectViewModelTest {
         viewModel.updateUiState(testUiState)
         viewModel.setMonitorLogId(testMonitorLogId)
         viewModel.saveAnimal()
+
+        advanceUntilIdle()
 
         // Then
         val expectedAnimal = Animal(

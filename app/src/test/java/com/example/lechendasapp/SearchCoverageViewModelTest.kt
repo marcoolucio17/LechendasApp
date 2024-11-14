@@ -36,6 +36,15 @@ class SearchCoverageViewModelTest {
         Dispatchers.resetMain()
     }
 
+    @Test
+    fun `initial searchCoverageUiState should be empty`() = runTest {
+        // When
+        val uiState = viewModel.searchCoverageUiState.first()
+
+        // Then
+        assertTrue(uiState.coverage.isEmpty())
+    }
+
     // Test unitario para garantizar que el logId del monitor si se actualiza correctamente
     @Test
     fun `test monitorLogId updates correctly`() {
@@ -69,14 +78,5 @@ class SearchCoverageViewModelTest {
         // Then
         val coverages = (coverageRepository as FakeCoverageRepository).getConverage()
         assertTrue(coverages.none { it.id == 1L })
-    }
-
-    @Test
-    fun `initial searchCoverageUiState should be empty`() = runTest {
-        // When
-        val uiState = viewModel.searchCoverageUiState.first()
-
-        // Then
-        assertTrue(uiState.coverage.isEmpty())
     }
 }
