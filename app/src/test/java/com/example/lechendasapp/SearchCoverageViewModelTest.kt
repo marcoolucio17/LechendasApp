@@ -36,12 +36,14 @@ class SearchCoverageViewModelTest {
         Dispatchers.resetMain()
     }
 
+    // Test unitario para garantizar que el logId del monitor si se actualiza correctamente
     @Test
-    fun `setMonitorLogId should update the monitorLogId`() {
-        // When
-        viewModel.setMonitorLogId(123L)
+    fun `test monitorLogId updates correctly`() {
+        // valor inicial debe de ser 1
+        assertEquals(-1L, viewModel.monitorLogId.value)
 
-        // Then
+        // lo actualizamos y checamos que si se haya actualizado
+        viewModel.setMonitorLogId(123L)
         assertEquals(123L, viewModel.monitorLogId.value)
     }
 
