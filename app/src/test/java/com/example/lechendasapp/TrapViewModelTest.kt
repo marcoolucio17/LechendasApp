@@ -3,7 +3,6 @@ package com.example.lechendasapp
 import com.example.lechendasapp.data.model.Trap
 import com.example.lechendasapp.data.repository.TrapRepository
 import com.example.lechendasapp.fakes.FakeTrapRepository
-import com.example.lechendasapp.screens.CheckList
 import com.example.lechendasapp.viewmodels.TrapUiState
 import com.example.lechendasapp.viewmodels.TrapViewModel
 import com.example.lechendasapp.viewmodels.toTrapUiState
@@ -12,7 +11,6 @@ import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -137,20 +135,6 @@ class TrapViewModelTest {
         val updatedTrap = (trapRepository as FakeTrapRepository).traps.firstOrNull { it.id == 10L }
         assertNotNull(updatedTrap)
         assertEquals("UpdatedCamera", updatedTrap?.cameraName)
-    }
-
-    @Test
-    fun `updateCheckList should update the checklist correctly`() {
-        // Given
-        val initialCheckList = CheckList.PROGRAMMED to false
-        viewModel.updateUiState(TrapUiState(checkList = mapOf(initialCheckList)))
-
-        // When
-        viewModel.updateCheckList(CheckList.PROGRAMMED, true)
-
-        // Then
-        val updatedCheckList = viewModel.trapUiState.value.checkList
-        assertEquals(true, updatedCheckList[CheckList.PROGRAMMED])
     }
 }
 

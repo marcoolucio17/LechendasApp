@@ -1,4 +1,4 @@
-package com.example.lechendasapp
+package com.example.lechendasapp.fakes
 
 import com.example.lechendasapp.data.model.Coverage
 import com.example.lechendasapp.data.repository.CoverageRepository
