@@ -80,6 +80,7 @@ fun CoverageFormsScreen(
             updateTrackingOption = viewModel::updateTrackingOption,
             updateChangeOption = viewModel::updateChangeOption,
             updateCoverageOption = viewModel::updateCoverageOption,
+            updateCropType = viewModel::updateCropType,
             updateDisturbanceOption = viewModel::updateDisturbanceOption,
             modifier = modifier.padding(innerPadding)
         )
@@ -97,6 +98,7 @@ fun CoverageFormsContent(
     updateTrackingOption: (SINO) -> Unit,
     updateChangeOption: (SINO) -> Unit,
     updateCoverageOption: (CoverageOptions) -> Unit,
+    updateCropType: (String) -> Unit,
     updateDisturbanceOption: (DisturbanceOptions) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -235,7 +237,12 @@ fun CoverageFormsContent(
             SimpleInputBox(
                 labelText = "Tipo de cultivo",
                 value = coverageUiState.cropType,
-                onValueChange = { updateUiState(coverageUiState.copy(cropType = it)) },
+                onValueChange = {
+                    updateUiState(coverageUiState.copy(
+                        cropType = it,
+                        errors = coverageUiState.errors - "cropType"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
