@@ -1,5 +1,6 @@
 package com.example.lechendasapp.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -233,9 +234,9 @@ fun ClimateContent(
                         addNewLog()
                         //  // Resetea el formulario
                         Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
-                        coroutineScope.launch {
-                            listState.scrollToItem(0) // Mueve al inicio
-                        }
+                    }
+                    coroutineScope.launch {
+                        listState.scrollToItem(0) // Mueve al inicio
                     }
                 },
                 enabled = climateUiState.errors.isEmpty(),

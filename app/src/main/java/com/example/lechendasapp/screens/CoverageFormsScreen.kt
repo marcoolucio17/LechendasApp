@@ -1,5 +1,6 @@
 package com.example.lechendasapp.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -20,8 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -38,6 +42,7 @@ import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.CoverageViewModel
 import com.example.lechendasapp.viewmodels.CoverageUiState
+import kotlinx.coroutines.launch
 
 @Composable
 fun CoverageFormsScreen(
@@ -69,7 +74,9 @@ fun CoverageFormsScreen(
         CoverageFormsContent(
             updateUiState = viewModel::updateUiState,
             saveCoverage = viewModel::saveCoverage,
+            validateFields = viewModel::validateFields,
             coverageUiState = viewModel.coverageUiState.value,
+            updateCode = viewModel::updateCode,
             updateTrackingOption = viewModel::updateTrackingOption,
             updateChangeOption = viewModel::updateChangeOption,
             updateCoverageOption = viewModel::updateCoverageOption,
@@ -84,14 +91,22 @@ fun CoverageFormsScreen(
 fun CoverageFormsContent(
     updateUiState: (CoverageUiState) -> Unit,
     saveCoverage: () -> Unit,
+    validateFields: () -> Boolean,
     coverageUiState: CoverageUiState,
+    updateCode: (String) -> Unit,
     updateTrackingOption: (SINO) -> Unit,
     updateChangeOption: (SINO) -> Unit,
     updateCoverageOption: (CoverageOptions) -> Unit,
     updateDisturbanceOption: (DisturbanceOptions) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val context = LocalContext.current
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     LazyColumn(
+        state = listState, // Asocia el estado de scroll
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(36.dp),
         modifier = modifier
@@ -102,71 +117,96 @@ fun CoverageFormsContent(
             SimpleInputBox(
                 labelText = "Código",
                 value = coverageUiState.code,
-                onValueChange = { updateUiState(coverageUiState.copy(code = it)) },
+                onValueChange = {
+                    updateUiState(coverageUiState.copy(
+                        code = it,
+                        errors = coverageUiState.errors - "code"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
-                )
+                ),
+                isError = coverageUiState.errors.containsKey("code"),
+                errorText = coverageUiState.errors["code"]
             )
         }
         item {
             Column(
                 modifier = Modifier.width(450.dp)
             ) {
-                // First Column (Seguimiento)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.padding_medium))
-                ) {
-                    Text(
-                        "Seguimiento",
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Start,
+                // Seguimiento section with error handling
+                Column {
+
+                    Row(
                         modifier = Modifier
-                            .padding(vertical = dimensionResource(R.dimen.padding_small))
-                            .weight(1f)
-                    )
-                    SINO.entries.forEach { option ->
-                        RadioButtonWithText(
-                            text = option.displayName,
-                            isSelected = coverageUiState.tracking[option] == true,
-                            onClick = {
-                                updateTrackingOption(option)
-                            },
-                            modifier = Modifier.weight(1f)
+                            .fillMaxWidth()
+                            .padding(dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Text(
+                            "Seguimiento",
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .padding(vertical = dimensionResource(R.dimen.padding_small))
+                                .weight(1f)
+                        )
+                        SINO.entries.forEach { option ->
+                            RadioButtonWithText(
+                                text = option.displayName,
+                                isSelected = coverageUiState.tracking[option] == true,
+                                onClick = { updateTrackingOption(option) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                    if (coverageUiState.errors.containsKey("tracking")) {
+                        Text(
+                            text = coverageUiState.errors["tracking"] ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(start = 16.dp)
                         )
                     }
                 }
 
-                // Second Column (Cambio)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                ) {
-                    Text(
-                        "Cambio",
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Start,
+                // Cambio section with error handling
+                Column {
+                    Row(
                         modifier = Modifier
-                            .padding(vertical = dimensionResource(R.dimen.padding_small))
-                            .weight(1f)
-                    )
-                    SINO.entries.forEach { option ->
-                        RadioButtonWithText(
-                            text = option.displayName,
-                            isSelected = coverageUiState.change[option] == true ,
-                            onClick = {
-                                 updateChangeOption(option)
-                            },
-                            modifier = Modifier.weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Text(
+                            "Cambio",
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier
+                                .padding(vertical = dimensionResource(R.dimen.padding_small))
+                                .weight(1f)
+                        )
+                        SINO.entries.forEach { option ->
+                            RadioButtonWithText(
+                                text = option.displayName,
+                                isSelected = coverageUiState.change[option] == true,
+                                onClick = { updateChangeOption(option) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                    if (coverageUiState.errors.containsKey("change")) {
+                        Text(
+                            text = coverageUiState.errors["change"] ?: "",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(start = 16.dp)
                         )
                     }
                 }
             }
-
         }
+
+
         item {
             Text("Cobertura", fontWeight = FontWeight.Bold)
             FlowRow(horizontalArrangement = Arrangement.Center,
@@ -182,6 +222,14 @@ fun CoverageFormsContent(
                     )
                 }
             }
+            if (coverageUiState.errors.containsKey("coverage")) {
+                Text(
+                    text = coverageUiState.errors["coverage"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
         }
         item {
             SimpleInputBox(
@@ -191,7 +239,9 @@ fun CoverageFormsContent(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
-                )
+                ),
+                isError = coverageUiState.errors.containsKey("cropType"),
+                errorText = coverageUiState.errors["cropType"]
             )
         }
         item {
@@ -208,6 +258,14 @@ fun CoverageFormsContent(
                         }
                     )
                 }
+            }
+            if (coverageUiState.errors.containsKey("disturbance")) {
+                Text(
+                    text = coverageUiState.errors["disturbance"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
             }
         }
         item {
@@ -260,21 +318,21 @@ fun CoverageFormsContent(
             )
         }
         item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier
-                    .width(450.dp)
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.padding_medium),
-                        vertical = dimensionResource(R.dimen.padding_small)
-                    )
-            ) {
                 Button(
-                    onClick = saveCoverage,
-                    modifier = Modifier
+                    onClick = {
+                        if (validateFields()) {
+                            saveCoverage()
+                            //  Resetea el formulario
+                            Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
 
+                        }
+                        coroutineScope.launch {
+                            listState.scrollToItem(0) // Mueve al inicio
+                        }
+                    },
+                    enabled = coverageUiState.errors.isEmpty(),
+                    modifier = Modifier
                         .height(dimensionResource(R.dimen.small_button_height))
-                        .weight(1f)
                 ) {
                     Text(
                         text = "Guardar",
@@ -285,7 +343,7 @@ fun CoverageFormsContent(
         }
 
     }
-}
+
 
 enum class DisturbanceOptions(val displayName: String) {
     INUNDATION("Inundación"),
