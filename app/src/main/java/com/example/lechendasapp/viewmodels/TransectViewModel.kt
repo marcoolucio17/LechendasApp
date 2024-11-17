@@ -20,6 +20,7 @@ data class AnimalUiSate (
     val transectName: String = "",
     val observationHeight: String = "",
     val observations: String = "",
+    val errors: Map<String, String> = emptyMap() // Para almacenar mensajes de error
 )
 
 fun AnimalUiSate.toAnimal() = Animal(
@@ -51,7 +52,7 @@ fun Animal.toAnimalUiState() = AnimalUiSate(
 @HiltViewModel
 class AnimalViewModel @Inject constructor(
     private val animalRepository: AnimalRepository
-) : ViewModel(){
+) : ViewModel() {
     private val _animalUiState = mutableStateOf(AnimalUiSate())
     val animalUiState: State<AnimalUiSate> = _animalUiState
 
@@ -60,6 +61,9 @@ class AnimalViewModel @Inject constructor(
 
     private val _animalId = mutableLongStateOf(0L)
     val animalId: State<Long> = _animalId
+
+    private val _errorMessage = mutableStateOf("")
+    val errorMessage: State<String> = _errorMessage
 
     fun updateUiState(newUiState: AnimalUiSate) {
         _animalUiState.value = newUiState
@@ -73,28 +77,120 @@ class AnimalViewModel @Inject constructor(
         _animalId.longValue = id
         viewModelScope.launch {
             val animal = animalRepository.getAnimalById(id)
-            _animalUiState.value = animal?.toAnimalUiState()!!
+            _animalUiState.value = animal?.toAnimalUiState() ?: AnimalUiSate()
         }
     }
 
-    fun saveAnimal() {
-        if (_animalId.longValue == 0L) {
-            //Insert new log
-            val newAnimal = _animalUiState.value.toAnimal().copy(
-                monitorLogId = _monitorLogId.longValue
-            )
-            viewModelScope.launch {
-                animalRepository.insertAnimal(newAnimal)
-            }
+    fun resetForm() {
+        _animalUiState.value = AnimalUiSate()
+    }
+
+    fun validateFields(): Boolean {
+        val uiState = _animalUiState.value
+        val errors = mutableMapOf<String, String>()
+
+        if (uiState.animalType.isBlank()) {
+            errors["animalType"] = "El tipo de animal es obligatorio."
         }
-        else {
-            //Update existing log
-            val newAnimal = _animalUiState.value.toAnimal().copy(
-                id = _animalId.longValue,
-                monitorLogId = _monitorLogId.longValue
-            )
-            viewModelScope.launch {
-                animalRepository.updateAnimal(newAnimal)
+
+        if (uiState.commonName.isBlank()) {
+            errors["commonName"] = "El nombre común es obligatorio."
+        }
+
+        if (uiState.scientificName.isBlank()) {
+            errors["scientificName"] = "El nombre científico es obligatorio."
+        }
+
+        if (uiState.quantity.isBlank() || uiState.quantity.toIntOrNull() == null) {
+            errors["quantity"] = "La cantidad es obligatoria y debe ser un número válido."
+        }
+
+        if (uiState.observationType.isBlank()) {
+            errors["observationType"] = "El tipo de observación es obligatorio."
+        }
+
+        if (uiState.transectName.isBlank()) {
+            errors["transectName"] = "El nombre del transecto es obligatorio."
+        }
+
+        _animalUiState.value = uiState.copy(errors = errors)
+        return errors.isEmpty()
+    }
+
+    fun updateAnimalType(newAnimalType: String) {
+        _animalUiState.value = _animalUiState.value.copy(
+            animalType = newAnimalType,
+            errors = _animalUiState.value.errors - "animalType"
+        )
+    }
+
+    fun updateCommonName(newCommonName: String) {
+        _animalUiState.value = _animalUiState.value.copy(
+            commonName = newCommonName,
+            errors = _animalUiState.value.errors - "commonName"
+        )
+    }
+
+    fun updateScientificName(newScientificName: String) {
+        _animalUiState.value = _animalUiState.value.copy(
+            scientificName = newScientificName,
+            errors = _animalUiState.value.errors - "scientificName"
+        )
+    }
+
+    fun updateQuantity(newQuantity: String) {
+        _animalUiState.value = _animalUiState.value.copy(
+            quantity = newQuantity,
+            errors = _animalUiState.value.errors - "quantity"
+        )
+    }
+
+    fun updateObservationType(newObservationType: String) {
+        _animalUiState.value = _animalUiState.value.copy(
+            observationType = newObservationType,
+            errors = _animalUiState.value.errors - "observationType"
+        )
+    }
+
+    fun updateTransectName(newTransectName: String) {
+        _animalUiState.value = _animalUiState.value.copy(
+            transectName = newTransectName,
+            errors = _animalUiState.value.errors - "transectName"
+        )
+    }
+
+    fun updateObservationHeight(newObservationHeight: String) {
+        _animalUiState.value = _animalUiState.value.copy(
+            observationHeight = newObservationHeight
+        )
+    }
+
+    fun updateObservations(newObservations: String) {
+        _animalUiState.value = _animalUiState.value.copy(
+            observations = newObservations
+        )
+    }
+
+    fun saveAnimal() {
+        if (validateFields()) {
+            if (_animalId.longValue == 0L) {
+                // Insertar nuevo registro
+                val newAnimal = _animalUiState.value.toAnimal().copy(
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    animalRepository.insertAnimal(newAnimal)
+                }
+                resetForm()
+            } else {
+                // Actualizar registro existente
+                val updatedAnimal = _animalUiState.value.toAnimal().copy(
+                    id = _animalId.longValue,
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    animalRepository.updateAnimal(updatedAnimal)
+                }
             }
         }
     }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -34,6 +35,7 @@ import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.AnimalUiSate
 import com.example.lechendasapp.viewmodels.AnimalViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun TransectFormsScreen(
@@ -65,7 +67,9 @@ fun TransectFormsScreen(
     ) { innerPadding ->
         TransectFormsContent(
             onUpdateUiState = viewModel::updateUiState,
+            saveAnimal = viewModel::saveAnimal,
             onAddNewAnimal = viewModel::saveAnimal,
+            validateFields = viewModel::validateFields,
             animalUiState = viewModel.animalUiState.value,
             onCameraClick = onCameraClick,
             modifier = modifier.padding(innerPadding)
@@ -76,11 +80,18 @@ fun TransectFormsScreen(
 @Composable
 fun TransectFormsContent(
     onUpdateUiState: (AnimalUiSate) -> Unit,
+    saveAnimal: () -> Unit,
     onAddNewAnimal: () -> Unit,
+    validateFields: () -> Boolean,
     animalUiState: AnimalUiSate,
     onCameraClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val context = LocalContext.current
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     val (selectedAnimal, setSelectedAnimal) = remember { mutableStateOf<AnimalTypes?>(null) }
     val (selectedObservation, setSelectedObservation) = remember {
         mutableStateOf<ObservationTypes?>(
@@ -90,6 +101,7 @@ fun TransectFormsContent(
     val evidenceFiles = remember { mutableStateListOf<String>() }
 
     LazyColumn(
+        state = listState, // Asocia el estado de scroll
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier
@@ -104,7 +116,9 @@ fun TransectFormsContent(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
-                )
+                ),
+                isError = animalUiState.errors.containsKey("transectName"),
+                errorText = animalUiState.errors["transectName"]
             )
         }
 
@@ -161,7 +175,9 @@ fun TransectFormsContent(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
-                )
+                ),
+                isError = animalUiState.errors.containsKey("commonName"),
+                errorText = animalUiState.errors["commonName"]
             )
         }
 
@@ -185,7 +201,9 @@ fun TransectFormsContent(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
-                )
+                ),
+                isError = animalUiState.errors.containsKey("quantity"),
+                errorText = animalUiState.errors["quantity"]
             )
         }
 
@@ -258,10 +276,25 @@ fun TransectFormsContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
-                    onClick = onAddNewAnimal,
-                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        if (validateFields()) {
+                            saveAnimal()
+                            //  Resetea el formulario
+                            Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
+
+                        }
+                        coroutineScope.launch {
+                            listState.scrollToItem(0) // Mueve al inicio
+                        }
+                    },
+                    enabled = animalUiState.errors.isEmpty(),
+                    modifier = Modifier
+                        .weight(1f)
                 ) {
-                    Text("Enviar", color = Color.White)
+                    Text(
+                        text = "Guardar",
+                        style = MaterialTheme.typography.titleSmall
+                    )
                 }
             }
         }
