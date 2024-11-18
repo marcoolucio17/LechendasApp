@@ -2,6 +2,7 @@ package com.example.lechendasapp.navigation
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.AlertDialog
@@ -67,41 +68,35 @@ import com.example.lechendasapp.screens.SearchTransectScreen
 import com.example.lechendasapp.screens.SearchTrapScreen
 import com.example.lechendasapp.screens.SearchVegetationScreen
 import com.example.lechendasapp.screens.VerifyUserScreen
-import com.example.lechendasapp.viewmodels.AuthViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.example.lechendasapp.MainActivity
 import com.example.lechendasapp.navigation.LechendasDestinations.CAMERA_ROUTE
 import com.example.lechendasapp.screens.CameraPreview
+import com.example.lechendasapp.viewmodels.NavGraphViewModel
 
 
 @SuppressLint("NewApi") /*TODO: fix this*/
 @Composable
 fun LechendasNavGraph(
-    startDestination: String = LechendasDestinations.INTRO_ROUTE,
+    startDestination: String = INTRO_ROUTE,
     navController: NavHostController = rememberNavController(),
-    auth0: AuthViewModel = hiltViewModel(),
     navActions: LechendasNavigationActions = remember(NavController) {
         LechendasNavigationActions(navController)
     },
+    viewModel: NavGraphViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    var credentials by remember { mutableStateOf<Credentials?>(null) }
-    var loggedIn by remember { mutableStateOf(false) }
-    var showLogoutDialog by remember { mutableStateOf(false) }
-
     // Logout Dialog
-    if (showLogoutDialog) {
+    if (viewModel.showLogoutDialog.value) {
         AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
+            onDismissRequest = { viewModel.setShowLogoutDialog(false) },
             title = { Text("Sign Out") },
             text = { Text("Are you sure you want to sign out?") },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showLogoutDialog = false
-                        loggedIn = false
-                        credentials = null
+                        viewModel.logout()
                         navController.navigate(INTRO_ROUTE) {
                             popUpTo(0) { inclusive = true }
                         }
@@ -113,7 +108,7 @@ fun LechendasNavGraph(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) {
+                TextButton(onClick = { viewModel.setShowLogoutDialog(false) }) {
                     Text("Cancel")
                 }
             }
@@ -129,12 +124,15 @@ fun LechendasNavGraph(
             // Add other protected routes here
         )
 
-        if (protectedRoutes.contains(destination.route) && !loggedIn) {
+        if (protectedRoutes.contains(destination.route) && !viewModel.loggedIn.value) {
             navController.navigate(INTRO_ROUTE) {
                 popUpTo(0) { inclusive = true }
             }
         }
     }
+
+    val loggedIn by viewModel.loggedIn // Observe the login state
+    val startRoute = if (loggedIn) HOME_ROUTE else INTRO_ROUTE
 
     NavHost(
         navController = navController,
@@ -144,24 +142,25 @@ fun LechendasNavGraph(
         composable(route = INTRO_ROUTE) {
             IntroScreen(
                 onLogin = { navActions.navigateToLogin() },
+                navigateToHome = { navActions.navigateToHome() },
+                viewModel = viewModel
             )
         }
         composable(route = LOGIN_ROUTE) {
             LoginScreen(
                 onBack = { navController.navigateUp() },
                 onLoginSuccess = {
+                    viewModel.setCredentials(it)
                     navActions.navigateToHome()
-                    credentials = it
-                    loggedIn = true
                 }
             )
         }
         composable(route = HOME_ROUTE) {
             BackHandler {
-                showLogoutDialog = true
+                viewModel.setShowLogoutDialog(true)
             }
             HomeScreen(
-                onBack = { showLogoutDialog = true },
+                onBack = { viewModel.setShowLogoutDialog(true) },
                 //onBack = { navController.navigateUp() },
                 currentRoute = HOME_ROUTE,
                 onMenuClick = { navActions.navigateToHome() },
