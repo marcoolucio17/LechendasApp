@@ -56,7 +56,8 @@ class MainActivity : ComponentActivity() {
             Manifest.permission.CAMERA,
             Manifest.permission.READ_MEDIA_IMAGES,
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION
         )
     }
 
