@@ -70,31 +70,31 @@ fun ConfigurationContent(modifier: Modifier, onEditProfile: () -> Unit, onLogout
     var showNotifications by remember { mutableStateOf(true) }
 
     Column(modifier = Modifier.fillMaxSize().padding(top = 110.dp)) {
-        SectionTitle("GENERAL")
-        SettingItem(title = "Editar Perfil", onClick = onEditProfile)
-
-        Spacer(
-            modifier = Modifier
-                .padding(horizontal = 14.dp, vertical = 10.dp) // Space from each end
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(Color.Black)
-        )
-
-        SettingItem(title = "Cambiar contraseña", onClick = onEditProfile)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        SectionTitle("NOTIFICACIONES")
-        SettingSwitchItem(
-            title = "Notificaciones",
-            checked = showNotifications,
-            onCheckedChange = {
-                showNotifications = it
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+//        SectionTitle("GENERAL")
+//        SettingItem(title = "Editar Perfil", onClick = onEditProfile)
+//
+//        Spacer(
+//            modifier = Modifier
+//                .padding(horizontal = 14.dp, vertical = 10.dp) // Space from each end
+//                .fillMaxWidth()
+//                .height(1.dp)
+//                .background(Color.Black)
+//        )
+//
+//        SettingItem(title = "Cambiar contraseña", onClick = onEditProfile)
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        SectionTitle("NOTIFICACIONES")
+//        SettingSwitchItem(
+//            title = "Notificaciones",
+//            checked = showNotifications,
+//            onCheckedChange = {
+//                showNotifications = it
+//            }
+//        )
+//
+//        Spacer(modifier = Modifier.height(16.dp))
 
         SectionTitle("ACCIONES")
         SettingItem(title = "Cerrar sesión", onClick = { showLogoutDialog = true })
