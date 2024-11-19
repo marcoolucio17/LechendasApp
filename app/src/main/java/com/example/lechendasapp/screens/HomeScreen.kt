@@ -111,7 +111,7 @@ fun CustomBoxLayout(
                 .align(Alignment.Center),
             contentAlignment = Alignment.Center
         ) {
-            Text("Bienvendio",
+            Text("Bienvenido",
                 style =  MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),)
         }
 
