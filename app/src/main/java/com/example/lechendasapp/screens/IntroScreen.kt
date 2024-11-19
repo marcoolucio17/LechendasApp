@@ -15,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -37,7 +38,7 @@ fun IntroScreen(
     viewModel: NavGraphViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    val loggedIn by viewModel.loggedIn
+    val loggedIn by viewModel.loggedIn.collectAsState()
 
     LaunchedEffect(loggedIn) {
         if (loggedIn) {

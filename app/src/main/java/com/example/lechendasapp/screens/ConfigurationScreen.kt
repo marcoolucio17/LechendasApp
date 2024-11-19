@@ -100,13 +100,13 @@ fun ConfigurationContent(modifier: Modifier, onEditProfile: () -> Unit, onLogout
         SettingItem(title = "Cerrar sesión", onClick = { showLogoutDialog = true })
 
         if (showLogoutDialog) {
-            LogoutConfirmationDialog(
-                onDismiss = { showLogoutDialog = false },
-                onConfirm = {
-                    showLogoutDialog = false
+//            LogoutConfirmationDialog(
+//                onDismiss = { showLogoutDialog = false },
+//                onConfirm = {
+//                    showLogoutDialog = false
                     onLogoutConfirmed()
-                }
-            )
+//                }
+//            )
         }
 
     }
@@ -120,25 +120,25 @@ fun SectionTitle(title: String) {
         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
     )
 }
-
-@Composable
-fun LogoutConfirmationDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Cerrar sesión") },
-        text = { Text("¿Estás seguro de que quieres cerrar sesión?") },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Cerrar sesión", color = MaterialTheme.colorScheme.primary)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
-            }
-        }
-    )
-}
+//
+//@Composable
+//fun LogoutConfirmationDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+//    AlertDialog(
+//        onDismissRequest = onDismiss,
+//        title = { Text("Cerrar sesión") },
+//        text = { Text("¿Estás seguro de que quieres cerrar sesión?") },
+//        confirmButton = {
+//            TextButton(onClick = onConfirm) {
+//                Text("Cerrar sesión", color = MaterialTheme.colorScheme.primary)
+//            }
+//        },
+//        dismissButton = {
+//            TextButton(onClick = onDismiss) {
+//                Text("Cancelar")
+//            }
+//        }
+//    )
+//}
 
 @Composable
 fun SettingItem(title: String, onClick: () -> Unit) {
