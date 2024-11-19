@@ -125,8 +125,7 @@ fun LechendasNavGraph(
         }
         composable(route = LOGIN_ROUTE) {
             LoginScreen(
-                // todo: change it back into navigateUp!
-                onBack = { navActions.navigateToCamera() },
+                onBack = { navController.navigateUp() },
                 onLoginSuccess = {
                  viewModel.setCredentials(it)
                  navActions.navigateToHome()
