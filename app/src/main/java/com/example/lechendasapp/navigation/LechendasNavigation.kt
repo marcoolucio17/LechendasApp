@@ -138,7 +138,9 @@ class LechendasNavigationActions(private val navController: NavController) {
     }
 
     fun navigateToHome() {
-        navController.navigate(HOME_ROUTE)
+        navController.navigate(HOME_ROUTE) {
+            popUpTo(HOME_ROUTE) { inclusive = false }
+        }
     }
 
     fun navigateToSearch() {
@@ -213,6 +215,21 @@ class LechendasNavigationActions(private val navController: NavController) {
     fun navigateToCamera() {
         navController.navigate(CAMERA_ROUTE)
     }
+
+    private fun navigateFromForms(route: String) {
+        navController.navigate(route) {
+            // Pop up to and including any form screens
+            popUpTo(navController.currentDestination?.route ?: return@navigate) {
+                inclusive = true
+            }
+        }
+    }
+
+    // Use these functions in your Climate and Traps screens
+    fun navigateFromFormsToHome() = navigateFromForms(HOME_ROUTE)
+    fun navigateFromFormsToSearch() = navigateFromForms(SEARCH_ROUTE)
+    fun navigateFromFormsToConfiguration() = navigateFromForms(CONFIGURATION_ROUTE)
+    fun navigateFromFormsToFormulary() = navigateFromForms(FORMULARY_ROUTE)
 }
 
 
