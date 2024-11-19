@@ -36,4 +36,7 @@ interface AnimalDao {
 
     @Query("DELETE FROM animals WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM animals")
+    suspend fun count(): Int
 }

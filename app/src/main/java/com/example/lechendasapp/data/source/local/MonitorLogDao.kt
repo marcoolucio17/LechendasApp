@@ -36,5 +36,9 @@ interface MonitorLogDao {
     @Query("DELETE FROM monitor_logs WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    //Count
+    @Query("SELECT COUNT(*) FROM monitor_logs")
+    suspend fun count(): Int
+
 
 }

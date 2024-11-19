@@ -15,6 +15,8 @@ interface PhotoRepository {
     suspend fun updatePhoto(photo: Photo)
     suspend fun deletePhoto(photo: Photo)
     suspend fun deletePhotoByNull()
+    suspend fun countPhoto(): Int
+
 
 
 }

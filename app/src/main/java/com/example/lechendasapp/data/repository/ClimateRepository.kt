@@ -23,4 +23,6 @@ interface ClimateRepository {
 
     suspend fun deleteClimateById(climateId: Long)
 
+    suspend fun countClimate(): Int
+
 }

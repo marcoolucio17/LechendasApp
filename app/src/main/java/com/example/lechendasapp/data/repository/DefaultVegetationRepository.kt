@@ -51,5 +51,9 @@ class DefaultVegetationRepository @Inject constructor(
         localDataSource.deleteById(vegetationId)
     }
 
+    override suspend fun countVegetation(): Int {
+        return localDataSource.count()
+    }
+
 
 }

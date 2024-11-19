@@ -36,4 +36,7 @@ interface ClimateDao {
 
     @Query("DELETE FROM climate WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM climate")
+    suspend fun count(): Int
 }
