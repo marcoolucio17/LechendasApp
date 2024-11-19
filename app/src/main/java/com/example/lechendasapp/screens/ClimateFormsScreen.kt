@@ -1,5 +1,11 @@
 package com.example.lechendasapp.screens
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,17 +20,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
+import com.example.lechendasapp.data.model.Photo
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
+import com.example.lechendasapp.utils.PhotoGallery
 import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.ClimateUiState
@@ -38,6 +50,7 @@ fun ClimateScreen(
     onMenuClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onCameraClick: () -> Unit,
     monitorLogId: Long,
     id: Long? = null,
     viewModel: ClimateViewModel = hiltViewModel(),
@@ -47,6 +60,13 @@ fun ClimateScreen(
     if (id != null) {
         viewModel.setClimateId(id)
     }
+    LaunchedEffect(monitorLogId, id) {
+        viewModel.fetchAssociatedPhotosIfNeeded()
+    }
+
+    val unassociatedPhotos by viewModel.unassociatedPhotos.collectAsState()
+    val associatedPhotos by viewModel.associatedPhotos.collectAsState()
+
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {
@@ -62,6 +82,11 @@ fun ClimateScreen(
             climateUiState = viewModel.climateUiState.value,
             updateUiState = viewModel::updateUiState,
             addNewLog = viewModel::addNewLog,
+            onCameraClick = onCameraClick,
+            onPickImage = viewModel::pickImage,
+            onGetImage = viewModel::getImage,
+            unassociatedPhotos = unassociatedPhotos,
+            associatedPhotos = associatedPhotos,
             modifier = modifier.padding(innerPadding)
         )
     }
@@ -71,9 +96,25 @@ fun ClimateScreen(
 fun ClimateContent(
     climateUiState: ClimateUiState,
     addNewLog: () -> Unit,
+    onCameraClick: () -> Unit,
+    onPickImage: (Context, ActivityResultLauncher<Intent>) -> Unit,
+    onGetImage: (String) -> Unit,
+    unassociatedPhotos: List<Photo>,
+    associatedPhotos: List<Photo>,
     updateUiState: (ClimateUiState) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val imagePath = uri.toString()
+                onGetImage(imagePath)
+            }
+        }
+    }
+    val context = LocalContext.current
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(36.dp),
@@ -191,7 +232,7 @@ fun ClimateContent(
                     .padding(horizontal = dimensionResource(R.dimen.padding_medium))
             ) {
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { onCameraClick() },
                     shape = RoundedCornerShape(topStart = 16.dp, bottomEnd = 32.dp),
                     modifier = Modifier
                         .height(dimensionResource(R.dimen.small_button_height))
@@ -203,7 +244,7 @@ fun ClimateContent(
                     )
                 }
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { onPickImage(context, imagePickerLauncher) },
                     shape = RoundedCornerShape(topStart = 32.dp, bottomEnd = 16.dp),
                     modifier = Modifier
                         .height(dimensionResource(R.dimen.small_button_height))
@@ -216,6 +257,14 @@ fun ClimateContent(
                 }
             }
         }
+
+        item {
+            PhotoGallery(
+                unassociatedPhotos = unassociatedPhotos,
+                associatedPhotos = associatedPhotos
+            )
+        }
+
         item {
             SimpleInputBox(
                 labelText = "Observaciones",
@@ -253,6 +302,7 @@ fun ClimateScreenPreview() {
             onMenuClick = {},
             onSearchClick = {},
             onSettingsClick = {},
+            onCameraClick = {},
             monitorLogId = 1
         )
     }

@@ -1,6 +1,10 @@
 package com.example.lechendasapp.viewmodels
 
+import android.content.Context
+import android.content.Intent
+import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModel
 import com.example.lechendasapp.data.model.Vegetation
 import com.example.lechendasapp.data.repository.VegetationRepository
@@ -10,10 +14,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.lifecycle.viewModelScope
+import com.example.lechendasapp.data.model.Photo
+import com.example.lechendasapp.data.repository.PhotoRepository
 import com.example.lechendasapp.screens.CuadranteMain
 import com.example.lechendasapp.screens.CuadranteSecond
 import com.example.lechendasapp.screens.Habito
 import com.example.lechendasapp.screens.SubCuadrante
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class VegetationUiState(
@@ -67,7 +76,8 @@ fun VegetationUiState.toVegetation(): Vegetation = Vegetation(
 
 @HiltViewModel
 class VegetationViewModel @Inject constructor(
-    private val vegetationRepository: VegetationRepository
+    private val vegetationRepository: VegetationRepository,
+    private val photoRepository: PhotoRepository
 ) : ViewModel() {
     private val _vegetationUiState = mutableStateOf(VegetationUiState())
     val vegetationUiState: State<VegetationUiState> = _vegetationUiState
@@ -77,6 +87,69 @@ class VegetationViewModel @Inject constructor(
 
     private val _vegetationId = mutableLongStateOf(0L)
     val vegetationId: State<Long> = _vegetationId
+
+    private val _unassociatedPhotos = MutableStateFlow<List<Photo>>(emptyList())
+    val unassociatedPhotos: StateFlow<List<Photo>> = _unassociatedPhotos.asStateFlow()
+
+    private val _associatedPhotos = MutableStateFlow<List<Photo>>(emptyList())
+    val associatedPhotos: StateFlow<List<Photo>> = _associatedPhotos.asStateFlow()
+
+    init {
+        clearUnassociatedPhotos()
+        fetchUnassociatedPhotos()
+    }
+
+    fun clearUnassociatedPhotos() {
+        viewModelScope.launch {
+            photoRepository.deletePhotoByNull()
+        }
+    }
+
+    fun fetchAssociatedPhotosIfNeeded() {
+        if (vegetationId.value != 0L && monitorLogId.value != 0L) {
+            Log.d("AnimalViewModel", "Fetching associated photos")
+            fetchAssociatedPhotos(monitorLogId.value, vegetationId.value)
+        }
+    }
+
+    private fun fetchUnassociatedPhotos() {
+        viewModelScope.launch {
+            photoRepository.getPhotoStreamByNull()
+                .collect { photos ->
+                    _unassociatedPhotos.value = photos
+                }
+        }
+    }
+
+    private fun fetchAssociatedPhotos(monitorLogId: Long, animalId: Long) {
+        viewModelScope.launch {
+            photoRepository.getPhotoStreamByMonitorLogFormsId(monitorLogId, animalId)
+                .collect { photos ->
+                    _associatedPhotos.value = photos
+                }
+        }
+    }
+
+    fun pickImage(context: Context, launcher: ActivityResultLauncher<Intent>) {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        launcher.launch(intent)
+    }
+
+    fun getImage(imagePath: String) {
+        viewModelScope.launch {
+            photoRepository.insertPhoto(
+                Photo(
+                    id = 0, // auto-generated
+                    formsId = -1,
+                    monitorLogId = -1,
+                    filePath = imagePath,
+                    image = null,
+                    description = null
+                )
+            )
+        }
+    }
+
 
     fun updateUiState(newUi: VegetationUiState) {
         _vegetationUiState.value = newUi
@@ -128,7 +201,12 @@ class VegetationViewModel @Inject constructor(
 
                 // TODO: VALIDATE NOT BLANK FIELDS
 
-                vegetationRepository.insertVegetation(new)
+                val id = vegetationRepository.insertVegetation(new)
+                _unassociatedPhotos.value.map { photo ->
+                    val updatedPhoto =
+                        photo.copy(monitorLogId = _monitorLogId.longValue, formsId = id)
+                    photoRepository.updatePhoto(updatedPhoto)
+                }
             }
         } else {
             Log.d("UPDATE LOG", "UPDATE LOG")
@@ -137,6 +215,11 @@ class VegetationViewModel @Inject constructor(
                 var newLog = _vegetationUiState.value.toVegetation()
                 val new = newLog.copy(id = _vegetationId.longValue, monitorLogId = _monitorLogId.longValue)
                 vegetationRepository.updateVegetation(new)
+                _unassociatedPhotos.value.map { photo ->
+                    val updatedPhoto =
+                        photo.copy(monitorLogId = _monitorLogId.longValue, formsId = vegetationId.value)
+                    photoRepository.updatePhoto(updatedPhoto)
+                }
             }
         }
     }
