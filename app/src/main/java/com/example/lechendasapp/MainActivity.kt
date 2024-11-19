@@ -54,7 +54,9 @@ class MainActivity : ComponentActivity() {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         val REQUIRED_PERMISSIONS = arrayOf(
             Manifest.permission.CAMERA,
-            Manifest.permission.READ_MEDIA_IMAGES
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
         )
     }
 
