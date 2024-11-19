@@ -1,6 +1,12 @@
 package com.example.lechendasapp.screens
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
 import com.example.lechendasapp.data.model.Trap
 import com.example.lechendasapp.utils.BottomNavBar
+import com.example.lechendasapp.utils.DetailItem
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.SearchTrapViewModel
 
@@ -134,6 +141,7 @@ fun SearchTrapItem(
     //modifier: Modifier = Modifier
 ) {
     val expanded = remember { mutableStateOf(false) } // Estado para el menú desplegable
+    val expandedCard = remember { mutableStateOf(false) }
     Card(
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
@@ -141,6 +149,7 @@ fun SearchTrapItem(
         ),
         modifier = Modifier
             .padding(bottom = 8.dp)
+            .clickable { expandedCard.value = !expandedCard.value }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -191,6 +200,29 @@ fun SearchTrapItem(
                         text = { Text("Borrar") },
                     )
                 }
+            }
+        }
+        AnimatedVisibility(
+            visible = expandedCard.value,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 25.dp, vertical = 10.dp)
+            ) {
+                DetailItem("Code", log.code)
+                DetailItem("Camera Plate", log.cameraPlate)
+                DetailItem("Guaya Plate", log.guayaPlate)
+                DetailItem("Road Width", log.roadWidth.toString())
+                DetailItem("Installation Date", log.installationDate)
+                DetailItem("Lens Height", log.lensHeight.toString())
+                DetailItem("Objective Distance", log.objectiveDistance.toString())
+                log.checkList.split(',').forEachIndexed { index, checkItem ->
+                    DetailItem("Check Item ${index + 1}", checkItem)
+                }
+                DetailItem("Observations", log.observations ?: "")
             }
         }
     }

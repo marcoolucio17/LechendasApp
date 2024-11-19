@@ -1,6 +1,12 @@
 package com.example.lechendasapp.screens
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
 import com.example.lechendasapp.data.model.Vegetation
 import com.example.lechendasapp.utils.BottomNavBar
+import com.example.lechendasapp.utils.DetailItem
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.SearchVegetationViewModel
 
@@ -133,6 +140,7 @@ fun SearchVegetationItem(
     //modifier: Modifier = Modifier
 ) {
     val expanded = remember { mutableStateOf(false) } // Estado para el menú desplegable
+    val expandedCard = remember { mutableStateOf(false) }
     Card(
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
@@ -140,6 +148,7 @@ fun SearchVegetationItem(
         ),
         modifier = Modifier
             .padding(bottom = 8.dp)
+            .clickable { expandedCard.value = !expandedCard.value }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -159,7 +168,7 @@ fun SearchVegetationItem(
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Text(
-                    text = log.scientificName.toString(),
+                    text = log.commonName.toString(),
                     style = MaterialTheme.typography.headlineSmall
                 )
             }
@@ -190,6 +199,28 @@ fun SearchVegetationItem(
                         text = { Text("Borrar") },
                     )
                 }
+            }
+        }
+        AnimatedVisibility(
+            visible = expandedCard.value,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 25.dp, vertical = 10.dp)
+            ) {
+                DetailItem("Code", log.code)
+                DetailItem("Quadrant", log.quadrant)
+                DetailItem("Sub Quadrant", log.subQuadrant)
+                DetailItem("Growth Habit", log.growthHabit)
+                DetailItem("Scientific Name", log.scientificName ?: "")
+                DetailItem("Plate", log.plate)
+                DetailItem("Circumference", log.circumference.toString())
+                DetailItem("Distance", log.distance.toString())
+                DetailItem("Height", log.height.toString())
+                DetailItem("Observations", log.observations ?: "")
             }
         }
     }
