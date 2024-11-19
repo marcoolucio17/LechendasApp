@@ -112,7 +112,11 @@ fun TransectFormsContent(
             SimpleInputBox(
                 labelText = "Número de Transecto",
                 value = animalUiState.transectName,
-                onValueChange = { onUpdateUiState(animalUiState.copy(transectName = it)) },
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    transectName = it,
+                    errors = animalUiState.errors - "transectName"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
@@ -142,7 +146,12 @@ fun TransectFormsContent(
                             animal = animal,
                             isSelected = animal.displayName == animalUiState.animalType,
                             onSelect = {
-                                onUpdateUiState(animalUiState.copy(animalType = animal.displayName))
+                                onUpdateUiState(
+                                    animalUiState.copy(
+                                        animalType = animal.displayName, // Actualizamos el campo correcto
+                                        errors = animalUiState.errors - "animalType" // Limpiamos el error asociado
+                                    )
+                                )
                             }
                         )
                     }
@@ -159,19 +168,40 @@ fun TransectFormsContent(
                             animal = animal,
                             isSelected = animal.displayName == animalUiState.animalType,
                             onSelect = {
-                                onUpdateUiState(animalUiState.copy(animalType = animal.displayName))
+                                onUpdateUiState(
+                                    animalUiState.copy(
+                                        animalType = animal.displayName, // Actualizamos el campo correcto
+                                        errors = animalUiState.errors - "animalType" // Limpiamos el error asociado
+                                    )
+                                )
                             }
                         )
                     }
                 }
             }
+
+            // Mostrar mensaje de error si existe
+            if (animalUiState.errors.containsKey("animalType")) {
+                Text(
+                    text = animalUiState.errors["animalType"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
         }
+
+
 
         item {
             SimpleInputBox(
                 labelText = "Nombre Común",
                 value = animalUiState.commonName,
-                onValueChange = { onUpdateUiState(animalUiState.copy(commonName = it)) },
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    commonName = it,
+                    errors = animalUiState.errors - "commonName"
+                ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
@@ -185,19 +215,27 @@ fun TransectFormsContent(
             SimpleInputBox(
                 labelText = "Nombre Científico",
                 value = animalUiState.scientificName,
-                onValueChange = { onUpdateUiState(animalUiState.copy(scientificName = it)) },
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    scientificName = it,
+                    errors = animalUiState.errors - "scientificName"
+                ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 )
-            ) // TODO: Hacer opcional
+            )
         }
 
         item {
             SimpleInputBox(
                 labelText = "Número de Individuos",
                 value = animalUiState.quantity,
-                onValueChange = { onUpdateUiState(animalUiState.copy(quantity = it)) },
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    quantity = it,
+                    errors = animalUiState.errors - "quantity"
+                ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
@@ -208,20 +246,51 @@ fun TransectFormsContent(
         }
 
         item {
-            Text("Tipo de Observación", fontWeight = FontWeight.Bold)
-            Column {
+            Text(
+                "Tipo de Observación",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 ObservationTypes.entries.forEach { observation ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
                         RadioButton(
                             selected = animalUiState.observationType == observation.displayName,
-                            onClick = {  onUpdateUiState(animalUiState.copy(observationType = observation.displayName))  }
+                            onClick = {
+                                onUpdateUiState(
+                                    animalUiState.copy(
+                                        observationType = observation.displayName, // Actualizamos el campo correcto
+                                        errors = animalUiState.errors - "observationType" // Limpiamos el error asociado
+                                    )
+                                )
+                            }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(observation.displayName)
+                        Text(
+                            text = observation.displayName,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
             }
+
+            // Mostrar mensaje de error si existe
+            if (animalUiState.errors.containsKey("observationType")) {
+                Text(
+                    text = animalUiState.errors["observationType"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
         }
+
+
 
         item {
             Row(
@@ -266,7 +335,11 @@ fun TransectFormsContent(
                 singleLine = false,
                 modifier = Modifier.height(150.dp),
                 value = animalUiState.observations.toString(),
-                onValueChange = { onUpdateUiState(animalUiState.copy(observations = it)) },
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    transectName = it,
+                    errors = animalUiState.errors - "observations"
+                ))
+                },
             )
         }
 

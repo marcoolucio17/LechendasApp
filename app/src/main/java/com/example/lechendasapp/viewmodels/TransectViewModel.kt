@@ -87,35 +87,49 @@ class AnimalViewModel @Inject constructor(
 
     fun validateFields(): Boolean {
         val uiState = _animalUiState.value
-        val errors = mutableMapOf<String, String>()
+        val errors = uiState.errors.toMutableMap() // Mantener errores existentes
 
+        // Validación de campos
         if (uiState.animalType.isBlank()) {
             errors["animalType"] = "El tipo de animal es obligatorio."
+        } else {
+            errors.remove("animalType") // Eliminar error si es válido
         }
 
         if (uiState.commonName.isBlank()) {
             errors["commonName"] = "El nombre común es obligatorio."
+        } else {
+            errors.remove("commonName")
         }
 
         if (uiState.scientificName.isBlank()) {
             errors["scientificName"] = "El nombre científico es obligatorio."
+        } else {
+            errors.remove("scientificName")
         }
 
         if (uiState.quantity.isBlank() || uiState.quantity.toIntOrNull() == null) {
             errors["quantity"] = "La cantidad es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("quantity")
         }
 
         if (uiState.observationType.isBlank()) {
             errors["observationType"] = "El tipo de observación es obligatorio."
+        } else {
+            errors.remove("observationType")
         }
 
         if (uiState.transectName.isBlank()) {
             errors["transectName"] = "El nombre del transecto es obligatorio."
+        } else {
+            errors.remove("transectName")
         }
 
         _animalUiState.value = uiState.copy(errors = errors)
         return errors.isEmpty()
     }
+
 
     fun updateAnimalType(newAnimalType: String) {
         _animalUiState.value = _animalUiState.value.copy(
