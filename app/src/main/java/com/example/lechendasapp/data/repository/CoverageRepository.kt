@@ -22,4 +22,7 @@ interface CoverageRepository {
 
     suspend fun deleteConverageById(converageId: Long)
 
+    suspend fun countConverage(): Int
+
+
 }

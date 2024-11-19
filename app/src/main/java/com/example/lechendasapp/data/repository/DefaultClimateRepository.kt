@@ -51,4 +51,8 @@ class DefaultClimateRepository @Inject constructor(
         localDataSource.deleteById(climateId)
     }
 
+    override suspend fun countClimate(): Int {
+        return localDataSource.count()
+    }
+
 }

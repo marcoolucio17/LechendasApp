@@ -37,4 +37,7 @@ interface CoverageDao {
     @Query("DELETE FROM coverage WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    @Query("SELECT COUNT(*) FROM coverage")
+    suspend fun count(): Int
+
 }

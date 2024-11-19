@@ -7,6 +7,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -68,6 +72,7 @@ import com.example.lechendasapp.screens.VerifyUserScreen
 import com.example.lechendasapp.viewmodels.NavGraphViewModel
 
 
+
 @SuppressLint("NewApi")
 /*TODO: fix this*/
 @Composable
@@ -80,23 +85,27 @@ fun LechendasNavGraph(
     viewModel: NavGraphViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
+    val showLogoutDialog by viewModel.showLogoutDialog.collectAsState()
+    val isLoggedIn by viewModel.loggedIn.collectAsState()
+
     // Logout Dialog
-    if (viewModel.showLogoutDialog.value) {
+    if (showLogoutDialog) {
         ShowLogoutDialog(navController)
     }
 
-    navController.addOnDestinationChangedListener { _, destination, _ ->
-        val protectedRoutes = listOf(
-            HOME_ROUTE,
-            CONFIGURATION_ROUTE,
-            FORMULARY_ROUTE,
-            SEARCH_ROUTE,
-            // Add other protected routes here
-        )
+    LaunchedEffect(navController) {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val protectedRoutes = listOf(
+                HOME_ROUTE,
+                CONFIGURATION_ROUTE,
+                FORMULARY_ROUTE,
+                SEARCH_ROUTE
+            )
 
-        if (protectedRoutes.contains(destination.route) && !viewModel.loggedIn.value) {
-            navController.navigate(INTRO_ROUTE) {
-                popUpTo(0) { inclusive = true }
+            if (protectedRoutes.contains(destination.route) && !isLoggedIn) {
+                navController.navigate(INTRO_ROUTE) {
+                    popUpTo(0) { inclusive = true }
+                }
             }
         }
     }
@@ -197,7 +206,7 @@ fun LechendasNavGraph(
                 onSearchClick = { navActions.navigateToSearch() },
                 onSettingsClick = { navActions.navigateToConfiguration() },
                 onEditProfile = { navActions.navigateToEditProfile() },
-                onLogoutConfirmed = { navActions.navigateToLogin() }
+                onLogoutConfirmed = { viewModel.setShowLogoutDialog(true) }
             )
         }
         composable(route = CLIMATE_ROUTE) { backStackEntry ->
@@ -443,8 +452,8 @@ fun LechendasNavGraph(
 fun ShowLogoutDialog(navController: NavController, viewModel: NavGraphViewModel = hiltViewModel()) {
     AlertDialog(
         onDismissRequest = { viewModel.setShowLogoutDialog(false) },
-        title = { Text("Sign Out") },
-        text = { Text("Are you sure you want to sign out?") },
+        title = { Text("Cerrar sesión") },
+        text = { Text("¿Estás seguro de que quieres cerrar sesión?") },
         confirmButton = {
             TextButton(
                 onClick = {
@@ -456,12 +465,12 @@ fun ShowLogoutDialog(navController: NavController, viewModel: NavGraphViewModel 
                     // auth0.clearAuthState()
                 }
             ) {
-                Text("Sign Out")
+                Text("Cerrar sesión")
             }
         },
         dismissButton = {
             TextButton(onClick = { viewModel.setShowLogoutDialog(false) }) {
-                Text("Cancel")
+                Text("Cancelar")
             }
         }
     )

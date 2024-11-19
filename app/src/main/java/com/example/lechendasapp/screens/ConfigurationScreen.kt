@@ -70,43 +70,43 @@ fun ConfigurationContent(modifier: Modifier, onEditProfile: () -> Unit, onLogout
     var showNotifications by remember { mutableStateOf(true) }
 
     Column(modifier = Modifier.fillMaxSize().padding(top = 110.dp)) {
-        SectionTitle("GENERAL")
-        SettingItem(title = "Editar Perfil", onClick = onEditProfile)
-
-        Spacer(
-            modifier = Modifier
-                .padding(horizontal = 14.dp, vertical = 10.dp) // Space from each end
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(Color.Black)
-        )
-
-        SettingItem(title = "Cambiar contraseña", onClick = onEditProfile)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        SectionTitle("NOTIFICACIONES")
-        SettingSwitchItem(
-            title = "Notificaciones",
-            checked = showNotifications,
-            onCheckedChange = {
-                showNotifications = it
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+//        SectionTitle("GENERAL")
+//        SettingItem(title = "Editar Perfil", onClick = onEditProfile)
+//
+//        Spacer(
+//            modifier = Modifier
+//                .padding(horizontal = 14.dp, vertical = 10.dp) // Space from each end
+//                .fillMaxWidth()
+//                .height(1.dp)
+//                .background(Color.Black)
+//        )
+//
+//        SettingItem(title = "Cambiar contraseña", onClick = onEditProfile)
+//
+//        Spacer(modifier = Modifier.height(16.dp))
+//
+//        SectionTitle("NOTIFICACIONES")
+//        SettingSwitchItem(
+//            title = "Notificaciones",
+//            checked = showNotifications,
+//            onCheckedChange = {
+//                showNotifications = it
+//            }
+//        )
+//
+//        Spacer(modifier = Modifier.height(16.dp))
 
         SectionTitle("ACCIONES")
         SettingItem(title = "Cerrar sesión", onClick = { showLogoutDialog = true })
 
         if (showLogoutDialog) {
-            LogoutConfirmationDialog(
-                onDismiss = { showLogoutDialog = false },
-                onConfirm = {
-                    showLogoutDialog = false
+//            LogoutConfirmationDialog(
+//                onDismiss = { showLogoutDialog = false },
+//                onConfirm = {
+//                    showLogoutDialog = false
                     onLogoutConfirmed()
-                }
-            )
+//                }
+//            )
         }
 
     }
@@ -120,25 +120,25 @@ fun SectionTitle(title: String) {
         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
     )
 }
-
-@Composable
-fun LogoutConfirmationDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Cerrar sesión") },
-        text = { Text("¿Estás seguro de que quieres cerrar sesión?") },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Cerrar sesión", color = MaterialTheme.colorScheme.primary)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
-            }
-        }
-    )
-}
+//
+//@Composable
+//fun LogoutConfirmationDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+//    AlertDialog(
+//        onDismissRequest = onDismiss,
+//        title = { Text("Cerrar sesión") },
+//        text = { Text("¿Estás seguro de que quieres cerrar sesión?") },
+//        confirmButton = {
+//            TextButton(onClick = onConfirm) {
+//                Text("Cerrar sesión", color = MaterialTheme.colorScheme.primary)
+//            }
+//        },
+//        dismissButton = {
+//            TextButton(onClick = onDismiss) {
+//                Text("Cancelar")
+//            }
+//        }
+//    )
+//}
 
 @Composable
 fun SettingItem(title: String, onClick: () -> Unit) {

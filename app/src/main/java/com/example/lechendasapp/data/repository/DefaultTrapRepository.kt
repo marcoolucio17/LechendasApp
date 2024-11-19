@@ -53,4 +53,8 @@ class DefaultTrapRepository @Inject constructor(
         localDataSource.deleteById(trapId)
     }
 
+    override suspend fun countTrap(): Int {
+        return localDataSource.count()
+    }
+
 }

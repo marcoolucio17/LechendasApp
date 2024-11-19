@@ -37,4 +37,7 @@ interface VegetationDao {
     @Query("DELETE FROM vegetation WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    @Query("SELECT COUNT(*) FROM vegetation")
+    suspend fun count(): Int
+
 }

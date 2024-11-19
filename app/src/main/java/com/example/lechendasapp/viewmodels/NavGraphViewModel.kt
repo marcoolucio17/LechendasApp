@@ -9,7 +9,13 @@ import com.auth0.android.result.Credentials
 import com.example.lechendasapp.data.model.AuthToken
 import com.example.lechendasapp.data.repository.AuthTokenRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -18,43 +24,50 @@ import javax.inject.Inject
 class NavGraphViewModel @Inject constructor(
     private val authTokenRepository: AuthTokenRepository
 ) : ViewModel() {
-    private val _credentials = mutableStateOf<Credentials?>(null)
-    val credentials: State<Credentials?> = _credentials
+    private val _credentials = MutableStateFlow<Credentials?>(null)
+    val credentials: StateFlow<Credentials?> = _credentials.asStateFlow()
 
-    private val _loggedIn = mutableStateOf(false)
-    val loggedIn: State<Boolean> = _loggedIn
+    private val _loggedIn = MutableStateFlow(false)
+    val loggedIn: StateFlow<Boolean> = _loggedIn.asStateFlow()
 
-    private val _showLogoutDialog = mutableStateOf(false)
-    val showLogoutDialog: State<Boolean> = _showLogoutDialog
+    private val _showLogoutDialog = MutableStateFlow(false)
+    val showLogoutDialog: StateFlow<Boolean> = _showLogoutDialog.asStateFlow()
 
     init {
-        // Check for stored tokens when ViewModel is created
+        checkInitialAuthStatus()
+    }
+
+    private fun checkInitialAuthStatus() {
         viewModelScope.launch {
-            authTokenRepository.getAuthToken().collect { token ->
-                if (token != null) {
-                    // Reconstruct Credentials object from stored data
-                    _credentials.value = Credentials(
-                        idToken = token.idToken,
-                        accessToken = token.accessToken,
-                        type = token.tokenType,
-                        refreshToken = token.refreshToken,
-                        expiresAt = token.expiresAt,
-                        scope = token.scope
-                    )
-                    if (!isTokenExpired()) {
-                        _loggedIn.value = true
-                    } else {
-                        // Optionally refresh the token here
-                        logout()
-                    }
-                }
+            // Use async/coroutine to make initialization non-blocking
+            val storedToken = withContext(Dispatchers.IO) {
+                authTokenRepository.getAuthToken().first()
+            }
+
+            storedToken?.let { token ->
+                val credentials = Credentials(
+                    idToken = token.idToken,
+                    accessToken = token.accessToken,
+                    type = token.tokenType,
+                    refreshToken = token.refreshToken,
+                    expiresAt = token.expiresAt,
+                    scope = token.scope
+                )
+
+                _credentials.value = credentials
+                _loggedIn.value = !isTokenExpired(credentials)
             }
         }
     }
 
+    private fun isTokenExpired(credentials: Credentials): Boolean {
+        return credentials.expiresAt?.before(Date()) ?: true
+    }
+
+
     fun setCredentials(credentials: Credentials) {
         _credentials.value = credentials
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             // Store all credentials information
             authTokenRepository.saveAuthToken(
                 AuthToken(
@@ -77,10 +90,6 @@ class NavGraphViewModel @Inject constructor(
             _loggedIn.value = false
             _showLogoutDialog.value = false
         }
-    }
-
-    private fun isTokenExpired(): Boolean {
-        return _credentials.value?.expiresAt?.before(Date()) != false
     }
 
     fun setShowLogoutDialog(show: Boolean) {

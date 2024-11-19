@@ -41,4 +41,8 @@ interface PhotoDao {
 
     @Query("DELETE FROM photos WHERE monitor_log_id = -1 AND forms_id = -1")
     suspend fun deleteByNull()
+
+    //Count
+    @Query("SELECT COUNT(*) FROM photos")
+    suspend fun count(): Int
 }

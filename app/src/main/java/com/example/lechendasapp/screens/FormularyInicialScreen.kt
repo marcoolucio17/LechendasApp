@@ -285,6 +285,10 @@ class MockMonitorLogRepository2 : MonitorLogRepository {
     override suspend fun deleteMonitorLogById(monitorLogId: Long) {
         TODO("Not yet implemented")
     }
+
+    override suspend fun countMonitorLog(): Int {
+        TODO("Not yet implemented")
+    }
 }
 
 @Composable

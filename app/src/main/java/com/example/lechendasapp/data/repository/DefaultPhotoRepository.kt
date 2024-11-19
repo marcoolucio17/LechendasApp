@@ -58,5 +58,9 @@ class DefaultPhotoRepository @Inject constructor(
         localDataSource.deleteByNull()
     }
 
+    override suspend fun countPhoto(): Int {
+        return localDataSource.count()
+    }
+
 
 }

@@ -39,4 +39,8 @@ class DefaultMonitorLogRepository @Inject constructor(
         localDataSource.deleteById(monitorLogId)
     }
 
+    override suspend fun countMonitorLog(): Int {
+        return localDataSource.count()
+    }
+
 }
