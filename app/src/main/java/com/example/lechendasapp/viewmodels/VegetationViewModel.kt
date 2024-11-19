@@ -29,7 +29,12 @@ data class VegetationUiState(
     val distance: String = "",
     val height: String = "",
     val observations: String? = "",
-)
+    val errors: Map<String, String> = emptyMap() // Para almacenar mensajes de error
+) {
+    companion object {
+        fun empty() = VegetationUiState()
+    }
+}
 
 fun Vegetation.toVegetationUiState(): VegetationUiState = VegetationUiState(
     code = this.code,
@@ -43,14 +48,12 @@ fun Vegetation.toVegetationUiState(): VegetationUiState = VegetationUiState(
     circumference = this.circumference.toString(),
     distance = this.distance.toString(),
     height = this.height.toString(),
-    observations = this.observations,
+    observations = this.observations
 )
 
 fun VegetationUiState.toVegetation(): Vegetation = Vegetation(
-    id = 0, // This can be default / handled by DAO
-
-    monitorLogId = 0, // this is handled with the route
-
+    id = 0,
+    monitorLogId = 0,
     code = this.code,
     quadrant = this.quadrant + this.quadrantSecond,
     subQuadrant = this.subQuadrant,
@@ -58,10 +61,10 @@ fun VegetationUiState.toVegetation(): Vegetation = Vegetation(
     commonName = this.commonName,
     scientificName = this.scientificName,
     plate = this.plate,
-    circumference = this.circumference.toInt(),
-    distance = this.distance.toInt(),
-    height = this.height.toInt(),
-    observations = this.observations,
+    circumference = this.circumference.toIntOrNull() ?: 0, // Manejo de errores al convertir
+    distance = this.distance.toIntOrNull() ?: 0, // Manejo de errores al convertir
+    height = this.height.toIntOrNull() ?: 0, // Manejo de errores al convertir
+    observations = this.observations
 )
 
 
@@ -82,28 +85,6 @@ class VegetationViewModel @Inject constructor(
         _vegetationUiState.value = newUi
     }
 
-    fun updateSelectedCuadranteMain(selectedIndex: Int) {
-        _vegetationUiState.value = _vegetationUiState.value.copy(quadrant = CuadranteMain.entries[selectedIndex].name)
-    }
-
-    fun updateSelectedCuadranteSecond(selectedIndex: Int) {
-        Log.d("SELECTED INDEX", selectedIndex.toString())
-        _vegetationUiState.value = _vegetationUiState.value.copy(quadrantSecond = CuadranteSecond.entries[selectedIndex].name)
-        Log.d("SELECTED QUADRANT", _vegetationUiState.value.quadrantSecond)
-    }
-
-    fun updateSelectedSubCuadrante(selectedIndex: Int) {
-        Log.d("SELECTED INDEX", selectedIndex.toString())
-        _vegetationUiState.value = _vegetationUiState.value.copy(subQuadrant = SubCuadrante.entries[selectedIndex].displayName)
-        Log.d("SELECTED QUADRANT", _vegetationUiState.value.subQuadrant)
-    }
-
-    fun updateSelectedHabito(selectedIndex: Int) {
-        Log.d("SELECTED INDEX", selectedIndex.toString())
-        _vegetationUiState.value = _vegetationUiState.value.copy(growthHabit = Habito.entries[selectedIndex].name)
-        Log.d("SELECTED QUADRANT", _vegetationUiState.value.growthHabit)
-    }
-
     fun setMonitorLogId(id: Long) {
         _monitorLogId.longValue = id
     }
@@ -116,27 +97,54 @@ class VegetationViewModel @Inject constructor(
         }
     }
 
+    fun resetForm() {
+        _vegetationUiState.value = VegetationUiState.empty()
+    }
+
+    fun validateFields(): Boolean {
+        val uiState = _vegetationUiState.value
+        val errors = mutableMapOf<String, String>()
+
+        if (uiState.code.isBlank()) errors["code"] = "El código es obligatorio."
+        if (uiState.quadrant.isBlank()) errors["quadrant"] = "El cuadrante es obligatorio."
+        if (uiState.growthHabit.isBlank()) errors["growthHabit"] = "El hábito de crecimiento es obligatorio."
+        if (uiState.commonName.isBlank()) errors["commonName"] = "El nombre común es obligatorio."
+        if (uiState.plate.isBlank()) errors["plate"] = "La placa es obligatoria."
+        if (uiState.circumference.isBlank() || uiState.circumference.toIntOrNull() == null) {
+            errors["circumference"] = "La circunferencia debe ser un número válido."
+        }
+        if (uiState.distance.isBlank() || uiState.distance.toIntOrNull() == null) {
+            errors["distance"] = "La distancia debe ser un número válido."
+        }
+        if (uiState.height.isBlank() || uiState.height.toIntOrNull() == null) {
+            errors["height"] = "La altura debe ser un número válido."
+        }
+
+        _vegetationUiState.value = uiState.copy(errors = errors)
+
+        return errors.isEmpty()
+    }
+
     fun addNewLog() {
-        if (_vegetationId.longValue == 0L) {
-            Log.d("ADD NEW LOG", "ADD NEW LOG")
-            //Insert new log
-            viewModelScope.launch {
-                val newLog = _vegetationUiState.value.toVegetation()
-
-                //update id values
-                val new = newLog.copy(monitorLogId = _monitorLogId.longValue)
-
-                // TODO: VALIDATE NOT BLANK FIELDS
-
-                vegetationRepository.insertVegetation(new)
-            }
-        } else {
-            Log.d("UPDATE LOG", "UPDATE LOG")
-            // Update existing log
-            viewModelScope.launch {
-                var newLog = _vegetationUiState.value.toVegetation()
-                val new = newLog.copy(id = _vegetationId.longValue, monitorLogId = _monitorLogId.longValue)
-                vegetationRepository.updateVegetation(new)
+        if (validateFields()) {
+            if (_vegetationId.longValue == 0L) {
+                // Insert new log
+                val newLog = _vegetationUiState.value.toVegetation().copy(
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    vegetationRepository.insertVegetation(newLog)
+                }
+                resetForm()
+            } else {
+                // Update existing log
+                val updatedLog = _vegetationUiState.value.toVegetation().copy(
+                    id = _vegetationId.longValue,
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    vegetationRepository.updateVegetation(updatedLog)
+                }
             }
         }
     }

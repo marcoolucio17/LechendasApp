@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -23,10 +24,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -72,10 +75,7 @@ fun VegetationFormsScreen(
             vegetationUiState = viewModel.vegetationUiState.value,
             updateUiState = viewModel::updateUiState,
             onAddNewLog = viewModel::addNewLog,
-            updateCuadranteMain = viewModel::updateSelectedCuadranteMain,
-            updateCuadranteSecond = viewModel::updateSelectedCuadranteSecond,
-            updateSubCuadrante = viewModel::updateSelectedSubCuadrante,
-            updateHabito = viewModel::updateSelectedHabito,
+            validateFields = viewModel::validateFields,
             modifier = modifier.padding(innerPadding)
         )
     }
@@ -86,14 +86,17 @@ fun VegetationFormsScreen(
 fun VegetationFormsContent(
     vegetationUiState: VegetationUiState,
     updateUiState: (VegetationUiState) -> Unit,
-    updateCuadranteMain: (Int) -> Unit,
-    updateCuadranteSecond: (Int) -> Unit,
-    updateSubCuadrante: (Int) -> Unit,
-    updateHabito: (Int) -> Unit,
+    validateFields: () -> Boolean,
     onAddNewLog: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val context = LocalContext.current
+    val listState = rememberLazyListState() // Estado para controlar el scroll
+    val coroutineScope = rememberCoroutineScope() // Para ejecutar scroll en un coroutine
+
     LazyColumn(
+        state = listState,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(36.dp),
         modifier = modifier
@@ -104,154 +107,321 @@ fun VegetationFormsContent(
             SimpleInputBox(
                 labelText = "Código",
                 value = vegetationUiState.code,
-                onValueChange = { updateUiState(vegetationUiState.copy(code = it)) } ,
+                onValueChange = {
+                    updateUiState(vegetationUiState.copy(
+                        code = it,
+                        errors = vegetationUiState.errors - "code"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = vegetationUiState.errors.containsKey("code"),
+                errorText = vegetationUiState.errors["code"]
             )
         }
+
         item {
-            Text(
-                text = "Cuadrante",
-                modifier = Modifier
-                    .padding(bottom = 16.dp)
-                    .width(450.dp)
-            )
-            Row (
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .width(450.dp)
-            ) {
-                Column (
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
-                    modifier = Modifier.padding(top = 8.dp, end = 32.dp)
+            Column {
+                Text(
+                    text = "Cuadrante",
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .width(450.dp),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .width(450.dp)
                 ) {
-                    CuadranteMain.entries.forEach {
-                        Button(
-                            onClick = { updateCuadranteMain(it.ordinal)  },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (vegetationUiState.quadrant == it.name) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-                                contentColor = if (vegetationUiState.quadrant == it.name) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                            ),
-                            shape = MaterialTheme.shapes.small,
-                            border = BorderStroke(1.dp, if (vegetationUiState.quadrant == it.name) MaterialTheme.colorScheme.primary else Color.Gray),
-                            modifier = Modifier
-                                .width(100.dp)
-                                .height(100.dp)
-                        ) {
-                            Text(
-                                text = it.name,
-                                color = Color.Black
-                            )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(24.dp),
+                        modifier = Modifier.padding(top = 8.dp, end = 32.dp)
+                    ) {
+                        CuadranteMain.entries.forEach { cuadranteMain ->
+                            Button(
+                                onClick = {
+                                    try {
+                                        updateUiState(
+                                            vegetationUiState.copy(
+                                                quadrant = cuadranteMain.name,
+                                                errors = vegetationUiState.errors.toMutableMap().apply { remove("quadrant") }
+                                            )
+                                        )
+                                    } catch (e: Exception) {
+                                        updateUiState(
+                                            vegetationUiState.copy(
+                                                errors = vegetationUiState.errors.toMutableMap().apply {
+                                                    this["quadrant"] = "Error al seleccionar cuadrante: ${e.message}"
+                                                }
+                                            )
+                                        )
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (vegetationUiState.quadrant == cuadranteMain.name)
+                                        MaterialTheme.colorScheme.inversePrimary
+                                    else
+                                        MaterialTheme.colorScheme.surface,
+                                    contentColor = if (vegetationUiState.quadrant == cuadranteMain.name)
+                                        MaterialTheme.colorScheme.onPrimary
+                                    else
+                                        MaterialTheme.colorScheme.onSurface
+                                ),
+                                shape = MaterialTheme.shapes.small,
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (vegetationUiState.quadrant == cuadranteMain.name)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        Color.Gray
+                                ),
+                                modifier = Modifier
+                                    .width(100.dp)
+                                    .height(100.dp)
+                            ) {
+                                Text(
+                                    text = cuadranteMain.name,
+                                    color = Color.Black
+                                )
+                            }
+                        }
+                    }
+                    Column(
+                        verticalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        CuadranteSecond.entries.forEach { cuadranteSecond ->
+                            Button(
+                                onClick = {
+                                    try {
+                                        updateUiState(
+                                            vegetationUiState.copy(
+                                                quadrantSecond = cuadranteSecond.name,
+                                                errors = vegetationUiState.errors.toMutableMap().apply { remove("quadrantSecond") }
+                                            )
+                                        )
+                                    } catch (e: Exception) {
+                                        updateUiState(
+                                            vegetationUiState.copy(
+                                                errors = vegetationUiState.errors.toMutableMap().apply {
+                                                    this["quadrantSecond"] = "Error al seleccionar cuadrante secundario: ${e.message}"
+                                                }
+                                            )
+                                        )
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (vegetationUiState.quadrantSecond == cuadranteSecond.name)
+                                        MaterialTheme.colorScheme.inversePrimary
+                                    else
+                                        MaterialTheme.colorScheme.surface,
+                                    contentColor = if (vegetationUiState.quadrantSecond == cuadranteSecond.name)
+                                        MaterialTheme.colorScheme.onPrimary
+                                    else
+                                        MaterialTheme.colorScheme.onSurface
+                                ),
+                                shape = MaterialTheme.shapes.medium,
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (vegetationUiState.quadrantSecond == cuadranteSecond.name)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        Color.Gray
+                                ),
+                            ) {
+                                Text(
+                                    text = cuadranteSecond.name,
+                                    color = Color.Black
+                                )
+                            }
                         }
                     }
                 }
-                Column (
-                    verticalArrangement = Arrangement.SpaceBetween,
+                Text(
+                    text = vegetationUiState.errors["quadrant"] ?: "",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = vegetationUiState.errors["quadrantSecond"] ?: "",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
+        item {
+            Column {
+                Text(
+                    text = "Subcuadrante",
+                    modifier = Modifier
+                        .width(450.dp)
+                        .padding(bottom = 16.dp),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    CuadranteSecond.entries.forEach {
+                    SubCuadrante.entries.forEach { subCuadrante ->
                         Button(
-                            onClick = { updateCuadranteSecond(it.ordinal) },
+                            onClick = {
+                                try {
+                                    updateUiState(
+                                        vegetationUiState.copy(
+                                            subQuadrant = subCuadrante.displayName,
+                                            errors = vegetationUiState.errors.toMutableMap().apply { remove("subQuadrant") }
+                                        )
+                                    )
+                                } catch (e: Exception) {
+                                    updateUiState(
+                                        vegetationUiState.copy(
+                                            errors = vegetationUiState.errors.toMutableMap().apply {
+                                                this["subQuadrant"] = "Error al seleccionar subcuadrante: ${e.message}"
+                                            }
+                                        )
+                                    )
+                                }
+                            },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor =  if (vegetationUiState.quadrantSecond == it.name) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-                                contentColor = if (vegetationUiState.quadrantSecond == it.name) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                                containerColor = if (vegetationUiState.subQuadrant == subCuadrante.displayName)
+                                    MaterialTheme.colorScheme.inversePrimary
+                                else
+                                    MaterialTheme.colorScheme.surface,
+                                contentColor = if (vegetationUiState.subQuadrant == subCuadrante.displayName)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onSurface
                             ),
-                            shape = MaterialTheme.shapes.medium,
-                            border = BorderStroke(1.dp, if (vegetationUiState.quadrantSecond == it.name) MaterialTheme.colorScheme.primary else Color.Gray),
+                            shape = MaterialTheme.shapes.large,
+                            border = BorderStroke(
+                                1.dp,
+                                if (vegetationUiState.subQuadrant == subCuadrante.displayName)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    Color.Gray
+                            )
                         ) {
                             Text(
-                                text = it.name,
+                                text = subCuadrante.displayName,
                                 color = Color.Black
                             )
                         }
                     }
                 }
+                Text(
+                    text = vegetationUiState.errors["subQuadrant"] ?: "",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
+
+
         item {
-            Text(
-                text = "Subcuadrante",
-                modifier = Modifier
-                    .width(450.dp)
-                    .padding(bottom = 16.dp)
-            )
-            Row (
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-            ) {
-                SubCuadrante.entries.forEach {
-                    Button(
-                        onClick = { updateSubCuadrante(it.ordinal) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor =  if ( vegetationUiState.subQuadrant == it.displayName ) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-                            contentColor =  if ( vegetationUiState.subQuadrant == it.displayName ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                        ),
-                        shape = MaterialTheme.shapes.large,
-                        border = BorderStroke(1.dp,  if ( vegetationUiState.subQuadrant == it.displayName ) MaterialTheme.colorScheme.primary else Color.Gray,),
-                    ) {
-                        Text(
-                            text = it.displayName,
-                            color = Color.Black
-                        )
-                    }
-                }
-            }
-        }
-        item {
-            Text(
-                text = "Hábito de crecimiento",
-                modifier = Modifier
-                    .width(450.dp)
-                    .padding(bottom = 16.dp)
-            )
-            Row (
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-            ) {
-                Habito.entries.forEach {
-                    Button(
-                        onClick = { updateHabito(it.ordinal) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor =  if ( vegetationUiState.growthHabit == it.name ) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.surface,
-                            contentColor =  if ( vegetationUiState.growthHabit == it.name ) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                        ),
-                        shape = MaterialTheme.shapes.large,
-                        border =  BorderStroke(1.dp,  if ( vegetationUiState.subQuadrant == it.name ) MaterialTheme.colorScheme.primary else Color.Gray,),
-                    ) {
-                        Column (
+            Column {
+                Text(
+                    text = "Hábito de crecimiento",
+                    modifier = Modifier
+                        .width(450.dp)
+                        .padding(bottom = 16.dp),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    Habito.entries.forEach { habito ->
+                        Button(
+                            onClick = {
+                                try {
+                                    updateUiState(
+                                        vegetationUiState.copy(
+                                            growthHabit = habito.name,
+                                            errors = vegetationUiState.errors.toMutableMap().apply { remove("growthHabit") }
+                                        )
+                                    )
+                                } catch (e: Exception) {
+                                    updateUiState(
+                                        vegetationUiState.copy(
+                                            errors = vegetationUiState.errors.toMutableMap().apply {
+                                                this["growthHabit"] = "Error al seleccionar hábito de crecimiento: ${e.message}"
+                                            }
+                                        )
+                                    )
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (vegetationUiState.growthHabit == habito.name)
+                                    MaterialTheme.colorScheme.inversePrimary
+                                else
+                                    MaterialTheme.colorScheme.surface,
+                                contentColor = if (vegetationUiState.growthHabit == habito.name)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onSurface
+                            ),
+                            shape = MaterialTheme.shapes.large,
+                            border = BorderStroke(
+                                1.dp,
+                                if (vegetationUiState.growthHabit == habito.name)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    Color.Gray
+                            )
                         ) {
-                            Text(
-                                text = it.displayName,
-                                color = Color.Black
-                            )
-                            Text(
-                                text = it.size,
-                                color = Color.Black
-                            )
+                            Column {
+                                Text(
+                                    text = habito.displayName,
+                                    color = Color.Black
+                                )
+                                Text(
+                                    text = habito.size,
+                                    color = Color.Gray
+                                )
+                            }
                         }
                     }
                 }
+                Text(
+                    text = vegetationUiState.errors["growthHabit"] ?: "",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
+
         item {
             SimpleInputBox(
-                labelText = "Nombre común",
+                labelText = "Nombre Común",
                 value = vegetationUiState.commonName,
-                onValueChange = { updateUiState(vegetationUiState.copy(commonName = it)) } ,
+                onValueChange = {
+                    updateUiState(vegetationUiState.copy(
+                        commonName = it,
+                        errors = vegetationUiState.errors - "commonName"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = vegetationUiState.errors.containsKey("commonName"),
+                errorText = vegetationUiState.errors["commonName"]
             )
         }
         item {
             SimpleInputBox(
-                labelText = "Nombre científico",
+                labelText = "Nombre Científico",
                 value = vegetationUiState.scientificName.toString(),
-                onValueChange = { updateUiState(vegetationUiState.copy(scientificName = it)) } ,
+                onValueChange = {
+                    updateUiState(vegetationUiState.copy(
+                        scientificName = it
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
-                ),
+                )
             )
         }
 
@@ -259,11 +429,18 @@ fun VegetationFormsContent(
             SimpleInputBox(
                 labelText = "Placa",
                 value = vegetationUiState.plate,
-                onValueChange = { updateUiState(vegetationUiState.copy(plate = it)) } ,
+                onValueChange = {
+                    updateUiState(vegetationUiState.copy(
+                        plate = it,
+                        errors = vegetationUiState.errors - "plate"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = vegetationUiState.errors.containsKey("plate"),
+                errorText = vegetationUiState.errors["plate"]
             )
         }
 
@@ -271,33 +448,54 @@ fun VegetationFormsContent(
             SimpleInputBox(
                 labelText = "Circunferencia (cm)",
                 value = vegetationUiState.circumference,
-                onValueChange = { updateUiState(vegetationUiState.copy(circumference = it)) } ,
+                onValueChange = {
+                    updateUiState(vegetationUiState.copy(
+                        circumference = it,
+                        errors = vegetationUiState.errors - "circumference"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
+                    keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = vegetationUiState.errors.containsKey("circumference"),
+                errorText = vegetationUiState.errors["circumference"]
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Distancia (mt)",
                 value = vegetationUiState.distance,
-                onValueChange = { updateUiState(vegetationUiState.copy(distance = it)) } ,
+                onValueChange = {
+                    updateUiState(vegetationUiState.copy(
+                        distance = it,
+                        errors = vegetationUiState.errors - "distance"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
+                    keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = vegetationUiState.errors.containsKey("distance"),
+                errorText = vegetationUiState.errors["distance"]
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Altura (mt)",
                 value = vegetationUiState.height,
-                onValueChange = { updateUiState(vegetationUiState.copy(height = it)) } ,
+                onValueChange = {
+                    updateUiState(vegetationUiState.copy(
+                        height = it,
+                        errors = vegetationUiState.errors - "height"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
+                    keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = vegetationUiState.errors.containsKey("height"),
+                errorText = vegetationUiState.errors["height"]
             )
         }
         item {
