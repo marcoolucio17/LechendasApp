@@ -26,7 +26,7 @@ interface ClimateDao {
     suspend fun getById(id: Long): LocalClimate?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(climate: LocalClimate)
+    suspend fun insert(climate: LocalClimate): Long
 
     @Update
     suspend fun update(climate: LocalClimate)

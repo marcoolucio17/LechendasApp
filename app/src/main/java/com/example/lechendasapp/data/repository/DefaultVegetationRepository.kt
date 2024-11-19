@@ -35,8 +35,8 @@ class DefaultVegetationRepository @Inject constructor(
         return localDataSource.getById(vegetationId)?.toExternal()
     }
 
-    override suspend fun insertVegetation(vegetation: Vegetation) {
-        localDataSource.insert(vegetation.toLocal())
+    override suspend fun insertVegetation(vegetation: Vegetation): Long {
+        return localDataSource.insert(vegetation.toLocal())
     }
 
     override suspend fun updateVegetation(vegetation: Vegetation) {

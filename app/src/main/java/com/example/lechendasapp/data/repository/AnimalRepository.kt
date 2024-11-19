@@ -14,7 +14,7 @@ interface AnimalRepository {
 
     suspend fun getAnimalById(id: Long): Animal?
 
-    suspend fun insertAnimal(animal: Animal)
+    suspend fun insertAnimal(animal: Animal) : Long
 
     suspend fun updateAnimal(animal: Animal)
 

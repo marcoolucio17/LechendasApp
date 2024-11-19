@@ -35,8 +35,8 @@ class DefaultCoverageRepository @Inject constructor(
         return localDataSource.getById(converageId)?.toExternal()
     }
 
-    override suspend fun insertConverage(converage: Coverage) {
-        localDataSource.insert(converage.toLocal())
+    override suspend fun insertConverage(converage: Coverage): Long {
+        return localDataSource.insert(converage.toLocal())
     }
 
     override suspend fun updateConverage(converage: Coverage) {

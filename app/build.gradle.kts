@@ -115,6 +115,8 @@ dependencies {
 
 
     implementation (libs.auth0)
+
+    implementation("io.coil-kt.coil3:coil-compose:3.0.3")
 }
 java {
     toolchain {

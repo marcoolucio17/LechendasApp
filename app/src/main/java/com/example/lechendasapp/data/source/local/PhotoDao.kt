@@ -15,6 +15,12 @@ interface PhotoDao {
     @Query("SELECT * FROM photos")
     fun observeAll(): Flow<List<LocalPhoto>>
 
+    @Query("SELECT * FROM photos WHERE monitor_log_id = :monitorLogId AND forms_id = :formsId")
+    fun observeByMonitorFormsId(monitorLogId: Long, formsId: Long): Flow<List<LocalPhoto>>
+
+    @Query("SELECT * FROM photos WHERE monitor_log_id = -1 AND forms_id = -1")
+    fun observeByNull(): Flow<List<LocalPhoto>>
+
     @Query("SELECT * FROM photos WHERE id = :id")
     fun observeById(id: Long): Flow<LocalPhoto>
 
@@ -32,4 +38,7 @@ interface PhotoDao {
 
     @Delete
     suspend fun delete(photo: LocalPhoto)
+
+    @Query("DELETE FROM photos WHERE monitor_log_id = -1 AND forms_id = -1")
+    suspend fun deleteByNull()
 }

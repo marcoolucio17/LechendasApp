@@ -35,8 +35,8 @@ class DefaultClimateRepository @Inject constructor(
         return localDataSource.getById(climateId)?.toExternal()
     }
 
-    override suspend fun insertClimate(climate: Climate) {
-        localDataSource.insert(climate.toLocal())
+    override suspend fun insertClimate(climate: Climate): Long {
+        return localDataSource.insert(climate.toLocal())
     }
 
     override suspend fun updateClimate(climate: Climate) {

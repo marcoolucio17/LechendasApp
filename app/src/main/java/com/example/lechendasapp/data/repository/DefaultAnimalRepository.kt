@@ -35,8 +35,8 @@ class DefaultAnimalRepository @Inject constructor(
         return localDataSource.getById(id)?.toExternal()
     }
 
-    override suspend fun insertAnimal(animal: Animal) {
-        localDataSource.insert(animal.toLocal())
+    override suspend fun insertAnimal(animal: Animal) : Long {
+        return localDataSource.insert(animal.toLocal())
     }
 
     override suspend fun updateAnimal(animal: Animal) {
