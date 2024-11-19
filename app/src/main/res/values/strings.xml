@@ -9,4 +9,5 @@
     <string name="enviar">Enviar</string>
     <string name="com_auth0_domain">dev-fltwqcj6anshzwek.us.auth0.com</string>
     <string name="com_auth0_client_id">QJbLlR2HCriN27HXC8XQYLqmu6eDcNMy</string>
+    <string name="ver_contraseña">Ver contraseña</string>
 </resources>
