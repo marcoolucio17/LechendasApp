@@ -1,5 +1,6 @@
 package com.example.lechendasapp.screens
 
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -43,6 +44,7 @@ import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.VegetationViewModel
 import com.example.lechendasapp.viewmodels.VegetationUiState
+import kotlinx.coroutines.launch
 
 @Composable
 fun VegetationFormsScreen(
@@ -318,7 +320,6 @@ fun VegetationFormsContent(
             }
         }
 
-
         item {
             Column {
                 Text(
@@ -449,55 +450,64 @@ fun VegetationFormsContent(
                 labelText = "Circunferencia (cm)",
                 value = vegetationUiState.circumference,
                 onValueChange = {
-                    updateUiState(vegetationUiState.copy(
-                        circumference = it,
-                        errors = vegetationUiState.errors - "circumference"
-                    ))
+                    updateUiState(
+                        vegetationUiState.copy(
+                            circumference = it,
+                            errors = vegetationUiState.errors - "circumference"
+                        )
+                    )
                 },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
+                    keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
                 isError = vegetationUiState.errors.containsKey("circumference"),
                 errorText = vegetationUiState.errors["circumference"]
             )
         }
+
         item {
             SimpleInputBox(
                 labelText = "Distancia (mt)",
                 value = vegetationUiState.distance,
                 onValueChange = {
-                    updateUiState(vegetationUiState.copy(
-                        distance = it,
-                        errors = vegetationUiState.errors - "distance"
-                    ))
+                    updateUiState(
+                        vegetationUiState.copy(
+                            distance = it,
+                            errors = vegetationUiState.errors - "distance"
+                        )
+                    )
                 },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
+                    keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
                 isError = vegetationUiState.errors.containsKey("distance"),
                 errorText = vegetationUiState.errors["distance"]
             )
         }
+
         item {
             SimpleInputBox(
                 labelText = "Altura (mt)",
                 value = vegetationUiState.height,
                 onValueChange = {
-                    updateUiState(vegetationUiState.copy(
-                        height = it,
-                        errors = vegetationUiState.errors - "height"
-                    ))
+                    updateUiState(
+                        vegetationUiState.copy(
+                            height = it,
+                            errors = vegetationUiState.errors - "height"
+                        )
+                    )
                 },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
+                    keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
                 isError = vegetationUiState.errors.containsKey("height"),
                 errorText = vegetationUiState.errors["height"]
             )
         }
+
         item {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -548,28 +558,27 @@ fun VegetationFormsContent(
             )
         }
         item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier
-                    .width(450.dp)
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.padding_medium),
-                        vertical = dimensionResource(R.dimen.padding_small)
-                    )
-            ) {
                 Button(
-                    onClick = onAddNewLog,
+                    onClick = {
+                        if (validateFields()) {
+                            onAddNewLog()
+                            //  // Resetea el formulario
+                            Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
+                        }
+                        coroutineScope.launch {
+                            listState.scrollToItem(0) // Mueve al inicio
+                        }
+                    },
+                    enabled = vegetationUiState.errors.isEmpty(),
                     modifier = Modifier
-
                         .height(dimensionResource(R.dimen.small_button_height))
-                        .weight(1f)
                 ) {
                     Text(
                         text = "Guardar",
                         style = MaterialTheme.typography.titleSmall
                     )
                 }
-            }
+
         }
 
     }
