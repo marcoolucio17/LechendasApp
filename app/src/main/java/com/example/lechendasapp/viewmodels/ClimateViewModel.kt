@@ -30,8 +30,14 @@ data class ClimateUiState(
     val maxHumidity: String = "",
     val minHumidity: String = "",
     val ravineLevel: String = "",
-    val observations: String = ""
-)
+    val observations: String = "",
+    val errors: Map<String, String> = emptyMap() // Para almacenar mensajes de error
+) {
+    companion object {
+        fun empty() = ClimateUiState()
+    }
+}
+
 
 fun Climate.toClimateUiState(): ClimateUiState = ClimateUiState(
     rainfall = this.rainfall.toString(),
@@ -133,6 +139,9 @@ class ClimateViewModel @Inject constructor(
         }
     }
 
+    private val _errorMessage = mutableStateOf("")
+    val errorMessage: State<String> = _errorMessage
+
     fun updateUiState(newUi: ClimateUiState) {
         _climateUiState.value = newUi
     }
@@ -149,32 +158,56 @@ class ClimateViewModel @Inject constructor(
         }
     }
 
+    fun resetForm() {
+        _climateUiState.value = ClimateUiState.empty()
+    }
+
+    fun validateFields(): Boolean {
+        val uiState = _climateUiState.value
+        val errors = mutableMapOf<String, String>()
+
+        if (uiState.rainfall.isBlank()) errors["rainfall"] = "Este campo es obligatorio."
+        if (uiState.maxTemp.isBlank()) errors["maxTemp"] = "Este campo es obligatorio."
+        if (uiState.minTemp.isBlank()) errors["minTemp"] = "Este campo es obligatorio."
+        if (uiState.maxHumidity.isBlank()) errors["maxHumidity"] = "Este campo es obligatorio."
+        if (uiState.minHumidity.isBlank()) errors["minHumidity"] = "Este campo es obligatorio."
+        if (uiState.ravineLevel.isBlank()) errors["ravineLevel"] = "Este campo es obligatorio."
+
+        _climateUiState.value = uiState.copy(errors = errors)
+
+        return errors.isEmpty()
+    }
+
+
     fun addNewLog() {
-        if (_climateId.longValue == 0L) {
-            //Insert new climate
-            val newLog = _climateUiState.value.toClimate().copy(
-                monitorLogId = _monitorLogId.longValue
-            )
-            viewModelScope.launch {
-                val id = climateRepository.insertClimate(newLog)
-                _unassociatedPhotos.value.map { photo ->
-                    val updatedPhoto =
-                        photo.copy(monitorLogId = _monitorLogId.longValue, formsId = id)
-                    photoRepository.updatePhoto(updatedPhoto)
+        if (validateFields()) { // Verifica que los campos no estén vacíos
+            if (_climateId.longValue == 0L) {
+                //Insert new climate
+                val newLog = _climateUiState.value.toClimate().copy(
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    val id = climateRepository.insertClimate(newLog)
+                    _unassociatedPhotos.value.map { photo ->
+                        val updatedPhoto =
+                            photo.copy(monitorLogId = _monitorLogId.longValue, formsId = id)
+                        photoRepository.updatePhoto(updatedPhoto)
+                    }
                 }
-            }
-        } else {
-            //Update new climate
-            val newClimate = _climateUiState.value.toClimate().copy(
-                id = _climateId.longValue,
-                monitorLogId = _monitorLogId.longValue
-            )
-            viewModelScope.launch {
-                climateRepository.updateClimate(newClimate)
-                _unassociatedPhotos.value.map { photo ->
-                    val updatedPhoto =
-                        photo.copy(monitorLogId = _monitorLogId.longValue, formsId = climateId.value)
-                    photoRepository.updatePhoto(updatedPhoto)
+                resetForm()
+            } else {
+                //Update new climate
+                val newClimate = _climateUiState.value.toClimate().copy(
+                    id = _climateId.longValue,
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    climateRepository.updateClimate(newClimate)
+                    _unassociatedPhotos.value.map { photo ->
+                        val updatedPhoto =
+                            photo.copy(monitorLogId = _monitorLogId.longValue, formsId = climateId.value)
+                        photoRepository.updatePhoto(updatedPhoto)
+                    }
                 }
             }
         }
