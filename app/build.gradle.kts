@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -117,6 +118,8 @@ dependencies {
     implementation (libs.auth0)
 
     implementation("io.coil-kt.coil3:coil-compose:3.0.3")
+
+    implementation(libs.play.services.location)
 }
 java {
     toolchain {
