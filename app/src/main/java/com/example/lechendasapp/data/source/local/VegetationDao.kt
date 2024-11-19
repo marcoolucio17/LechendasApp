@@ -26,7 +26,7 @@ interface VegetationDao {
     suspend fun getById(id: Long): LocalVegetation?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(vegetation: LocalVegetation)
+    suspend fun insert(vegetation: LocalVegetation): Long
 
     @Update
     suspend fun update(vegetation: LocalVegetation)

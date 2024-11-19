@@ -12,8 +12,20 @@ class DefaultPhotoRepository @Inject constructor(
     private val localDataSource: PhotoDao,
 ) : PhotoRepository {
     override fun getPhotoStream(): Flow<List<Photo>> {
-        return localDataSource.observeAll().map { animals ->
-            animals.toExternal()
+        return localDataSource.observeAll().map { photos ->
+            photos.toExternal()
+        }
+    }
+
+    override fun getPhotoStreamByMonitorLogFormsId(monitorLogId: Long, formsId: Long): Flow<List<Photo>> {
+        return localDataSource.observeByMonitorFormsId(monitorLogId, formsId).map { photos ->
+            photos.toExternal()
+        }
+    }
+
+    override fun getPhotoStreamByNull(): Flow<List<Photo>> {
+        return localDataSource.observeByNull().map { photos ->
+            photos.toExternal()
         }
     }
 
@@ -41,5 +53,10 @@ class DefaultPhotoRepository @Inject constructor(
     override suspend fun deletePhoto(photo: Photo) {
         localDataSource.delete(photo.toLocal())
     }
+
+    override suspend fun deletePhotoByNull() {
+        localDataSource.deleteByNull()
+    }
+
 
 }

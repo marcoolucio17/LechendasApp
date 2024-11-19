@@ -14,7 +14,7 @@ interface CoverageRepository {
 
     suspend fun getConverageById(converageId: Long): Coverage?
 
-    suspend fun insertConverage(converage: Coverage)
+    suspend fun insertConverage(converage: Coverage): Long
 
     suspend fun updateConverage(converage: Coverage)
 

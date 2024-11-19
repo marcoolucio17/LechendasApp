@@ -28,7 +28,7 @@ interface TrapDao {
 
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(trap: LocalTrap)
+    suspend fun insert(trap: LocalTrap): Long
 
     @Update
     suspend fun update(trap: LocalTrap)

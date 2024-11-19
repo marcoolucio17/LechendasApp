@@ -37,8 +37,8 @@ class DefaultTrapRepository @Inject constructor(
     }
 
 
-    override suspend fun insertTrap(trap: Trap) {
-        localDataSource.insert(trap.toLocal())
+    override suspend fun insertTrap(trap: Trap): Long {
+        return localDataSource.insert(trap.toLocal())
     }
 
     override suspend fun updateTrap(trap: Trap) {

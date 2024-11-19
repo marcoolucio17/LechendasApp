@@ -26,7 +26,7 @@ interface CoverageDao {
     suspend fun getById(id: Long): LocalCoverage?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(coverage: LocalCoverage)
+    suspend fun insert(coverage: LocalCoverage): Long
 
     @Update
     suspend fun update(coverage: LocalCoverage)
