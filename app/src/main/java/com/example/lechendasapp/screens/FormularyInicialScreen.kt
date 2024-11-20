@@ -389,11 +389,12 @@ fun requestLocationUpdates(
     fusedLocationProviderClient: FusedLocationProviderClient,
     onCoordinatesFetched: (Double, Double) -> Unit
 ) {
-    val locationRequest = LocationRequest.create().apply {
-        priority = Priority.PRIORITY_HIGH_ACCURACY
-        interval = 10000 // 10 segundos
-        fastestInterval = 5000 // 5 segundos
-    }
+    val locationRequest = LocationRequest.Builder(
+        Priority.PRIORITY_HIGH_ACCURACY,
+        10000 // Interval in milliseconds (10 seconds)
+    ).apply {
+        setMinUpdateIntervalMillis(5000) // Fastest interval in milliseconds (5 seconds)
+    }.build()
 
     if (ActivityCompat.checkSelfPermission(
             context,
