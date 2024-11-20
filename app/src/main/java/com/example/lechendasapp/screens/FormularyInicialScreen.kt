@@ -162,7 +162,6 @@ fun FormularioContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                        .background(Color.LightGray, shape = MaterialTheme.shapes.small)
                         .heightIn(min = 80.dp)
                         .padding(8.dp)
                 ) {
@@ -178,9 +177,9 @@ fun FormularioContent(
                         }
                     },
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                    modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+                    modifier = Modifier.sizeIn(minWidth = 16.dp, minHeight = 16.dp)
                 ) {
-                    Text("Recargar geolocalización", fontSize = MaterialTheme.typography.bodyLarge.fontSize)
+                    Text("Recalibrar geolocalización", fontSize = MaterialTheme.typography.bodyLarge.fontSize)
                 }
             }
         }
