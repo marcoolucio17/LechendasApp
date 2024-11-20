@@ -57,9 +57,6 @@ fun Trap.toTrapUiState(): TrapUiState = TrapUiState(
 
 )
 
-/*TODO: creo que por culpa de el uso de .toIntorNull, es posible intentar
-*  insertar string y automaticamente se cambia a un 0, pero no te dice en la UI/UX el error solo
-* se envia*/
 fun TrapUiState.toTrap(): Trap = Trap(
     id = 0,
     monitorLogId = 0,
@@ -182,9 +179,22 @@ class TrapViewModel @Inject constructor(
         if (uiState.cameraName.isBlank()) errors["cameraName"] = "El nombre de la cámara es obligatorio."
         if (uiState.cameraPlate.isBlank()) errors["cameraPlate"] = "La placa de la cámara es obligatoria."
         if (uiState.guayaPlate.isBlank()) errors["guayaPlate"] = "La placa de la guaya es obligatoria."
-        if (uiState.roadWidth.isBlank()) errors["roadWidth"] = "El ancho de la carretera es obligatorio."
+        if (uiState.roadWidth.isBlank() || uiState.roadWidth.toIntOrNull() == null) {
+            errors["roadWidth"] = "El ancho de carretera es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("roadWidth")
+        }
         if (uiState.installationDate.isBlank()) errors["installationDate"] = "La fecha de instalación es obligatoria."
-        if (uiState.lensHeight.isBlank()) errors["lensHeight"] = "La altura de la lente es obligatoria."
+        if (uiState.lensHeight.isBlank() || uiState.lensHeight.toIntOrNull() == null) {
+            errors["lensHeight"] = "La altura del lente es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("lensHeight")
+        }
+        if (uiState.objectiveDistance.isBlank() || uiState.objectiveDistance.toIntOrNull() == null) {
+            errors["objectiveDistance"] = "La distancia de objetivo es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("lensHeight")
+        }
         if (uiState.objectiveDistance.isBlank()) errors["objectiveDistance"] = "La distancia al objetivo es obligatoria."
         if (uiState.checkList.none { it.value }) {
             errors["checkList"] = "Debe seleccionar al menos un elemento."
