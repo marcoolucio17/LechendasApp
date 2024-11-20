@@ -40,6 +40,7 @@ import com.example.lechendasapp.viewmodels.FormsUiState
 import com.example.lechendasapp.viewmodels.FormularioViewModel
 import kotlinx.coroutines.flow.Flow
 import com.google.android.gms.location.*
+import com.google.android.gms.location.FusedLocationProviderClient
 
 
 @Composable
@@ -104,12 +105,8 @@ fun FormularioContent(
 
     // Agarrar automaticamente las coordenadas
     LaunchedEffect(Unit) {
-        if (isGpsEnabled(context)) {
-            fetchCoordinates(context) { lat, lon ->
-                coordinates = "Lat: $lat, Lon: $lon"
-            }
-        } else {
-            //promptEnableGps(context)
+        fetchCoordinates(context) { lat, lon ->
+            coordinates = "Lat: $lat, Lon: $lon"
         }
     }
 
@@ -151,14 +148,29 @@ fun FormularioContent(
         }
         item {
             Text("Coordenadas:", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-                    .background(Color.LightGray)
-                    .padding(8.dp)
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = coordinates)
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)
+                        .background(Color.LightGray)
+                        .padding(8.dp)
+                ) {
+                    Text(text = coordinates)
+                }
+                Button(onClick = {
+                    fetchCoordinates(context) { lat, lon ->
+                        coordinates = "Lat: $lat, Lon: $lon"
+                    }
+                }) {
+                    Text("↻") //Reload
+                }
             }
         }
         item {
@@ -406,13 +418,3 @@ fun isGpsEnabled(context: Context): Boolean {
     val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 }
-/*
-fun promptEnableGps(context: Context) {
-    AlertDialog.Builder(context)
-        .setMessage("Por favor, habilita el GPS para continuar.")
-        .setPositiveButton("Habilitar") { _, _ ->
-            context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-        }
-        .setNegativeButton("Cancelar", null)
-        .show()
-}*/
