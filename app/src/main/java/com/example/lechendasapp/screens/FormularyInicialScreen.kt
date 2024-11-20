@@ -153,34 +153,30 @@ fun FormularioContent(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Box(
+                Text(
+                    text = coordinates,
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(8.dp)
-                        .heightIn(min = 80.dp)
-                        .padding(8.dp)
-                ) {
-                    Text(
-                        text = coordinates,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                Button(
-                    onClick = {
-                        fetchCoordinates(context) { lat, lon ->
-                            coordinates = "Lat: $lat\nLon: $lon"
+                        .weight(1f)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.capybara),  // Placeholder de capibara
+                    contentDescription = "Recargar GPS",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clickable {
+                            fetchCoordinates(context) { lat, lon ->
+                                coordinates = "Lat: $lat\nLon: $lon"
+                            }
                         }
-                    },
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                    modifier = Modifier.sizeIn(minWidth = 16.dp, minHeight = 16.dp)
-                ) {
-                    Text("Recalibrar geolocalización", fontSize = MaterialTheme.typography.bodyLarge.fontSize)
-                }
+                        .padding(8.dp)
+                )
             }
         }
         item {
