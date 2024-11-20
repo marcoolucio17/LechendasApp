@@ -107,6 +107,7 @@ class VegetationViewModel @Inject constructor(
 
         if (uiState.code.isBlank()) errors["code"] = "El código es obligatorio."
         if (uiState.quadrant.isBlank()) errors["quadrant"] = "El cuadrante es obligatorio."
+        if (uiState.subQuadrant.isBlank()) errors["subQuadrant"] = "El subCuadrante es obligatorio."
         if (uiState.growthHabit.isBlank()) errors["growthHabit"] = "El hábito de crecimiento es obligatorio."
         if (uiState.commonName.isBlank()) errors["commonName"] = "El nombre común es obligatorio."
         if (uiState.plate.isBlank()) errors["plate"] = "La placa es obligatoria."
