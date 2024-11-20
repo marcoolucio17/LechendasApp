@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
@@ -255,7 +256,6 @@ fun TrapFormsContent(
                 errorText = trapUiState.errors["lensHeight"]
             )
         }
-
         item {
             FlowRow(
                 modifier = Modifier.width(450.dp)
@@ -286,8 +286,19 @@ fun TrapFormsContent(
                         Text(text = check.displayName)
                     }
                 }
+
+                // Mostrar error solo si no se ha seleccionado un checkbox
+                if (trapUiState.errors.containsKey("checkList")) {
+                    Text(
+                        text = trapUiState.errors["checkList"] ?: "",
+                        color = Color.Red, // Aquí puedes personalizar el color del error
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
+                }
             }
         }
+
         item {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
