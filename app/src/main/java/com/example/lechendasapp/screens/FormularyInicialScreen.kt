@@ -174,6 +174,7 @@ fun FormularioContent(
                             fetchCoordinates(context) { lat, lon ->
                                 coordinates = "Lat: $lat\nLon: $lon"
                             }
+                            Toast.makeText(context, "¡Coordenadas actualizadas con éxito!", Toast.LENGTH_SHORT).show()
                         }
                         .padding(8.dp)
                 )
