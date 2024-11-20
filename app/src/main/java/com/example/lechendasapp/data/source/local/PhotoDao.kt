@@ -45,4 +45,8 @@ interface PhotoDao {
     //Count
     @Query("SELECT COUNT(*) FROM photos")
     suspend fun count(): Int
+
+    @Query("DELETE FROM photos WHERE monitor_log_id = :monitorLogId")
+    suspend fun deleteByMonitorFormsId(monitorLogId: Long)
+
 }

@@ -358,10 +358,3 @@ class MockMonitorLogRepository : MonitorLogRepository {
         TODO("Not yet implemented")
     }
 }
-
-@Composable
-fun rememberPreviewSearchViewModel(): SearchViewModel {
-    return remember {
-        SearchViewModel(MockMonitorLogRepository())
-    }
-}

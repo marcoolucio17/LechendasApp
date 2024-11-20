@@ -42,4 +42,7 @@ interface TrapDao {
     @Query("SELECT COUNT(*) FROM trap")
     suspend fun count(): Int
 
+    @Query("DELETE FROM trap WHERE monitor_log_id = :monitorLogId")
+    suspend fun deleteByMonitorLogId(monitorLogId: Long)
+
 }
