@@ -166,7 +166,7 @@ fun FormularioContent(
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
                 Image(
-                    painter = painterResource(id = R.drawable.capybara),  // Placeholder de capibara
+                    painter = painterResource(id = R.drawable.baseline_location_on_24),
                     contentDescription = "Recargar GPS",
                     modifier = Modifier
                         .size(48.dp)
