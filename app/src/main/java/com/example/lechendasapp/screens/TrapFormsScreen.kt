@@ -1,7 +1,6 @@
 package com.example.lechendasapp.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -256,8 +255,9 @@ fun TrapFormsContent(
                 errorText = trapUiState.errors["lensHeight"]
             )
         }
+
         item {
-            Column(
+            FlowRow(
                 modifier = Modifier.width(450.dp)
             ) {
                 Text(
@@ -271,53 +271,23 @@ fun TrapFormsContent(
                             vertical = dimensionResource(R.dimen.padding_small)
                         )
                 )
-
-                // Mostrar errores si existen
-                if (trapUiState.errors.containsKey("checkList")) {
-                    Text(
-                        text = trapUiState.errors["checkList"] ?: "",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(
-                            horizontal = dimensionResource(R.dimen.padding_medium),
-                            vertical = dimensionResource(R.dimen.padding_small)
+                CheckList.entries.forEach { check ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.width(220.dp)
+                    ) {
+                        Checkbox(
+                            checked = trapUiState.checkList[check] == true,
+                            onCheckedChange = { isChecked ->
+                                updateCheckList(check, isChecked)
+                            }
                         )
-                    )
-                }
-
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Itera a través de todas las opciones de la lista de chequeo
-                    CheckList.entries.forEach { check ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.width(220.dp)
-                        ) {
-                            Checkbox(
-                                checked = trapUiState.checkList[check] == true,  // Se marca si es true
-                                onCheckedChange = { isChecked ->
-                                    // Actualiza el estado del checkList
-                                    updateCheckList(check, isChecked)
-
-                                    // Si se selecciona al menos una opción, elimina el error de checkList
-                                    if (trapUiState.checkList.any { it.value }) {
-                                        updateUiState(
-                                            trapUiState.copy(errors = trapUiState.errors - "checkList")
-                                        )
-                                    }
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = check.displayName)
-                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = check.displayName)
                     }
                 }
             }
         }
-
-
-
         item {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -401,74 +371,6 @@ fun TrapFormsContent(
             }
         }
 
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun CheckListSection(
-    trapUiState: TrapUiState,
-    updateCheckList: (CheckList, Boolean) -> Unit,
-    updateUiState: (TrapUiState) -> Unit
-) {
-    Column(
-        modifier = Modifier.width(450.dp)
-    ) {
-        Text(
-            "Lista de chequeo",
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(R.dimen.padding_medium),
-                    vertical = dimensionResource(R.dimen.padding_small)
-                )
-        )
-
-        // Mostrar errores si existen
-        if (trapUiState.errors.containsKey("checkList")) {
-            Text(
-                text = trapUiState.errors["checkList"] ?: "",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(
-                    horizontal = dimensionResource(R.dimen.padding_medium),
-                    vertical = dimensionResource(R.dimen.padding_small)
-                )
-            )
-        }
-
-        FlowRow(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            CheckList.entries.forEach { check ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .width(220.dp)
-                        .clickable {
-                            // Toggle the checkbox when clicking anywhere in the row
-                            val newValue = !(trapUiState.checkList[check] ?: false)
-                            updateCheckList(check, newValue)
-
-                            // Eliminar el error si al menos una opción está seleccionada
-                            if (trapUiState.checkList.any { it.value }) {
-                                updateUiState(
-                                    trapUiState.copy(errors = trapUiState.errors - "checkList")
-                                )
-                            }
-                        }
-                ) {
-                    Checkbox(
-                        checked = trapUiState.checkList[check] ?: false,
-                        onCheckedChange = null
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = check.displayName)
-                }
-            }
-        }
     }
 }
 
