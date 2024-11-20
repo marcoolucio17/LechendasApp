@@ -1,5 +1,12 @@
 package com.example.lechendasapp.screens
 
+import android.Manifest
+import android.content.ContentValues.TAG
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +26,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
 import com.example.lechendasapp.data.model.MonitorLog
@@ -31,6 +40,8 @@ import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.FormsUiState
 import com.example.lechendasapp.viewmodels.FormularioViewModel
 import kotlinx.coroutines.flow.Flow
+import com.google.android.gms.location.*
+import com.google.android.gms.location.FusedLocationProviderClient
 
 
 @Composable
@@ -82,8 +93,6 @@ fun FormularyInitialScreen(
 fun FormularioContent(
     onClimateClick: (Long) -> Unit,
     onTransectClick: (Long) -> Unit,
-    //onConteoClick: () -> Unit,
-    //onFreeClick: () -> Unit,
     onCoverageClick: (Long) -> Unit,
     onVegetationClick: (Long) -> Unit,
     onTrapClick: (Long) -> Unit,
@@ -92,16 +101,21 @@ fun FormularioContent(
 ) {
     val uiState by viewModel.formsUiState
 
-    val monitorLogId by viewModel.monitorLogId
-
     val context = LocalContext.current
+    var coordinates by remember { mutableStateOf("No disponible") }
+
+    // Agarrar automaticamente las coordenadas
+    LaunchedEffect(Unit) {
+        fetchCoordinates(context) { lat, lon ->
+            coordinates = "Lat: $lat\nLon: $lon"
+        }
+    }
 
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(32.dp),
         contentPadding = PaddingValues(16.dp),
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         item {
             Text(
@@ -131,6 +145,39 @@ fun FormularioContent(
                         onClick = { viewModel.updateUiState(uiState.copy(seasons = epoca.name)) }
                     )
                 }
+            }
+        }
+        item {
+            Text(
+                "Coordenadas:",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = coordinates,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_location_on_24),
+                    contentDescription = "Recargar GPS",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clickable {
+                            fetchCoordinates(context) { lat, lon ->
+                                coordinates = "Lat: $lat\nLon: $lon"
+                            }
+                            Toast.makeText(context, "¡Coordenadas actualizadas con éxito!", Toast.LENGTH_SHORT).show()
+                        }
+                        .padding(8.dp)
+                )
             }
         }
         item {
@@ -308,4 +355,73 @@ fun rememberPreviewFormularioViewModel(): FormularioViewModel {
             )
         }
     }
+}
+
+fun fetchCoordinates(context: Context, onCoordinatesFetched: (Double, Double) -> Unit) {
+    val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+
+    if (ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        Log.e("Location", "Permiso de ubicación no concedido.")
+        return
+    }
+
+    fusedLocationProviderClient.lastLocation
+        .addOnSuccessListener { location ->
+            if (location != null) {
+                onCoordinatesFetched(location.latitude, location.longitude)
+            } else {
+                Log.e("Location", "No se pudo obtener la ubicación. Probando actualizaciones...")
+                // Solicitar actualizaciones de ubicación si no hay datos
+                requestLocationUpdates(context, fusedLocationProviderClient, onCoordinatesFetched)
+            }
+        }
+        .addOnFailureListener { exception ->
+            Log.e("Location", "Error al obtener la ubicación: ${exception.message}")
+        }
+}
+
+fun requestLocationUpdates(
+    context: Context,
+    fusedLocationProviderClient: FusedLocationProviderClient,
+    onCoordinatesFetched: (Double, Double) -> Unit
+) {
+    val locationRequest = LocationRequest.create().apply {
+        priority = Priority.PRIORITY_HIGH_ACCURACY
+        interval = 10000 // 10 segundos
+        fastestInterval = 5000 // 5 segundos
+    }
+
+    if (ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        Log.e("Location", "Permiso de ubicación no concedido.")
+        return
+    }
+
+    fusedLocationProviderClient.requestLocationUpdates(
+        locationRequest,
+        object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                fusedLocationProviderClient.removeLocationUpdates(this) // Detener actualizaciones
+                val location = locationResult.lastLocation
+                if (location != null) {
+                    onCoordinatesFetched(location.latitude, location.longitude)
+                } else {
+                    Log.e("Location", "No se pudo obtener la ubicación.")
+                }
+            }
+        },
+        context.mainLooper
+    )
+}
+
+fun isGpsEnabled(context: Context): Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 }
