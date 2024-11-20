@@ -7,7 +7,7 @@
     <string name="entrar">Entrar</string>
     <string name="bienvenido">Bienvenido</string>
     <string name="enviar">Enviar</string>
-    <string name="com_auth0_domain">dev-fltwqcj6anshzwek.us.auth0.com</string>
-    <string name="com_auth0_client_id">QJbLlR2HCriN27HXC8XQYLqmu6eDcNMy</string>
+    <string name="com_auth0_domain">dev-6vzyeoluir57rec7.us.auth0.com</string>
+    <string name="com_auth0_client_id">sxlOUkpm591uWTxtwpKguSg0rFneEFjJ</string>
     <string name="ver_contraseña">Ver contraseña</string>
 </resources>

@@ -133,8 +133,8 @@ object AuthModule {
     @Singleton
     fun provideAuth0(@ApplicationContext context: Context): Auth0 {
         return Auth0.getInstance(
-            clientId = "QJbLlR2HCriN27HXC8XQYLqmu6eDcNMy",
-            domain = "dev-fltwqcj6anshzwek.us.auth0.com",
+            clientId = "sxlOUkpm591uWTxtwpKguSg0rFneEFjJ",
+            domain = "dev-6vzyeoluir57rec7.us.auth0.com",
         )
     }
 }
