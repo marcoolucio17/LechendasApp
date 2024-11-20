@@ -57,6 +57,9 @@ fun Trap.toTrapUiState(): TrapUiState = TrapUiState(
 
 )
 
+/*TODO: creo que por culpa de el uso de .toIntorNull, es posible intentar
+*  insertar string y automaticamente se cambia a un 0, pero no te dice en la UI/UX el error solo
+* se envia*/
 fun TrapUiState.toTrap(): Trap = Trap(
     id = 0,
     monitorLogId = 0,

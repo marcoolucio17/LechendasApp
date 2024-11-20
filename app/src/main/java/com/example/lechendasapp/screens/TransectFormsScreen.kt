@@ -134,7 +134,7 @@ fun TransectFormsContent(
     ) {
         item {
             SimpleInputBox(
-                labelText = "Número de Transecto",
+                labelText = "Nombre de Transecto",
                 value = animalUiState.transectName,
                 onValueChange = { onUpdateUiState(animalUiState.copy(
                     transectName = it,
@@ -261,7 +261,7 @@ fun TransectFormsContent(
                 ))
                 },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
+                    keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
                 isError = animalUiState.errors.containsKey("quantity"),
@@ -367,7 +367,7 @@ fun TransectFormsContent(
                 modifier = Modifier.height(150.dp),
                 value = animalUiState.observations.toString(),
                 onValueChange = { onUpdateUiState(animalUiState.copy(
-                    transectName = it,
+                    observations = it,
                     errors = animalUiState.errors - "observations"
                 ))
                 },

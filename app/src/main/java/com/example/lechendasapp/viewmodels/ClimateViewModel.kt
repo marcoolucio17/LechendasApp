@@ -49,6 +49,8 @@ fun Climate.toClimateUiState(): ClimateUiState = ClimateUiState(
     observations = this.observations.toString()
 )
 
+
+/*TODO: falta vlaidar que sean números, la app crashes porque te deja insertar un string y enviarlos*/
 fun ClimateUiState.toClimate(): Climate = Climate(
     id = 0, // This can be default or handled by DAO
 
