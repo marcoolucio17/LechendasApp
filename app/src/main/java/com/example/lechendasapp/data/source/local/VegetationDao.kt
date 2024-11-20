@@ -40,4 +40,7 @@ interface VegetationDao {
     @Query("SELECT COUNT(*) FROM vegetation")
     suspend fun count(): Int
 
+    @Query("DELETE FROM vegetation WHERE monitor_log_id = :monitorLogId")
+    suspend fun deleteByMonitorLogId(monitorLogId: Long)
+
 }

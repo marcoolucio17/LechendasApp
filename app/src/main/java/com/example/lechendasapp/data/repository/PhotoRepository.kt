@@ -16,6 +16,7 @@ interface PhotoRepository {
     suspend fun deletePhoto(photo: Photo)
     suspend fun deletePhotoByNull()
     suspend fun countPhoto(): Int
+    suspend fun deletePhotoByMonitorFormsId(monitorLogId: Long)
 
 
 

@@ -55,4 +55,8 @@ class DefaultClimateRepository @Inject constructor(
         return localDataSource.count()
     }
 
+    override suspend fun deleteClimateByMonitorLogId(monitorLogId: Long) {
+        localDataSource.deleteByMonitorLogId(monitorLogId)
+    }
+
 }

@@ -57,4 +57,8 @@ class DefaultTrapRepository @Inject constructor(
         return localDataSource.count()
     }
 
+    override suspend fun deleteTrapByMonitorLogId(monitorLogId: Long) {
+        localDataSource.deleteByMonitorLogId(monitorLogId)
+    }
+
 }

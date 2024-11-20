@@ -14,6 +14,8 @@ interface VegetationRepository {
     suspend fun deleteVegetation(vegetation: Vegetation)
     suspend fun deleteVegetationById(vegetationId: Long)
     suspend fun countVegetation(): Int
+    suspend fun deleteVegetationByMonitorLogId(monitorLogId: Long)
+
 
 
 }

@@ -54,4 +54,8 @@ class DefaultCoverageRepository @Inject constructor(
     override suspend fun countConverage(): Int {
         return localDataSource.count()
     }
+
+    override suspend fun deleteConverageByMonitorLogId(monitorLogId: Long) {
+        localDataSource.deleteByMonitorLogId(monitorLogId)
+    }
 }
