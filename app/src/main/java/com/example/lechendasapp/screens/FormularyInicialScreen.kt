@@ -26,6 +26,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
@@ -147,30 +148,39 @@ fun FormularioContent(
             }
         }
         item {
-            Text("Coordenadas:", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+            Text(
+                "Coordenadas:",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp)
-                        .background(Color.LightGray)
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .background(Color.LightGray, shape = MaterialTheme.shapes.small)
+                        .heightIn(min = 80.dp)
                         .padding(8.dp)
                 ) {
-                    Text(text = coordinates)
+                    Text(
+                        text = coordinates,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
                 Button(
                     onClick = {
-                    fetchCoordinates(context) { lat, lon ->
-                        coordinates = "Lat: $lat\nLon: $lon"
-                    }
-                }) {
-                    Text("↻") //Reload
+                        fetchCoordinates(context) { lat, lon ->
+                            coordinates = "Lat: $lat\nLon: $lon"
+                        }
+                    },
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                    modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+                ) {
+                    Text("Recargar geolocalización", fontSize = MaterialTheme.typography.bodyLarge.fontSize)
                 }
             }
         }
