@@ -106,7 +106,7 @@ fun FormularioContent(
     // Agarrar automaticamente las coordenadas
     LaunchedEffect(Unit) {
         fetchCoordinates(context) { lat, lon ->
-            coordinates = "Lat: $lat, Lon: $lon"
+            coordinates = "Lat: $lat\nLon: $lon"
         }
     }
 
@@ -164,9 +164,10 @@ fun FormularioContent(
                 ) {
                     Text(text = coordinates)
                 }
-                Button(onClick = {
+                Button(
+                    onClick = {
                     fetchCoordinates(context) { lat, lon ->
-                        coordinates = "Lat: $lat, Lon: $lon"
+                        coordinates = "Lat: $lat\nLon: $lon"
                     }
                 }) {
                     Text("↻") //Reload
