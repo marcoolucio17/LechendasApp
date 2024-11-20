@@ -10,48 +10,25 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.CameraController
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.lechendasapp.data.model.Photo
+import com.example.lechendasapp.data.repository.PhotoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
-class CameraViewModel @Inject constructor() : ViewModel() {
+class CameraViewModel @Inject constructor(
+    private val photoRepository: PhotoRepository
+) : ViewModel() {
     private var imageCapture: CameraController? = null
 
+    private val _imagePaths = mutableListOf<String>()
+    val imagePaths: List<String> get() = _imagePaths
 
     fun setImageCapture(imageCapture: CameraController) {
         this.imageCapture = imageCapture
-    }
-
-    @RequiresApi(Build.VERSION_CODES.P)
-    fun takePhoto(
-        context: Context,
-        onImageSaved: (File) -> Unit,
-        onError: (ImageCaptureException) -> Unit
-    ) {
-        // Crear archivo para guardar la imagen
-        val photoFile = File(
-            context.getExternalFilesDir(null),
-            "IMG_${System.currentTimeMillis()}.jpg"
-        )
-
-        // Configurar opciones de salida
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-
-        // Capturar la imagen
-        imageCapture?.takePicture(
-            outputOptions,
-            context.mainExecutor,
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    onImageSaved(photoFile)
-                }
-
-                override fun onError(exception: ImageCaptureException) {
-                    onError(exception)
-                }
-            }
-        )
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
@@ -85,6 +62,24 @@ class CameraViewModel @Inject constructor() : ViewModel() {
                 context.mainExecutor,
                 object : ImageCapture.OnImageSavedCallback {
                     override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                        val imagePath = imageUri.path ?: ""
+                        // Add the image path to the list
+                        _imagePaths.add(imagePath)
+
+                        // Add image to the photoRepository
+                        viewModelScope.launch {
+                            photoRepository.insertPhoto(
+                                Photo(
+                                    id = 0, //doesn't matter, handled by autogenerate
+                                    formsId = -1,
+                                    monitorLogId = -1,
+                                    filePath = imagePath,
+                                    image = null,
+                                    description = null
+                                )
+                            )
+                        }
+
                         // Notify that the image was saved successfully
                         onImageSaved(File(imageUri.path ?: ""))
                     }

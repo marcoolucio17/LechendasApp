@@ -5,6 +5,8 @@ import com.example.lechendasapp.data.source.local.LocalPhoto
 
 fun Photo.toLocal() = LocalPhoto(
     id = id,
+    formsId = formsId,
+    monitorLogId = monitorLogId,
     filePath = filePath,
     image = image,
     description = description
@@ -14,6 +16,8 @@ fun List<Photo>.toLocal() = map { it.toLocal() }
 
 fun LocalPhoto.toExternal() = Photo(
     id = id,
+    formsId = formsId,
+    monitorLogId = monitorLogId,
     filePath = filePath,
     image = image,
     description = description

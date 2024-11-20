@@ -11,6 +11,8 @@ import androidx.room.PrimaryKey
 data class LocalPhoto (
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
+    @ColumnInfo(name = "forms_id") val formsId: Long,
+    @ColumnInfo(name = "monitor_log_id") val monitorLogId: Long,
     @ColumnInfo(name = "file_path") val filePath: String,
     val image: ByteArray?,
     val description: String? = null

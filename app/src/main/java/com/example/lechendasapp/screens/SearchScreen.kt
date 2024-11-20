@@ -1,7 +1,13 @@
 package com.example.lechendasapp.screens
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +48,7 @@ import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.SearchViewModel
+import com.example.lechendasapp.utils.DetailItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -169,6 +176,7 @@ fun SearchItem(
     //modifier: Modifier = Modifier
 ) {
     val expanded = remember { mutableStateOf(false) } // Estado para el menú desplegable
+    val expandedCard = remember { mutableStateOf(false) }
     Card(
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
@@ -176,6 +184,7 @@ fun SearchItem(
         ),
         modifier = Modifier
             .padding(bottom = 8.dp)
+            .clickable { expandedCard.value = !expandedCard.value }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -184,18 +193,6 @@ fun SearchItem(
                 .fillMaxWidth()
                 .padding(15.dp)
         ) {
-            // Icono de notificación
-//            Icon(
-//                imageVector = Icons.Filled.Notifications,
-//                contentDescription = null,
-//                tint = MaterialTheme.colorScheme.primaryContainer,
-//                modifier = Modifier
-//                    .size(50.dp)
-//                    .background(
-//                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-//                        shape = MaterialTheme.shapes.small
-//                    )
-//            )
             Spacer(modifier = Modifier.width(10.dp))
             Column(
                 modifier = Modifier
@@ -252,8 +249,27 @@ fun SearchItem(
                 }
             }
         }
+        AnimatedVisibility(
+            visible = expandedCard.value,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 25.dp, vertical = 10.dp)
+            ) {
+                DetailItem("Location", log.location)
+                DetailItem("GPS Coordinates", log.gpsCoordinates)
+                DetailItem("Climate Type", log.climateType)
+                DetailItem("Seasons", log.seasons)
+                DetailItem("Zone", log.zone)
+                DetailItem("User ID", log.userId.toString())
+            }
+        }
     }
 }
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -335,6 +351,10 @@ class MockMonitorLogRepository : MonitorLogRepository {
     }
 
     override suspend fun deleteMonitorLogById(monitorLogId: Long) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun countMonitorLog(): Int {
         TODO("Not yet implemented")
     }
 }

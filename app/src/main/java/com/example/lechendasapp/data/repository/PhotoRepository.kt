@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface PhotoRepository {
     fun getPhotoStream(): Flow<List<Photo>>
+    fun getPhotoStreamByMonitorLogFormsId(monitorLogId: Long, formsId: Long): Flow<List<Photo>>
+    fun getPhotoStreamByNull(): Flow<List<Photo>>
     fun getIndividualPhotoStream(photoId: Long): Flow<Photo>
 
     suspend fun getPhoto(): List<Photo>
@@ -12,5 +14,9 @@ interface PhotoRepository {
     suspend fun insertPhoto(photo: Photo)
     suspend fun updatePhoto(photo: Photo)
     suspend fun deletePhoto(photo: Photo)
+    suspend fun deletePhotoByNull()
+    suspend fun countPhoto(): Int
+
+
 
 }

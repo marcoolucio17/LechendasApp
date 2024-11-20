@@ -15,12 +15,14 @@ interface ClimateRepository {
 
     suspend fun getClimateById(climateId: Long): Climate?
 
-    suspend fun insertClimate(climate: Climate)
+    suspend fun insertClimate(climate: Climate): Long
 
     suspend fun updateClimate(climate: Climate)
 
     suspend fun deleteClimate(climate: Climate)
 
     suspend fun deleteClimateById(climateId: Long)
+
+    suspend fun countClimate(): Int
 
 }

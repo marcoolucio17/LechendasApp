@@ -18,4 +18,6 @@ interface MonitorLogRepository {
     suspend fun deleteMonitorLog(monitorLog: MonitorLog)
 
     suspend fun deleteMonitorLogById(monitorLogId: Long)
+
+    suspend fun countMonitorLog(): Int
 }

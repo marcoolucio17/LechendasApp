@@ -26,7 +26,7 @@ interface CoverageDao {
     suspend fun getById(id: Long): LocalCoverage?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(coverage: LocalCoverage)
+    suspend fun insert(coverage: LocalCoverage): Long
 
     @Update
     suspend fun update(coverage: LocalCoverage)
@@ -36,5 +36,8 @@ interface CoverageDao {
 
     @Query("DELETE FROM coverage WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM coverage")
+    suspend fun count(): Int
 
 }

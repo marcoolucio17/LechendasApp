@@ -9,9 +9,11 @@ interface VegetationRepository {
     fun getIndividualVegetationStream(vegetationId: Long): Flow<Vegetation>
     suspend fun getVegetation(): List<Vegetation>
     suspend fun getVegetationById(vegetationId: Long): Vegetation?
-    suspend fun insertVegetation(vegetation: Vegetation)
+    suspend fun insertVegetation(vegetation: Vegetation) : Long
     suspend fun updateVegetation(vegetation: Vegetation)
     suspend fun deleteVegetation(vegetation: Vegetation)
     suspend fun deleteVegetationById(vegetationId: Long)
+    suspend fun countVegetation(): Int
+
 
 }

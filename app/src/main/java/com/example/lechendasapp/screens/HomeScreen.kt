@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.example.lechendasapp.R
 import com.example.lechendasapp.preview.ScreenPreviews
 import com.example.lechendasapp.ui.theme.LechendasAppTheme
+import com.example.lechendasapp.utils.AnimatedCircleChartScreen
 import com.example.lechendasapp.utils.BottomNavBar
 
 
@@ -78,30 +80,30 @@ fun CustomBoxLayout(
                 .fillMaxSize()
         )
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 10.dp)
-
-        ){
-
-            Image(
-                painter = painterResource(id = R.drawable.capybara),
-                contentDescription = null,
-                modifier = Modifier
-                .size(40.dp)
-            )
-
-            Image(
-                painter = painterResource(id = R.drawable.profilepicture),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-            )
-        }
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            horizontalArrangement = Arrangement.SpaceBetween,
+//            modifier = Modifier.fillMaxWidth()
+//                .padding(horizontal = 20.dp, vertical = 10.dp)
+//
+//        ){
+//
+//            Image(
+//                painter = painterResource(id = R.drawable.capybara),
+//                contentDescription = null,
+//                modifier = Modifier
+//                .size(40.dp)
+//            )
+//
+//            Image(
+//                painter = painterResource(id = R.drawable.profilepicture),
+//                contentDescription = null,
+//                contentScale = ContentScale.Crop,
+//                modifier = Modifier
+//                    .size(40.dp)
+//                    .clip(CircleShape)
+//            )
+//        }
 
         Box(
             modifier = Modifier
@@ -109,7 +111,7 @@ fun CustomBoxLayout(
                 .align(Alignment.Center),
             contentAlignment = Alignment.Center
         ) {
-            Text("Hola, tilín",
+            Text("Bienvenido",
                 style =  MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),)
         }
 
@@ -141,6 +143,13 @@ fun CustomBoxLayout(
 fun HomeContent(
     modifier: Modifier = Modifier
 ){
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AnimatedCircleChartScreen(modifier = modifier)
+    }
 }
 
 

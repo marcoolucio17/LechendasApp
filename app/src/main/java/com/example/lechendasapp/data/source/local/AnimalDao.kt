@@ -26,7 +26,7 @@ interface AnimalDao {
     suspend fun getById(id: Long): LocalAnimal?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(animal: LocalAnimal)
+    suspend fun insert(animal: LocalAnimal): Long
 
     @Update
     suspend fun update(animal: LocalAnimal)
@@ -36,4 +36,7 @@ interface AnimalDao {
 
     @Query("DELETE FROM animals WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM animals")
+    suspend fun count(): Int
 }

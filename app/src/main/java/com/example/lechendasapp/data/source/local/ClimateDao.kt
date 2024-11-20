@@ -26,7 +26,7 @@ interface ClimateDao {
     suspend fun getById(id: Long): LocalClimate?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(climate: LocalClimate)
+    suspend fun insert(climate: LocalClimate): Long
 
     @Update
     suspend fun update(climate: LocalClimate)
@@ -36,4 +36,7 @@ interface ClimateDao {
 
     @Query("DELETE FROM climate WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM climate")
+    suspend fun count(): Int
 }

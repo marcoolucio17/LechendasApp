@@ -14,12 +14,15 @@ interface CoverageRepository {
 
     suspend fun getConverageById(converageId: Long): Coverage?
 
-    suspend fun insertConverage(converage: Coverage)
+    suspend fun insertConverage(converage: Coverage): Long
 
     suspend fun updateConverage(converage: Coverage)
 
     suspend fun deleteConverage(converage: Coverage)
 
     suspend fun deleteConverageById(converageId: Long)
+
+    suspend fun countConverage(): Int
+
 
 }

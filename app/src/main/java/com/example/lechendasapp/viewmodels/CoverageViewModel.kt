@@ -1,16 +1,26 @@
 package com.example.lechendasapp.viewmodels
 
+import android.content.Context
+import android.content.Intent
+import android.provider.MediaStore
+import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lechendasapp.data.model.Coverage
+import com.example.lechendasapp.data.model.Photo
 import com.example.lechendasapp.data.repository.CoverageRepository
+import com.example.lechendasapp.data.repository.PhotoRepository
 import com.example.lechendasapp.screens.CoverageOptions
 import com.example.lechendasapp.screens.DisturbanceOptions
 import com.example.lechendasapp.screens.SINO
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -55,7 +65,8 @@ fun CoverageUiState.toCoverage(): Coverage = Coverage(
 
 @HiltViewModel
 class CoverageViewModel @Inject constructor(
-    private val coverageRepository: CoverageRepository
+    private val coverageRepository: CoverageRepository,
+    private val photoRepository: PhotoRepository
 ) : ViewModel() {
 
     private val _coverageUiState = mutableStateOf(CoverageUiState())
@@ -66,6 +77,69 @@ class CoverageViewModel @Inject constructor(
 
     private val _coverageId = mutableLongStateOf(0L)
     val coverageId: State<Long> = _coverageId
+
+    private val _unassociatedPhotos = MutableStateFlow<List<Photo>>(emptyList())
+    val unassociatedPhotos: StateFlow<List<Photo>> = _unassociatedPhotos.asStateFlow()
+
+    private val _associatedPhotos = MutableStateFlow<List<Photo>>(emptyList())
+    val associatedPhotos: StateFlow<List<Photo>> = _associatedPhotos.asStateFlow()
+
+    init {
+        clearUnassociatedPhotos()
+        fetchUnassociatedPhotos()
+    }
+
+    fun clearUnassociatedPhotos() {
+        viewModelScope.launch {
+            photoRepository.deletePhotoByNull()
+        }
+    }
+
+    fun fetchAssociatedPhotosIfNeeded() {
+        if (coverageId.value != 0L && monitorLogId.value != 0L) {
+            Log.d("AnimalViewModel", "Fetching associated photos")
+            fetchAssociatedPhotos(monitorLogId.value, coverageId.value)
+        }
+    }
+
+    private fun fetchUnassociatedPhotos() {
+        viewModelScope.launch {
+            photoRepository.getPhotoStreamByNull()
+                .collect { photos ->
+                    _unassociatedPhotos.value = photos
+                }
+        }
+    }
+
+    private fun fetchAssociatedPhotos(monitorLogId: Long, animalId: Long) {
+        viewModelScope.launch {
+            photoRepository.getPhotoStreamByMonitorLogFormsId(monitorLogId, animalId)
+                .collect { photos ->
+                    _associatedPhotos.value = photos
+                }
+        }
+    }
+
+    fun pickImage(context: Context, launcher: ActivityResultLauncher<Intent>) {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        launcher.launch(intent)
+    }
+
+    fun getImage(imagePath: String) {
+        viewModelScope.launch {
+            photoRepository.insertPhoto(
+                Photo(
+                    id = 0, // auto-generated
+                    formsId = -1,
+                    monitorLogId = -1,
+                    filePath = imagePath,
+                    image = null,
+                    description = null
+                )
+            )
+        }
+    }
+
 
     private val _errorMessage = mutableStateOf("")
     val errorMessage: State<String> = _errorMessage
@@ -183,7 +257,12 @@ class CoverageViewModel @Inject constructor(
                     monitorLogId = _monitorLogId.longValue
                 )
                 viewModelScope.launch {
-                    coverageRepository.insertConverage(newCoverage)
+                    val id = coverageRepository.insertConverage(newCoverage)
+                    _unassociatedPhotos.value.map { photo ->
+                        val updatedPhoto =
+                            photo.copy(monitorLogId = _monitorLogId.longValue, formsId = id)
+                        photoRepository.updatePhoto(updatedPhoto)
+                    }
                 }
                 resetForm()
             } else {
@@ -194,6 +273,11 @@ class CoverageViewModel @Inject constructor(
                 )
                 viewModelScope.launch {
                     coverageRepository.updateConverage(newCoverage)
+                    _unassociatedPhotos.value.map { photo ->
+                        val updatedPhoto =
+                            photo.copy(monitorLogId = _monitorLogId.longValue, formsId = coverageId.value)
+                        photoRepository.updatePhoto(updatedPhoto)
+                    }
                 }
             }
         }

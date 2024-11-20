@@ -28,7 +28,7 @@ interface TrapDao {
 
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(trap: LocalTrap)
+    suspend fun insert(trap: LocalTrap): Long
 
     @Update
     suspend fun update(trap: LocalTrap)
@@ -38,5 +38,8 @@ interface TrapDao {
 
     @Query("DELETE FROM trap WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM trap")
+    suspend fun count(): Int
 
 }

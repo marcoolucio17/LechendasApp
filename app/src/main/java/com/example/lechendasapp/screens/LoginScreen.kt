@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -23,8 +25,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.auth0.android.Auth0
@@ -100,6 +105,8 @@ private fun LoginContent(
 ) {
     val userDetail: LoginUiState = loginUiState
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var passwordVisible by remember { mutableStateOf(false) }
+
     Text(
         text = stringResource(R.string.iniciar_sesion),
         style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
@@ -113,11 +120,22 @@ private fun LoginContent(
             .width(450.dp)
             .padding(dimensionResource(R.dimen.padding_extra_large))
     )
-    TextField(
+    OutlinedTextField(
         value = userDetail.password,
         onValueChange = { onUserChange(userDetail.copy(password = it)) },
         label = { Text("Contraseña") },
         singleLine = true,
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        trailingIcon = {
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                Icon(
+                    painter = painterResource(
+                        id = if (passwordVisible) R.drawable.icon_visibility else R.drawable.icon_visibilityoff
+                    ),
+                    contentDescription = stringResource(R.string.ver_contraseña)
+                )
+            }
+        },
         modifier = Modifier
             .width(450.dp)
             .padding(dimensionResource(R.dimen.padding_extra_large))

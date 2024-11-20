@@ -1,10 +1,13 @@
 package com.example.lechendasapp.screens
 
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
-import android.os.Build
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.util.Log
 import android.widget.Toast
-import com.example.lechendasapp.viewmodels.CameraViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +25,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,7 +34,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
+import com.example.lechendasapp.data.model.Photo
 import com.example.lechendasapp.utils.BottomNavBar
+import com.example.lechendasapp.utils.PhotoGallery
 import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.AnimalUiSate
@@ -54,6 +60,13 @@ fun TransectFormsScreen(
     if (id != null) {
         viewModel.setAnimalId(id)
     }
+    LaunchedEffect(monitorLogId, id) {
+        viewModel.fetchAssociatedPhotosIfNeeded()
+    }
+
+    val unassociatedPhotos by viewModel.unassociatedPhotos.collectAsState()
+    val associatedPhotos by viewModel.associatedPhotos.collectAsState()
+
     Scaffold(
         topBar = { TopBar3(onBack = onBack, title = "Formulario") },
         bottomBar = {
@@ -72,6 +85,10 @@ fun TransectFormsScreen(
             validateFields = viewModel::validateFields,
             animalUiState = viewModel.animalUiState.value,
             onCameraClick = onCameraClick,
+            onPickImage = viewModel::pickImage,
+            onGetImage = viewModel::getImage,
+            unassociatedPhotos = unassociatedPhotos,
+            associatedPhotos = associatedPhotos,
             modifier = modifier.padding(innerPadding)
         )
     }
@@ -85,6 +102,10 @@ fun TransectFormsContent(
     validateFields: () -> Boolean,
     animalUiState: AnimalUiSate,
     onCameraClick: () -> Unit,
+    onPickImage: (Context, ActivityResultLauncher<Intent>) -> Unit,
+    onGetImage: (String) -> Unit,
+    unassociatedPhotos: List<Photo>,
+    associatedPhotos: List<Photo>,
     modifier: Modifier = Modifier
 ) {
 
@@ -92,13 +113,16 @@ fun TransectFormsContent(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    val (selectedAnimal, setSelectedAnimal) = remember { mutableStateOf<AnimalTypes?>(null) }
-    val (selectedObservation, setSelectedObservation) = remember {
-        mutableStateOf<ObservationTypes?>(
-            null
-        )
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                val imagePath = uri.toString()
+                onGetImage(imagePath)
+            }
+        }
     }
-    val evidenceFiles = remember { mutableStateListOf<String>() }
 
     LazyColumn(
         state = listState, // Asocia el estado de scroll
@@ -315,7 +339,7 @@ fun TransectFormsContent(
                     )
                 }
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = { onPickImage(context, imagePickerLauncher) },
                     shape = RoundedCornerShape(topStart = 32.dp, bottomEnd = 16.dp),
                     modifier = Modifier
                         .height(dimensionResource(R.dimen.small_button_height))
@@ -327,6 +351,13 @@ fun TransectFormsContent(
                     )
                 }
             }
+        }
+
+        item {
+            PhotoGallery(
+                unassociatedPhotos = unassociatedPhotos,
+                associatedPhotos = associatedPhotos
+            )
         }
 
         item {

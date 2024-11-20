@@ -26,7 +26,7 @@ interface VegetationDao {
     suspend fun getById(id: Long): LocalVegetation?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(vegetation: LocalVegetation)
+    suspend fun insert(vegetation: LocalVegetation): Long
 
     @Update
     suspend fun update(vegetation: LocalVegetation)
@@ -36,5 +36,8 @@ interface VegetationDao {
 
     @Query("DELETE FROM vegetation WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM vegetation")
+    suspend fun count(): Int
 
 }

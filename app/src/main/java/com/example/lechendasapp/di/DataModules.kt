@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.room.Room
 import com.auth0.android.Auth0
 import com.example.lechendasapp.data.repository.AnimalRepository
+import com.example.lechendasapp.data.repository.AuthTokenRepository
 import com.example.lechendasapp.data.repository.ClimateRepository
 import com.example.lechendasapp.data.repository.CoverageRepository
 import com.example.lechendasapp.data.repository.DefaultAnimalRepository
+import com.example.lechendasapp.data.repository.DefaultAuthTokenRepository
 import com.example.lechendasapp.data.repository.DefaultClimateRepository
 import com.example.lechendasapp.data.repository.DefaultCoverageRepository
 import com.example.lechendasapp.data.repository.DefaultMonitorLogRepository
@@ -28,6 +30,7 @@ import com.example.lechendasapp.data.source.local.CoverageDao
 import com.example.lechendasapp.data.source.local.VegetationDao
 import com.example.lechendasapp.data.source.local.TrapDao
 import com.example.lechendasapp.data.source.local.PhotoDao
+import com.example.lechendasapp.data.source.local.AuthTokenDao
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -39,6 +42,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Singleton
+    @Binds
+    abstract fun bindAuthTokenRepository(repository: DefaultAuthTokenRepository): AuthTokenRepository
 
     @Singleton
     @Binds
@@ -114,6 +121,8 @@ object DatabaseModule {
     @Provides
     fun providePhotoDao(database: AwaqDatabase): PhotoDao = database.photoDao()
 
+    @Provides
+    fun provideAuthTokenDao(database: AwaqDatabase): AuthTokenDao = database.authTokenDao()
 }
 
 @Module
