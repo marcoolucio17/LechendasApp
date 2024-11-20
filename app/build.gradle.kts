@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.runner)
     implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.ui.test.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

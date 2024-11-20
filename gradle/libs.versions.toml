@@ -20,6 +20,7 @@ uiTextGoogleFonts = "1.7.4"
 camerax = "1.4.0"
 appcompat = "1.6.0"
 runner = "1.6.1"
+uiTestAndroid = "1.7.4"
 
 [libraries]
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
@@ -55,6 +56,7 @@ androidx-camera-extensions = { module = "androidx.camera:camera-extensions", ver
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+androidx-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
