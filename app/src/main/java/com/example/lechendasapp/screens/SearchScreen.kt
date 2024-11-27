@@ -287,9 +287,15 @@ fun SearchItem(
                     .fillMaxWidth()
                     .padding(horizontal = 25.dp, vertical = 10.dp)
             ) {
-                val (latitude, longitude) = log.gpsCoordinates.split(", ").map { it.trim() }
-                DetailItem("GPS Lat", latitude)
-                DetailItem("GPS Lon", longitude)
+                val coordinates = log.gpsCoordinates.split(", ")
+                if (coordinates.size == 2) {
+                    val (latitude, longitude) = coordinates.map { it.trim() }
+                    DetailItem("GPS Lat", latitude)
+                    DetailItem("GPS Lon", longitude)
+                } else {
+                    DetailItem("GPS Lat", "N/A")
+                    DetailItem("GPS Lon", "N/A")
+                }
                 DetailItem("Climate Type", log.climateType)
                 DetailItem("Seasons", log.seasons)
                 DetailItem("Zone", log.zone)
