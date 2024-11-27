@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "328990032181",
+    "project_id": "biomonitorizacion-lechendas",
+    "storage_bucket": "biomonitorizacion-lechendas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328990032181:android:beb490460ffdf613fd8c7c",
+        "android_client_info": {
+          "package_name": "com.example.lechendasapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "328990032181-mll6d0jrl0onq145c9n9b1tnabklflbu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxxg5V334ZVOqzaYoGvDqzb-eSYR_wCHY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "328990032181-mll6d0jrl0onq145c9n9b1tnabklflbu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
