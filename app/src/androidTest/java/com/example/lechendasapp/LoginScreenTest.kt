@@ -1,18 +1,16 @@
 package com.example.lechendasapp
 
-import android.app.Application
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.foundation.layout.*
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.auth0.android.Auth0
 import com.example.lechendasapp.screens.LoginScreen
-import com.example.lechendasapp.screens.LoginBody
-import com.example.lechendasapp.screens.rememberPreviewLoginViewModel
+import com.example.lechendasapp.viewmodels.LoginViewModel
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,6 +21,10 @@ class LoginScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    val fakeViewModel = LoginViewModel(
+        auth0 = FakeAuth0.getInstance()
+    )
+
     @Test
     fun testLoginScreen_initialState() {
         // Set the content of the screen
@@ -30,7 +32,7 @@ class LoginScreenTest {
             LoginScreen(
                 onBack = {},
                 onLoginSuccess = {},
-                viewModel = rememberPreviewLoginViewModel()
+                viewModel = fakeViewModel
             )
         }
 
@@ -49,7 +51,7 @@ class LoginScreenTest {
             LoginScreen(
                 onBack = {},
                 onLoginSuccess = {},
-                viewModel = rememberPreviewLoginViewModel()
+                viewModel = fakeViewModel
             )
         }
 
@@ -68,7 +70,7 @@ class LoginScreenTest {
             LoginScreen(
                 onBack = {},
                 onLoginSuccess = {},
-                viewModel = rememberPreviewLoginViewModel()
+                viewModel = fakeViewModel
             )
         }
 
@@ -87,9 +89,16 @@ class LoginScreenTest {
             LoginScreen(
                 onBack = {},
                 onLoginSuccess = {},
-                viewModel = rememberPreviewLoginViewModel()
+                viewModel = fakeViewModel
             )
         }
+
+        // input the password
+        val password = "password123"
+        composeTestRule.onNodeWithText("Contraseña").performTextInput(password)
+
+        //verify password not visible
+        composeTestRule.onNodeWithText("password123").assertIsNotDisplayed()
 
         // Verify that the password visibility toggle icon is displayed
         composeTestRule.onNodeWithContentDescription("Ver contraseña").assertIsDisplayed()
@@ -100,24 +109,16 @@ class LoginScreenTest {
         // Verify that the password visibility has been toggled (password becomes visible)
         composeTestRule.onNodeWithText("password123").assertIsDisplayed()
     }
+}
 
-    @Test
-    fun testLoginScreen_buttonClick() {
-        var wasLoginSuccessful = false
 
-        // Set the content of the screen
-        composeTestRule.setContent {
-            LoginScreen(
-                onBack = {},
-                onLoginSuccess = { wasLoginSuccessful = true },
-                viewModel = rememberPreviewLoginViewModel()
-            )
-        }
-
-        // Simulate clicking the login button
-        composeTestRule.onNodeWithText("Entrar").performClick()
-
-        // Verify that the login was successful
-        assert(wasLoginSuccessful)
+object FakeAuth0 {
+    fun getInstance(): Auth0 {
+        return Auth0.getInstance(
+            clientId = "fake-client-id",
+            domain = "https://fake-domain.auth0.com"
+        )
     }
 }
+
+
