@@ -14,7 +14,7 @@ exportSchema = True for production, False for development
     entities = [LocalUser::class, LocalMonitorLog::class, LocalPhoto::class, LocalAnimal::class,
         LocalClimate::class, LocalCoverage::class, LocalVegetation::class,
         LocalTrap::class, LocalAuthToken::class],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(DateConverter::class)

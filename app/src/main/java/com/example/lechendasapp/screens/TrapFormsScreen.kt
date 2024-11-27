@@ -395,15 +395,6 @@ fun TrapFormsContent(
             )
         }
         item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier
-                    .width(450.dp)
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.padding_medium),
-                        vertical = dimensionResource(R.dimen.padding_small)
-                    )
-            ) {
                 Button(
                     onClick = {
                         if (validateFields()) {
@@ -418,14 +409,13 @@ fun TrapFormsContent(
                     modifier = Modifier
 
                         .height(dimensionResource(R.dimen.small_button_height))
-                        .weight(1f)
+
                 ) {
                     Text(
                         text = "Guardar",
                         style = MaterialTheme.typography.titleSmall
                     )
                 }
-            }
         }
 
     }

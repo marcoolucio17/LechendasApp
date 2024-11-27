@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class LocalMonitorLog(
     //Keys
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
-    @ColumnInfo(name = "user_id") val userId: Long,
+    @ColumnInfo(name = "user_id") val userId: String,
 
     @ColumnInfo(name = "date_time") val dateMillis: Long,
     val location: String,

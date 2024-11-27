@@ -175,12 +175,6 @@ class AnimalViewModel @Inject constructor(
             errors.remove("commonName")
         }
 
-        if (uiState.scientificName.isBlank()) {
-            errors["scientificName"] = "El nombre científico es obligatorio."
-        } else {
-            errors.remove("scientificName")
-        }
-
         if (uiState.quantity.isBlank() || uiState.quantity.toIntOrNull() == null) {
             errors["quantity"] = "La cantidad es obligatoria y debe ser un número válido."
         } else {

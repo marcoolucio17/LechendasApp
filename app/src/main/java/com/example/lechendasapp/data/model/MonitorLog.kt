@@ -2,7 +2,7 @@ package com.example.lechendasapp.data.model
 
 data class MonitorLog (
     val id: Long,
-    val userId: Long,
+    val userId: String,
 
     val dateMillis: Long,
     val location: String,

@@ -1,15 +1,12 @@
 package com.example.lechendasapp.screens
 
-import android.Manifest
-import android.content.ContentValues.TAG
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,22 +23,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
-import com.example.lechendasapp.data.model.MonitorLog
-import com.example.lechendasapp.data.repository.MonitorLogRepository
-import com.example.lechendasapp.preview.ScreenPreviews
-import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
 import com.example.lechendasapp.utils.RadioButtonWithText
 import com.example.lechendasapp.utils.TopBar3
-import com.example.lechendasapp.viewmodels.FormsUiState
 import com.example.lechendasapp.viewmodels.FormularioViewModel
-import kotlinx.coroutines.flow.Flow
 import com.google.android.gms.location.*
-import com.google.android.gms.location.FusedLocationProviderClient
 
 
 @Composable
@@ -106,7 +94,7 @@ fun FormularioContent(
 
     // Agarrar automaticamente las coordenadas
     LaunchedEffect(Unit) {
-        fetchCoordinates(context) { lat, lon ->
+        viewModel.fetchCoordinates(context) { lat, lon ->
             coordinates = "Lat: $lat\nLon: $lon"
         }
     }
@@ -133,11 +121,26 @@ fun FormularioContent(
                     WeatherIcon(
                         iconRes = icon,
                         isSelected = uiState.climateType == weatherState.name,
-                        onClick = { viewModel.updateUiState(uiState.copy(climateType = weatherState.name)) }
+                        onClick = {
+                            viewModel.updateUiState(
+                                uiState.copy(
+                                    climateType = weatherState.name,
+                                    errors = uiState.errors - "climateType"
+                                )
+                            )
+                        }
                     )
 
 
                 }
+            }
+            if (uiState.errors.containsKey("climateType")) {
+                Text(
+                    text = uiState.errors["climateType"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
 
         }
@@ -148,9 +151,24 @@ fun FormularioContent(
                     RadioButtonWithText(
                         text = epoca.name,
                         isSelected = uiState.seasons == epoca.name,
-                        onClick = { viewModel.updateUiState(uiState.copy(seasons = epoca.name)) }
+                        onClick = {
+                            viewModel.updateUiState(
+                                uiState.copy(
+                                    seasons = epoca.name,
+                                    errors = uiState.errors - "seasons"
+                                )
+                            )
+                        }
                     )
                 }
+            }
+            if (uiState.errors.containsKey("seasons")) {
+                Text(
+                    text = uiState.errors["seasons"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
         }
         item {
@@ -168,7 +186,6 @@ fun FormularioContent(
                     text = coordinates,
                     modifier = Modifier
                         .padding(8.dp)
-                        .weight(1f)
                         .wrapContentWidth(Alignment.CenterHorizontally)
                 )
                 Image(
@@ -177,7 +194,7 @@ fun FormularioContent(
                     modifier = Modifier
                         .size(48.dp)
                         .clickable {
-                            fetchCoordinates(context) { lat, lon ->
+                            viewModel.fetchCoordinates(context) { lat, lon ->
                                 coordinates = "Lat: $lat\nLon: $lon"
                             }
                             Toast.makeText(context, "¡Coordenadas actualizadas con éxito!", Toast.LENGTH_SHORT).show()
@@ -196,45 +213,71 @@ fun FormularioContent(
                         onClick = {
                             viewModel.updateUiState(
                                 uiState.copy(
-                                    zone = zone.displayName
+                                    zone = zone.displayName,
+                                    errors = uiState.errors - "zone"
                                 )
                             )
                         }
                     )
                 }
             }
+            if (uiState.errors.containsKey("zone")) {
+                Text(
+                    text = uiState.errors["zone"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
         }
         item {
             Text(
                 "Tipo de Registro",
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
             )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 TipoRegistro.entries.forEach { tipo ->
                     RadioButtonWithText(
                         text = tipo.displayName,
                         isSelected = uiState.logType == tipo.displayName,
-                        onClick = { viewModel.updateUiState(uiState.copy(logType = tipo.displayName)) }
+                        onClick = {
+                            viewModel.updateUiState(
+                                uiState.copy(
+                                    logType = tipo.displayName,
+                                    errors = uiState.errors - "logType"
+                                )
+                            )
+                        }
                     )
                 }
+            }
+            if (uiState.errors.containsKey("logType")) {
+                Text(
+                    text = uiState.errors["logType"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
         }
         item(key = "boton") {
             Button(
                 onClick = {
-                    Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
-
-                    viewModel.addNewForm { newId ->
-                        when (uiState.logType) {
-                            TipoRegistro.TRANSECTOS.displayName -> onTransectClick(newId)
-                            TipoRegistro.PUNTO_CONTEO.displayName ->  onTransectClick(newId)
-                            TipoRegistro.BUSQUEDA_LIBRE.displayName ->  onTransectClick(newId)
-                            TipoRegistro.VALIDACION_COBERTURA.displayName -> onCoverageClick(newId)
-                            TipoRegistro.PARCELA_VEGETACION.displayName -> onVegetationClick(newId)
-                            TipoRegistro.CAMARAS_TRAMPA.displayName -> onTrapClick(newId)
-                            TipoRegistro.VARIABLES_CLIMATICAS.displayName -> onClimateClick(newId)
+                    if (viewModel.validateFields()) {
+                        Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
+                        viewModel.addNewForm { newId ->
+                            when (uiState.logType) {
+                                TipoRegistro.TRANSECTOS.displayName -> onTransectClick(newId)
+                                TipoRegistro.PUNTO_CONTEO.displayName -> onTransectClick(newId)
+                                TipoRegistro.BUSQUEDA_LIBRE.displayName -> onTransectClick(newId)
+                                TipoRegistro.VALIDACION_COBERTURA.displayName -> onCoverageClick(newId)
+                                TipoRegistro.PARCELA_VEGETACION.displayName -> onVegetationClick(newId)
+                                TipoRegistro.CAMARAS_TRAMPA.displayName -> onTrapClick(newId)
+                                TipoRegistro.VARIABLES_CLIMATICAS.displayName -> onClimateClick(newId)
+                            }
                         }
+                    } else {
+                        Toast.makeText(context, "Por favor, complete todos los campos obligatorios.", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier
@@ -248,11 +291,11 @@ fun FormularioContent(
 }
 
 @Composable
-fun WeatherIcon(iconRes: Int, isSelected: Boolean, onClick: () -> Unit) {
+fun WeatherIcon(iconRes: Int, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(id = iconRes),
         contentDescription = null,
-        modifier = Modifier
+        modifier = modifier
             .size(64.dp)
             .clip(CircleShape)
             .background(if (isSelected) Color.Gray else Color.LightGray)
@@ -288,145 +331,6 @@ enum class Zone(val displayName: String) {
     D("Cultivos Permanentes")
 }
 
-@ScreenPreviews
-@Composable
-fun FormularyInitialScreenPreview() {
-    LechendasAppTheme {
-        FormularyInitialScreen(
-            onBack = {},
-            currentRoute = "formulary",
-            onMenuClick = {},
-            onSearchClick = {},
-            onSettingsClick = {},
-            onClimateClick = {},
-            onCoverageClick = {},
-            onTrapClick = {},
-            onVegetationClick = {},
-            onTransectClick = {},
-            //onConteoClick = {},
-            //onFreeClick = {},
-            viewModel = rememberPreviewFormularioViewModel()
-        )
-    }
-}
-
-class MockMonitorLogRepository2 : MonitorLogRepository {
-    override fun getMonitorLogsStream(): Flow<List<MonitorLog>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getMonitorLogByIdStream(monitorLogId: Long): Flow<MonitorLog> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getAllMonitorLogs(): List<MonitorLog> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getMonitorLogById(monitorLogId: Long): MonitorLog? {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun addMonitorLog(monitorLog: MonitorLog) : Long {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteMonitorLog(monitorLog: MonitorLog) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteMonitorLogById(monitorLogId: Long) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun countMonitorLog(): Int {
-        TODO("Not yet implemented")
-    }
-}
-
-@Composable
-fun rememberPreviewFormularioViewModel(): FormularioViewModel {
-    val mockMonitorLogRepository = MockMonitorLogRepository2()
-
-    return remember {
-        FormularioViewModel(mockMonitorLogRepository).apply {
-            // Initialize with sample data for the preview
-            updateUiState(
-                FormsUiState(
-                    climateType = "SUNNY",
-                    seasons = "VERANO",
-                    logType = "Fauna en Transectos",
-                    zone = "Bosque"
-                )
-            )
-        }
-    }
-}
-
-fun fetchCoordinates(context: Context, onCoordinatesFetched: (Double, Double) -> Unit) {
-    val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-
-    if (ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        Log.e("Location", "Permiso de ubicación no concedido.")
-        return
-    }
-
-    fusedLocationProviderClient.lastLocation
-        .addOnSuccessListener { location ->
-            if (location != null) {
-                onCoordinatesFetched(location.latitude, location.longitude)
-            } else {
-                Log.e("Location", "No se pudo obtener la ubicación. Probando actualizaciones...")
-                // Solicitar actualizaciones de ubicación si no hay datos
-                requestLocationUpdates(context, fusedLocationProviderClient, onCoordinatesFetched)
-            }
-        }
-        .addOnFailureListener { exception ->
-            Log.e("Location", "Error al obtener la ubicación: ${exception.message}")
-        }
-}
-
-fun requestLocationUpdates(
-    context: Context,
-    fusedLocationProviderClient: FusedLocationProviderClient,
-    onCoordinatesFetched: (Double, Double) -> Unit
-) {
-    val locationRequest = LocationRequest.Builder(
-        Priority.PRIORITY_HIGH_ACCURACY,
-        10000 // Interval in milliseconds (10 seconds)
-    ).apply {
-        setMinUpdateIntervalMillis(5000) // Fastest interval in milliseconds (5 seconds)
-    }.build()
-
-    if (ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        Log.e("Location", "Permiso de ubicación no concedido.")
-        return
-    }
-
-    fusedLocationProviderClient.requestLocationUpdates(
-        locationRequest,
-        object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                fusedLocationProviderClient.removeLocationUpdates(this) // Detener actualizaciones
-                val location = locationResult.lastLocation
-                if (location != null) {
-                    onCoordinatesFetched(location.latitude, location.longitude)
-                } else {
-                    Log.e("Location", "No se pudo obtener la ubicación.")
-                }
-            }
-        },
-        context.mainLooper
-    )
-}
 
 fun isGpsEnabled(context: Context): Boolean {
     val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager

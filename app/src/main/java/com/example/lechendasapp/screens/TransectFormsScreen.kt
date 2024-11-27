@@ -276,6 +276,7 @@ fun TransectFormsContent(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 ObservationTypes.entries.forEach { observation ->
@@ -375,10 +376,6 @@ fun TransectFormsContent(
         }
 
         item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
                 Button(
                     onClick = {
                         if (validateFields()) {
@@ -393,14 +390,12 @@ fun TransectFormsContent(
                     },
                     enabled = animalUiState.errors.isEmpty(),
                     modifier = Modifier
-                        .weight(1f)
                 ) {
                     Text(
                         text = "Guardar",
                         style = MaterialTheme.typography.titleSmall
                     )
                 }
-            }
         }
     }
 }
