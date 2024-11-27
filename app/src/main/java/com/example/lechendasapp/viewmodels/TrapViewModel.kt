@@ -29,16 +29,20 @@ data class TrapUiState(
     val cameraPlate: String = "",
     val guayaPlate: String = "",
     val roadWidth: String = "",
-    val installationDate : String = "",
+    val installationDate: String = "",
     val lensHeight: String = "",
     val objectiveDistance: String = "",
     val checkList: Map<CheckList, Boolean> = CheckList.entries.associateWith { false },
-    val observations: String? = "",
-)
+    val observations: String = "",
+    val errors: Map<String, String> = emptyMap() // Para almacenar mensajes de error
+) {
+    companion object {
+        fun empty() = TrapUiState()
+    }
+}
 
 fun Trap.toTrapUiState(): TrapUiState = TrapUiState(
     code = this.code,
-
     cameraName = this.cameraName,
     cameraPlate = this.cameraPlate,
     guayaPlate = this.guayaPlate,
@@ -46,18 +50,16 @@ fun Trap.toTrapUiState(): TrapUiState = TrapUiState(
     installationDate = this.installationDate,
     lensHeight = this.lensHeight.toString(),
     objectiveDistance = this.objectiveDistance.toString(),
+    observations = this.observations.toString(),
     checkList = this.checkList.split(",").associate {
         CheckList.valueOf(it.trim()) to true
-    },
+    }
 
-    observations = this.observations,
 )
 
 fun TrapUiState.toTrap(): Trap = Trap(
-    id = 0, // This can be default / handled by DAO
-
-    monitorLogId = 0, // this is handled with the route
-
+    id = 0,
+    monitorLogId = 0,
     code = this.code,
     cameraName = this.cameraName,
     cameraPlate = this.cameraPlate,
@@ -70,7 +72,6 @@ fun TrapUiState.toTrap(): Trap = Trap(
     observations = this.observations,
 )
 
-
 @HiltViewModel
 class TrapViewModel @Inject constructor(
     private val trapRepository: TrapRepository,
@@ -82,8 +83,8 @@ class TrapViewModel @Inject constructor(
     private val _monitorLogId = mutableLongStateOf(0L)
     val monitorLogId: State<Long> = _monitorLogId
 
-    private val _logId = mutableLongStateOf(0L)
-    val logId: State<Long> = _logId
+    private val _trapId = mutableLongStateOf(0L)
+    val trapId: State<Long> = _trapId
 
     private val _unassociatedPhotos = MutableStateFlow<List<Photo>>(emptyList())
     val unassociatedPhotos: StateFlow<List<Photo>> = _unassociatedPhotos.asStateFlow()
@@ -103,9 +104,9 @@ class TrapViewModel @Inject constructor(
     }
 
     fun fetchAssociatedPhotosIfNeeded() {
-        if (logId.value != 0L && monitorLogId.value != 0L) {
+        if (trapId.value != 0L && monitorLogId.value != 0L) {
             Log.d("AnimalViewModel", "Fetching associated photos")
-            fetchAssociatedPhotos(monitorLogId.value, logId.value)
+            fetchAssociatedPhotos(monitorLogId.value, trapId.value)
         }
     }
 
@@ -147,6 +148,9 @@ class TrapViewModel @Inject constructor(
         }
     }
 
+    private val _errorMessage = mutableStateOf("")
+    val errorMessage: State<String> = _errorMessage
+
     fun updateUiState(newUi: TrapUiState) {
         _trapUiState.value = newUi
     }
@@ -156,47 +160,90 @@ class TrapViewModel @Inject constructor(
     }
 
     fun setTrapId(id: Long) {
-        _logId.longValue = id
+        _trapId.longValue = id
         viewModelScope.launch {
-            trapRepository.getTrapById(id)
-            _trapUiState.value = trapRepository.getTrapById(id)?.toTrapUiState()!!
+            val trap = trapRepository.getTrapById(id)
+            _trapUiState.value = trap?.toTrapUiState() ?: TrapUiState.empty()
         }
+    }
+
+    fun resetForm() {
+        _trapUiState.value = TrapUiState.empty()
+    }
+
+    fun validateFields(): Boolean {
+        val uiState = _trapUiState.value
+        val errors = mutableMapOf<String, String>()
+
+        if (uiState.code.isBlank()) errors["code"] = "El código es obligatorio."
+        if (uiState.cameraName.isBlank()) errors["cameraName"] = "El nombre de la cámara es obligatorio."
+        if (uiState.cameraPlate.isBlank()) errors["cameraPlate"] = "La placa de la cámara es obligatoria."
+        if (uiState.guayaPlate.isBlank()) errors["guayaPlate"] = "La placa de la guaya es obligatoria."
+        if (uiState.roadWidth.isBlank() || uiState.roadWidth.toIntOrNull() == null) {
+            errors["roadWidth"] = "El ancho de carretera es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("roadWidth")
+        }
+        if (uiState.installationDate.isBlank()) errors["installationDate"] = "La fecha de instalación es obligatoria."
+        if (uiState.lensHeight.isBlank() || uiState.lensHeight.toIntOrNull() == null) {
+            errors["lensHeight"] = "La altura del lente es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("lensHeight")
+        }
+        if (uiState.objectiveDistance.isBlank() || uiState.objectiveDistance.toIntOrNull() == null) {
+            errors["objectiveDistance"] = "La distancia de objetivo es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("lensHeight")
+        }
+        if (uiState.objectiveDistance.isBlank()) errors["objectiveDistance"] = "La distancia al objetivo es obligatoria."
+        if (uiState.checkList.none { it.value }) {
+            errors["checkList"] = "Debe seleccionar al menos un elemento."
+        }
+
+        _trapUiState.value = uiState.copy(errors = errors)
+
+        return errors.isEmpty()
     }
 
     fun updateCheckList(check: CheckList, isChecked: Boolean) {
-        val updatedList = _trapUiState.value.checkList.toMutableMap().apply {
-            this[check] = isChecked
+        // Actualizar solo la casilla seleccionada, dejando el resto intacto
+        val updatedCheckList = _trapUiState.value.checkList.toMutableMap().apply {
+            this[check] = isChecked  // Cambia el valor de la casilla específica
         }
-        _trapUiState.value = _trapUiState.value.copy(checkList = updatedList)
+        _trapUiState.value = _trapUiState.value.copy(checkList = updatedCheckList)
     }
 
 
+
     fun addNewLog() {
-        if (_logId.longValue == 0L) {
-            //Insert new log
-            val newTrap = _trapUiState.value.toTrap().copy(
-                monitorLogId = _monitorLogId.longValue
-            )
-            viewModelScope.launch {
-                val id = trapRepository.insertTrap(newTrap)
-                _unassociatedPhotos.value.map { photo ->
-                    val updatedPhoto =
-                        photo.copy(monitorLogId = _monitorLogId.longValue, formsId = id)
-                    photoRepository.updatePhoto(updatedPhoto)
+        if (validateFields()) { // Verifica que los campos no estén vacíos
+            if (_trapId.longValue == 0L) {
+                // Insertar nuevo registro
+                val newTrap = _trapUiState.value.toTrap().copy(
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    val id = trapRepository.insertTrap(newTrap)
+                    _unassociatedPhotos.value.map { photo ->
+                        val updatedPhoto =
+                            photo.copy(monitorLogId = _monitorLogId.longValue, formsId = id)
+                        photoRepository.updatePhoto(updatedPhoto)
+                    }
                 }
-            }
-        } else {
-            //Update log
-            val newTrap = _trapUiState.value.toTrap().copy(
-                id = _logId.longValue,
-                monitorLogId = _monitorLogId.longValue
-            )
-            viewModelScope.launch {
-                trapRepository.updateTrap(newTrap)
-                _unassociatedPhotos.value.map { photo ->
-                    val updatedPhoto =
-                        photo.copy(monitorLogId = _monitorLogId.longValue, formsId = logId.value)
-                    photoRepository.updatePhoto(updatedPhoto)
+                resetForm()
+            } else {
+                // Actualizar registro existente
+                val updatedTrap = _trapUiState.value.toTrap().copy(
+                    id = _trapId.longValue,
+                    monitorLogId = _monitorLogId.longValue
+                )
+                viewModelScope.launch {
+                    trapRepository.updateTrap(updatedTrap)
+                    _unassociatedPhotos.value.map { photo ->
+                        val updatedPhoto =
+                            photo.copy(monitorLogId = _monitorLogId.longValue, formsId = trapId.value)
+                        photoRepository.updatePhoto(updatedPhoto)
+                    }
                 }
             }
         }

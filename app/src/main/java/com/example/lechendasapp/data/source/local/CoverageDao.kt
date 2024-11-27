@@ -40,4 +40,7 @@ interface CoverageDao {
     @Query("SELECT COUNT(*) FROM coverage")
     suspend fun count(): Int
 
+    @Query("DELETE FROM coverage WHERE monitor_log_id = :monitorLogId")
+    suspend fun deleteByMonitorLogId(monitorLogId: Long)
+
 }

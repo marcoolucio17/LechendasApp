@@ -55,5 +55,9 @@ class DefaultVegetationRepository @Inject constructor(
         return localDataSource.count()
     }
 
+    override suspend fun deleteVegetationByMonitorLogId(monitorLogId: Long) {
+        localDataSource.deleteByMonitorLogId(monitorLogId)
+    }
+
 
 }

@@ -62,5 +62,9 @@ class DefaultPhotoRepository @Inject constructor(
         return localDataSource.count()
     }
 
+    override suspend fun deletePhotoByMonitorFormsId(monitorLogId: Long) {
+        localDataSource.deleteByMonitorFormsId(monitorLogId)
+    }
+
 
 }

@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -32,8 +34,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,6 +56,7 @@ import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.TrapUiState
 import com.example.lechendasapp.viewmodels.TrapViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun TrapFormsScreen(
@@ -92,6 +97,7 @@ fun TrapFormsScreen(
             trapUiState = viewModel.trapUiState.value,
             updateUiState = viewModel::updateUiState,
             updateCheckList = viewModel::updateCheckList,
+            validateFields = viewModel::validateFields,
             onAddNewLog = viewModel::addNewLog,
             onCameraClick = onCameraClick,
             onPickImage = viewModel::pickImage,
@@ -109,6 +115,7 @@ fun TrapFormsContent(
     trapUiState: TrapUiState,
     updateUiState: (TrapUiState) -> Unit,
     updateCheckList: (CheckList, Boolean) -> Unit,
+    validateFields: () -> Boolean,
     onAddNewLog: () -> Unit,
     onCameraClick: () -> Unit,
     onPickImage: (Context, ActivityResultLauncher<Intent>) -> Unit,
@@ -128,7 +135,11 @@ fun TrapFormsContent(
         }
     }
     val context = LocalContext.current
+    val listState = rememberLazyListState() // Estado para controlar el scroll
+    val coroutineScope = rememberCoroutineScope() // Para ejecutar scroll en un coroutine
+
     LazyColumn(
+        state = listState,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(36.dp),
         modifier = modifier
@@ -139,95 +150,153 @@ fun TrapFormsContent(
             SimpleInputBox(
                 labelText = "Código",
                 value = trapUiState.code,
-                onValueChange = { updateUiState(trapUiState.copy(code = it)) } ,
+                onValueChange = {
+                    updateUiState(trapUiState.copy(
+                        code = it,
+                        errors = trapUiState.errors - "code"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = trapUiState.errors.containsKey("code"),
+                errorText = trapUiState.errors["code"]
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Nombre cámara",
                 value = trapUiState.cameraName,
-                onValueChange = { updateUiState(trapUiState.copy(cameraName = it)) } ,
+                onValueChange = {
+                    updateUiState(trapUiState.copy(
+                        cameraName = it,
+                        errors = trapUiState.errors - "cameraName"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = trapUiState.errors.containsKey("cameraName"),
+                errorText = trapUiState.errors["cameraName"]
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Placa cámara",
                 value = trapUiState.cameraPlate,
-                onValueChange = { updateUiState(trapUiState.copy(cameraPlate = it)) } ,
+                onValueChange = {
+                    updateUiState(trapUiState.copy(
+                        cameraPlate = it,
+                        errors = trapUiState.errors - "cameraPlate"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = trapUiState.errors.containsKey("cameraPlate"),
+                errorText = trapUiState.errors["cameraPlate"]
             )
         }
+
         item {
             SimpleInputBox(
                 labelText = "Placa Guaya",
                 value = trapUiState.guayaPlate,
-                onValueChange = { updateUiState(trapUiState.copy(guayaPlate = it)) } ,
+                onValueChange = {
+                    updateUiState(trapUiState.copy(
+                        guayaPlate = it,
+                        errors = trapUiState.errors - "guayaPlate"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = trapUiState.errors.containsKey("guayaPlate"),
+                errorText = trapUiState.errors["guayaPlate"]
             )
         }
+
         item {
             SimpleInputBox(
                 labelText = "Ancho camino (mt)",
                 value = trapUiState.roadWidth,
-                onValueChange = { updateUiState(trapUiState.copy(roadWidth = it)) } ,
+                onValueChange = {
+                    updateUiState(trapUiState.copy(
+                        roadWidth = it,
+                        errors = trapUiState.errors - "roadWidth"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
+                isError = trapUiState.errors.containsKey("roadWidth"),
+                errorText = trapUiState.errors["roadWidth"]
             )
         }
+
         item {
             SimpleInputBox(
                 labelText = "Fecha de instalación",
                 value = trapUiState.installationDate,
-                onValueChange = { updateUiState(trapUiState.copy(installationDate = it)) } ,
+                onValueChange = {
+                    updateUiState(trapUiState.copy(
+                        installationDate = it,
+                        errors = trapUiState.errors - "installationDate"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
+                isError = trapUiState.errors.containsKey("installationDate"),
+                errorText = trapUiState.errors["installationDate"]
             )
         }
+
         item {
             SimpleInputBox(
                 labelText = "Distancia de objetivo (mt)",
                 value = trapUiState.objectiveDistance,
-                onValueChange = { updateUiState(trapUiState.copy(objectiveDistance = it)) } ,
+                onValueChange = {
+                    updateUiState(trapUiState.copy(
+                        objectiveDistance = it,
+                        errors = trapUiState.errors - "objectiveDistance"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
-
+                isError = trapUiState.errors.containsKey("objectiveDistance"),
+                errorText = trapUiState.errors["objectiveDistance"]
             )
         }
         item {
             SimpleInputBox(
                 labelText = "Altura del lente (mt)",
                 value = trapUiState.lensHeight,
-                onValueChange = { updateUiState(trapUiState.copy(lensHeight = it)) } ,
+                onValueChange = {
+                    updateUiState(trapUiState.copy(
+                        lensHeight = it,
+                        errors = trapUiState.errors - "lensHeight"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
+                isError = trapUiState.errors.containsKey("lensHeight"),
+                errorText = trapUiState.errors["lensHeight"]
             )
         }
         item {
-            FlowRow (
-                modifier = Modifier
-                    .width(450.dp)
+            FlowRow(
+                modifier = Modifier.width(450.dp)
             ) {
                 Text(
                     "Lista de chequeo",
@@ -243,8 +312,7 @@ fun TrapFormsContent(
                 CheckList.entries.forEach { check ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .width(220.dp)
+                        modifier = Modifier.width(220.dp)
                     ) {
                         Checkbox(
                             checked = trapUiState.checkList[check] == true,
@@ -256,8 +324,19 @@ fun TrapFormsContent(
                         Text(text = check.displayName)
                     }
                 }
+
+                // Mostrar error solo si no se ha seleccionado un checkbox
+                if (trapUiState.errors.containsKey("checkList")) {
+                    Text(
+                        text = trapUiState.errors["checkList"] ?: "",
+                        color = Color.Red, // Aquí puedes personalizar el color del error
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
+                }
             }
         }
+
         item {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -316,28 +395,27 @@ fun TrapFormsContent(
             )
         }
         item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier
-                    .width(450.dp)
-                    .padding(
-                        horizontal = dimensionResource(R.dimen.padding_medium),
-                        vertical = dimensionResource(R.dimen.padding_small)
-                    )
-            ) {
                 Button(
-                    onClick = onAddNewLog,
+                    onClick = {
+                        if (validateFields()) {
+                            onAddNewLog()
+                            //  // Resetea el formulario
+                            Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
+                        }
+                        coroutineScope.launch {
+                            listState.scrollToItem(0) // Mueve al inicio
+                        }
+                    },
                     modifier = Modifier
 
                         .height(dimensionResource(R.dimen.small_button_height))
-                        .weight(1f)
+
                 ) {
                     Text(
                         text = "Guardar",
                         style = MaterialTheme.typography.titleSmall
                     )
                 }
-            }
         }
 
     }

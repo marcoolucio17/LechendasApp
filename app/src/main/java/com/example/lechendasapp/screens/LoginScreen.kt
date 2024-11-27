@@ -228,7 +228,6 @@ fun rememberPreviewLoginViewModel(): LoginViewModel {
     val mockUserRepository = MockUserRepository()
     return remember {
         LoginViewModel(
-            mockUserRepository,
             auth0 = Auth0.getInstance(
                 clientId = "",
                 domain = ""

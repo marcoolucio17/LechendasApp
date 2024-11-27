@@ -18,6 +18,10 @@ class DefaultAuthTokenRepository @Inject constructor(
         localDataSource.saveAuthToken(token.toLocalAuthToken())
     }
 
+    override suspend fun getIdToken(): String? {
+        return localDataSource.getIdToken()
+    }
+
     override suspend fun clearAuthToken() {
         localDataSource.clearAuthToken()
     }

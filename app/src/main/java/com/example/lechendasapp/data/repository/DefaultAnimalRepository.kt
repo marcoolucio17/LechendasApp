@@ -54,4 +54,8 @@ class DefaultAnimalRepository @Inject constructor(
     override suspend fun countAnimal(): Int {
         return localDataSource.count()
     }
+
+    override suspend fun deleteAnimalByMonitorLogId(monitorLogId: Long) {
+        localDataSource.deleteByMonitorLogId(monitorLogId)
+    }
 }

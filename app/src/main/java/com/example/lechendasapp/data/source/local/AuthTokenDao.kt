@@ -14,6 +14,9 @@ interface AuthTokenDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveAuthToken(token: LocalAuthToken)
 
+    @Query("SELECT id_token FROM auth_tokens WHERE id = 1")
+    suspend fun getIdToken(): String?
+
     @Query("DELETE FROM auth_tokens")
     suspend fun clearAuthToken()
 }

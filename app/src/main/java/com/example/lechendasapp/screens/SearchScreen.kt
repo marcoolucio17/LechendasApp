@@ -1,6 +1,8 @@
 package com.example.lechendasapp.screens
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -21,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -31,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -51,8 +55,12 @@ import com.example.lechendasapp.viewmodels.SearchViewModel
 import com.example.lechendasapp.utils.DetailItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
@@ -70,9 +78,26 @@ fun SearchScreen(
     modifier: Modifier = Modifier
 ) {
     val searchUiState = viewModel.searchUiState.collectAsState()
+    val searchQuery = viewModel.searchQuery.collectAsState()
 
     Scaffold(
-        topBar = { TopBar3(onBack = onBack) },
+        topBar = {
+            Column  {
+                TopBar3(onBack = onBack, showMenu = false)
+                TextField(
+                    value = searchQuery.value,
+                    onValueChange = viewModel::updateSearchQuery,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    placeholder = { Text(text = "Search logs...") },
+                    leadingIcon = {
+                        Icon(Icons.Default.Search, contentDescription = "Search")
+                    },
+                    singleLine = true,
+                )
+            }
+        },
         bottomBar = {
             BottomNavBar(
                 currentRoute = currentRoute,
@@ -96,6 +121,7 @@ fun SearchScreen(
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SearchContent(
     modifier: Modifier = Modifier,
@@ -133,6 +159,7 @@ fun SearchContent(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LogList(
     logList: List<MonitorLog>,
@@ -164,6 +191,7 @@ fun LogList(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SearchItem(
     log: MonitorLog,
@@ -208,7 +236,7 @@ fun SearchItem(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = log.dateMillis.toString(),
+                    text = log.dateMillis.toReadableDate(),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -259,24 +287,32 @@ fun SearchItem(
                     .fillMaxWidth()
                     .padding(horizontal = 25.dp, vertical = 10.dp)
             ) {
-                DetailItem("Location", log.location)
-                DetailItem("GPS Coordinates", log.gpsCoordinates)
+                val coordinates = log.gpsCoordinates.split(", ")
+                if (coordinates.size == 2) {
+                    val (latitude, longitude) = coordinates.map { it.trim() }
+                    DetailItem("GPS Lat", latitude)
+                    DetailItem("GPS Lon", longitude)
+                } else {
+                    DetailItem("GPS Lat", "N/A")
+                    DetailItem("GPS Lon", "N/A")
+                }
                 DetailItem("Climate Type", log.climateType)
                 DetailItem("Seasons", log.seasons)
                 DetailItem("Zone", log.zone)
-                DetailItem("User ID", log.userId.toString())
+                DetailItem("User ID", log.userId.toString().take(5))
             }
         }
     }
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun SearchItemPreview() {
     LechendasAppTheme {
         SearchItem(
-            log = MonitorLog(1, 15, 15, "15", "15", "15", "15", "15", "15"),
+            log = MonitorLog(1, "0", 15, "15", "15", "15", "15", "15", "15"),
             onDelete = {},
             onTransectClick = {},
             onClimateClick = {},
@@ -287,16 +323,17 @@ fun SearchItemPreview() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LogListPreview() {
     LechendasAppTheme {
         LogList(
             logList = listOf(
-                MonitorLog(1, 15, 15, "15", "15", "15", "15", "15", "15"),
-                MonitorLog(2, 15, 15, "15", "15", "15", "15", "15", "15"),
-                MonitorLog(3, 15, 15, "15", "15", "15", "15", "15", "15"),
-                MonitorLog(4, 15, 15, "15", "15", "15", "15", "15", "15")
+                MonitorLog(1, "15", 15, "15", "15", "15", "15", "15", "15"),
+                MonitorLog(2, "15", 15, "15", "15", "15", "15", "15", "15"),
+                MonitorLog(3, "15", 15, "15", "15", "15", "15", "15", "15"),
+                MonitorLog(4, "15", 15, "15", "15", "15", "15", "15", "15")
             ),
             onDelete = {},
             onTransectClick = {},
@@ -308,60 +345,10 @@ fun LogListPreview() {
     }
 }
 
-
-//@ScreenPreviews
-//@Composable
-//fun PreviewScreen() {
-//    LechendasAppTheme {
-//        SearchScreen(
-//            onBack = {},
-//            currentRoute = "search",
-//            onSearch = {},
-//            onHome = {},
-//            onSettings = {},
-//            viewModel = rememberPreviewSearchViewModel()
-//        )
-//    }
-//}
-
-
-class MockMonitorLogRepository : MonitorLogRepository {
-    override fun getMonitorLogsStream(): Flow<List<MonitorLog>> {
-        return flowOf(emptyList())
-    }
-
-    override fun getMonitorLogByIdStream(monitorLogId: Long): Flow<MonitorLog> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getAllMonitorLogs(): List<MonitorLog> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getMonitorLogById(monitorLogId: Long): MonitorLog? {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun addMonitorLog(monitorLog: MonitorLog): Long {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteMonitorLog(monitorLog: MonitorLog) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteMonitorLogById(monitorLogId: Long) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun countMonitorLog(): Int {
-        TODO("Not yet implemented")
-    }
+@RequiresApi(Build.VERSION_CODES.O)
+fun Long.toReadableDate(): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        .withZone(ZoneId.systemDefault()) // Use the system's time zone
+    return formatter.format(Instant.ofEpochMilli(this))
 }
 
-@Composable
-fun rememberPreviewSearchViewModel(): SearchViewModel {
-    return remember {
-        SearchViewModel(MockMonitorLogRepository())
-    }
-}

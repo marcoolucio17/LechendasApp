@@ -25,4 +25,6 @@ interface ClimateRepository {
 
     suspend fun countClimate(): Int
 
+    suspend fun deleteClimateByMonitorLogId(monitorLogId: Long)
+
 }

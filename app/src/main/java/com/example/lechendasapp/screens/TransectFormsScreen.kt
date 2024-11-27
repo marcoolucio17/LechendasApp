@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -39,6 +41,7 @@ import com.example.lechendasapp.utils.SimpleInputBox
 import com.example.lechendasapp.utils.TopBar3
 import com.example.lechendasapp.viewmodels.AnimalUiSate
 import com.example.lechendasapp.viewmodels.AnimalViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun TransectFormsScreen(
@@ -77,7 +80,9 @@ fun TransectFormsScreen(
     ) { innerPadding ->
         TransectFormsContent(
             onUpdateUiState = viewModel::updateUiState,
+            saveAnimal = viewModel::saveAnimal,
             onAddNewAnimal = viewModel::saveAnimal,
+            validateFields = viewModel::validateFields,
             animalUiState = viewModel.animalUiState.value,
             onCameraClick = onCameraClick,
             onPickImage = viewModel::pickImage,
@@ -92,7 +97,9 @@ fun TransectFormsScreen(
 @Composable
 fun TransectFormsContent(
     onUpdateUiState: (AnimalUiSate) -> Unit,
+    saveAnimal: () -> Unit,
     onAddNewAnimal: () -> Unit,
+    validateFields: () -> Boolean,
     animalUiState: AnimalUiSate,
     onCameraClick: () -> Unit,
     onPickImage: (Context, ActivityResultLauncher<Intent>) -> Unit,
@@ -101,6 +108,11 @@ fun TransectFormsContent(
     associatedPhotos: List<Photo>,
     modifier: Modifier = Modifier
 ) {
+
+    val context = LocalContext.current
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -111,8 +123,9 @@ fun TransectFormsContent(
             }
         }
     }
-    val context = LocalContext.current
+
     LazyColumn(
+        state = listState, // Asocia el estado de scroll
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier
@@ -121,13 +134,19 @@ fun TransectFormsContent(
     ) {
         item {
             SimpleInputBox(
-                labelText = "Número de Transecto",
+                labelText = "Nombre de Transecto",
                 value = animalUiState.transectName,
-                onValueChange = { onUpdateUiState(animalUiState.copy(transectName = it)) },
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    transectName = it,
+                    errors = animalUiState.errors - "transectName"
+                    ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
-                )
+                ),
+                isError = animalUiState.errors.containsKey("transectName"),
+                errorText = animalUiState.errors["transectName"]
             )
         }
 
@@ -151,7 +170,12 @@ fun TransectFormsContent(
                             animal = animal,
                             isSelected = animal.displayName == animalUiState.animalType,
                             onSelect = {
-                                onUpdateUiState(animalUiState.copy(animalType = animal.displayName))
+                                onUpdateUiState(
+                                    animalUiState.copy(
+                                        animalType = animal.displayName, // Actualizamos el campo correcto
+                                        errors = animalUiState.errors - "animalType" // Limpiamos el error asociado
+                                    )
+                                )
                             }
                         )
                     }
@@ -168,23 +192,46 @@ fun TransectFormsContent(
                             animal = animal,
                             isSelected = animal.displayName == animalUiState.animalType,
                             onSelect = {
-                                onUpdateUiState(animalUiState.copy(animalType = animal.displayName))
+                                onUpdateUiState(
+                                    animalUiState.copy(
+                                        animalType = animal.displayName, // Actualizamos el campo correcto
+                                        errors = animalUiState.errors - "animalType" // Limpiamos el error asociado
+                                    )
+                                )
                             }
                         )
                     }
                 }
             }
+
+            // Mostrar mensaje de error si existe
+            if (animalUiState.errors.containsKey("animalType")) {
+                Text(
+                    text = animalUiState.errors["animalType"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
         }
+
+
 
         item {
             SimpleInputBox(
                 labelText = "Nombre Común",
                 value = animalUiState.commonName,
-                onValueChange = { onUpdateUiState(animalUiState.copy(commonName = it)) },
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    commonName = it,
+                    errors = animalUiState.errors - "commonName"
+                ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
-                )
+                ),
+                isError = animalUiState.errors.containsKey("commonName"),
+                errorText = animalUiState.errors["commonName"]
             )
         }
 
@@ -192,19 +239,11 @@ fun TransectFormsContent(
             SimpleInputBox(
                 labelText = "Nombre Científico",
                 value = animalUiState.scientificName,
-                onValueChange = { onUpdateUiState(animalUiState.copy(scientificName = it)) },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                )
-            ) // TODO: Hacer opcional
-        }
-
-        item {
-            SimpleInputBox(
-                labelText = "Número de Individuos",
-                value = animalUiState.quantity,
-                onValueChange = { onUpdateUiState(animalUiState.copy(quantity = it)) },
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    scientificName = it,
+                    errors = animalUiState.errors - "scientificName"
+                ))
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
@@ -213,20 +252,70 @@ fun TransectFormsContent(
         }
 
         item {
-            Text("Tipo de Observación", fontWeight = FontWeight.Bold)
-            Column {
+            SimpleInputBox(
+                labelText = "Número de Individuos",
+                value = animalUiState.quantity,
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    quantity = it,
+                    errors = animalUiState.errors - "quantity"
+                ))
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
+                isError = animalUiState.errors.containsKey("quantity"),
+                errorText = animalUiState.errors["quantity"]
+            )
+        }
+
+        item {
+            Text(
+                "Tipo de Observación",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 ObservationTypes.entries.forEach { observation ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
                         RadioButton(
                             selected = animalUiState.observationType == observation.displayName,
-                            onClick = {  onUpdateUiState(animalUiState.copy(observationType = observation.displayName))  }
+                            onClick = {
+                                onUpdateUiState(
+                                    animalUiState.copy(
+                                        observationType = observation.displayName, // Actualizamos el campo correcto
+                                        errors = animalUiState.errors - "observationType" // Limpiamos el error asociado
+                                    )
+                                )
+                            }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(observation.displayName)
+                        Text(
+                            text = observation.displayName,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
             }
+
+            // Mostrar mensaje de error si existe
+            if (animalUiState.errors.containsKey("observationType")) {
+                Text(
+                    text = animalUiState.errors["observationType"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
         }
+
+
 
         item {
             Row(
@@ -278,22 +367,35 @@ fun TransectFormsContent(
                 singleLine = false,
                 modifier = Modifier.height(150.dp),
                 value = animalUiState.observations.toString(),
-                onValueChange = { onUpdateUiState(animalUiState.copy(observations = it)) },
+                onValueChange = { onUpdateUiState(animalUiState.copy(
+                    observations = it,
+                    errors = animalUiState.errors - "observations"
+                ))
+                },
             )
         }
 
         item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
                 Button(
-                    onClick = onAddNewAnimal,
-                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        if (validateFields()) {
+                            saveAnimal()
+                            //  Resetea el formulario
+                            Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
+
+                        }
+                        coroutineScope.launch {
+                            listState.scrollToItem(0) // Mueve al inicio
+                        }
+                    },
+                    enabled = animalUiState.errors.isEmpty(),
+                    modifier = Modifier
                 ) {
-                    Text("Enviar", color = Color.White)
+                    Text(
+                        text = "Guardar",
+                        style = MaterialTheme.typography.titleSmall
+                    )
                 }
-            }
         }
     }
 }
@@ -326,11 +428,11 @@ fun AnimalOptions(
 }
 
 enum class AnimalTypes(val displayName: String, val iconRes: Int) {
-    MAMIFERO("Mamífero", R.drawable.capybara), // TODO: Cambiar icono placeholder
-    AVE("Ave", R.drawable.capybara),
-    REPTIL("Reptil", R.drawable.capybara),
-    ANFIBIO("Anfibio", R.drawable.capybara),
-    INSECTO("Insecto", R.drawable.capybara)
+    MAMIFERO("Mamífero", R.drawable.panda), // TODO: Cambiar icono placeholder
+    AVE("Ave", R.drawable.aguila),
+    REPTIL("Reptil", R.drawable.cocodrilo),
+    ANFIBIO("Anfibio", R.drawable.rana),
+    INSECTO("Insecto", R.drawable.abeja)
 }
 
 enum class ObservationTypes(val displayName: String) {

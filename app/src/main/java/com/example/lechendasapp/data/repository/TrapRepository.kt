@@ -16,6 +16,7 @@ interface TrapRepository {
     suspend fun deleteTrap(trap: Trap)
     suspend fun deleteTrapById(trapId: Long)
     suspend fun countTrap(): Int
+    suspend fun deleteTrapByMonitorLogId(monitorLogId: Long)
 
 
 

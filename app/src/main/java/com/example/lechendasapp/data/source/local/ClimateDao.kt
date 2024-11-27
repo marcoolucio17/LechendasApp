@@ -39,4 +39,7 @@ interface ClimateDao {
 
     @Query("SELECT COUNT(*) FROM climate")
     suspend fun count(): Int
+
+    @Query("DELETE FROM climate WHERE monitor_log_id = :monitorLogId")
+    suspend fun deleteByMonitorLogId(monitorLogId: Long)
 }

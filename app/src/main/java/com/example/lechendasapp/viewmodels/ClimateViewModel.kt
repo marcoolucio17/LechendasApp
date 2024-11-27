@@ -49,6 +49,7 @@ fun Climate.toClimateUiState(): ClimateUiState = ClimateUiState(
     observations = this.observations.toString()
 )
 
+
 fun ClimateUiState.toClimate(): Climate = Climate(
     id = 0, // This can be default or handled by DAO
 
@@ -166,12 +167,41 @@ class ClimateViewModel @Inject constructor(
         val uiState = _climateUiState.value
         val errors = mutableMapOf<String, String>()
 
-        if (uiState.rainfall.isBlank()) errors["rainfall"] = "Este campo es obligatorio."
-        if (uiState.maxTemp.isBlank()) errors["maxTemp"] = "Este campo es obligatorio."
-        if (uiState.minTemp.isBlank()) errors["minTemp"] = "Este campo es obligatorio."
-        if (uiState.maxHumidity.isBlank()) errors["maxHumidity"] = "Este campo es obligatorio."
-        if (uiState.minHumidity.isBlank()) errors["minHumidity"] = "Este campo es obligatorio."
-        if (uiState.ravineLevel.isBlank()) errors["ravineLevel"] = "Este campo es obligatorio."
+        if (uiState.rainfall.isBlank() || uiState.rainfall.toIntOrNull() == null) {
+            errors["rainfall"] = "La cantidad es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("rainfall")
+        }
+
+        if (uiState.maxTemp.isBlank() || uiState.maxTemp.toIntOrNull() == null) {
+            errors["maxTemp"] = "La cantidad es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("maxTemp")
+        }
+
+        if (uiState.minTemp.isBlank() || uiState.minTemp.toIntOrNull() == null) {
+            errors["minTemp"] = "La cantidad es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("minTemp")
+        }
+
+        if (uiState.maxHumidity.isBlank() || uiState.maxHumidity.toIntOrNull() == null) {
+            errors["maxHumidity"] = "La cantidad es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("maxHumidity")
+        }
+
+        if (uiState.minHumidity.isBlank() || uiState.minHumidity.toIntOrNull() == null) {
+            errors["minHumidity"] = "La cantidad es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("minHumidity")
+        }
+
+        if (uiState.ravineLevel.isBlank() || uiState.ravineLevel.toIntOrNull() == null) {
+            errors["ravineLevel"] = "La cantidad es obligatoria y debe ser un número válido."
+        } else {
+            errors.remove("ravineLevel")
+        }
 
         _climateUiState.value = uiState.copy(errors = errors)
 

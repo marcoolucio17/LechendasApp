@@ -23,4 +23,6 @@ interface AnimalRepository {
     suspend fun deleteAnimalById(id: Long)
 
     suspend fun countAnimal(): Int
+
+    suspend fun deleteAnimalByMonitorLogId(monitorLogId: Long)
 }

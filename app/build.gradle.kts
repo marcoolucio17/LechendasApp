@@ -74,6 +74,10 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.runner)
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.ui.test.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -82,7 +86,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.5") // For Compose test rules
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.7.5") // Manifest support for UI tests
 
+    androidTestImplementation("androidx.navigation:navigation-testing:2.8.4")
 
 
 
@@ -117,6 +124,8 @@ dependencies {
     implementation (libs.auth0)
 
     implementation("io.coil-kt.coil3:coil-compose:3.0.3")
+
+    implementation(libs.play.services.location)
 }
 java {
     toolchain {

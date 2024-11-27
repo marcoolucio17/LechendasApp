@@ -1,8 +1,12 @@
 package com.example.lechendasapp.screens
 
+import android.content.Context
+import android.location.LocationManager
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,16 +25,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lechendasapp.R
-import com.example.lechendasapp.data.model.MonitorLog
-import com.example.lechendasapp.data.repository.MonitorLogRepository
-import com.example.lechendasapp.preview.ScreenPreviews
-import com.example.lechendasapp.ui.theme.LechendasAppTheme
 import com.example.lechendasapp.utils.BottomNavBar
 import com.example.lechendasapp.utils.RadioButtonWithText
 import com.example.lechendasapp.utils.TopBar3
-import com.example.lechendasapp.viewmodels.FormsUiState
 import com.example.lechendasapp.viewmodels.FormularioViewModel
-import kotlinx.coroutines.flow.Flow
+import com.google.android.gms.location.*
 
 
 @Composable
@@ -82,8 +81,6 @@ fun FormularyInitialScreen(
 fun FormularioContent(
     onClimateClick: (Long) -> Unit,
     onTransectClick: (Long) -> Unit,
-    //onConteoClick: () -> Unit,
-    //onFreeClick: () -> Unit,
     onCoverageClick: (Long) -> Unit,
     onVegetationClick: (Long) -> Unit,
     onTrapClick: (Long) -> Unit,
@@ -92,16 +89,21 @@ fun FormularioContent(
 ) {
     val uiState by viewModel.formsUiState
 
-    val monitorLogId by viewModel.monitorLogId
-
     val context = LocalContext.current
+    var coordinates by remember { mutableStateOf("No disponible") }
+
+    // Agarrar automaticamente las coordenadas
+    LaunchedEffect(Unit) {
+        viewModel.fetchCoordinates(context) { lat, lon ->
+            coordinates = "Lat: $lat\nLon: $lon"
+        }
+    }
 
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(32.dp),
         contentPadding = PaddingValues(16.dp),
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         item {
             Text(
@@ -111,13 +113,34 @@ fun FormularioContent(
             )
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 WeatherState.entries.forEach { weatherState ->
+                    val icon = when (weatherState) {
+                        WeatherState.SUNNY -> R.drawable.sol
+                        WeatherState.CLOUDY -> R.drawable.nublado
+                        WeatherState.RAINY -> R.drawable.lluvia
+                    }
                     WeatherIcon(
-                        iconRes = R.drawable.capybara,
+                        iconRes = icon,
                         isSelected = uiState.climateType == weatherState.name,
-                        onClick = { viewModel.updateUiState(uiState.copy(climateType = weatherState.name)) }
+                        onClick = {
+                            viewModel.updateUiState(
+                                uiState.copy(
+                                    climateType = weatherState.name,
+                                    errors = uiState.errors - "climateType"
+                                )
+                            )
+                        }
                     )
 
+
                 }
+            }
+            if (uiState.errors.containsKey("climateType")) {
+                Text(
+                    text = uiState.errors["climateType"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
 
         }
@@ -128,9 +151,56 @@ fun FormularioContent(
                     RadioButtonWithText(
                         text = epoca.name,
                         isSelected = uiState.seasons == epoca.name,
-                        onClick = { viewModel.updateUiState(uiState.copy(seasons = epoca.name)) }
+                        onClick = {
+                            viewModel.updateUiState(
+                                uiState.copy(
+                                    seasons = epoca.name,
+                                    errors = uiState.errors - "seasons"
+                                )
+                            )
+                        }
                     )
                 }
+            }
+            if (uiState.errors.containsKey("seasons")) {
+                Text(
+                    text = uiState.errors["seasons"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        }
+        item {
+            Text(
+                "Coordenadas:",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = coordinates,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_location_on_24),
+                    contentDescription = "Recargar GPS",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clickable {
+                            viewModel.fetchCoordinates(context) { lat, lon ->
+                                coordinates = "Lat: $lat\nLon: $lon"
+                            }
+                            Toast.makeText(context, "¡Coordenadas actualizadas con éxito!", Toast.LENGTH_SHORT).show()
+                        }
+                        .padding(8.dp)
+                )
             }
         }
         item {
@@ -143,45 +213,71 @@ fun FormularioContent(
                         onClick = {
                             viewModel.updateUiState(
                                 uiState.copy(
-                                    zone = zone.displayName
+                                    zone = zone.displayName,
+                                    errors = uiState.errors - "zone"
                                 )
                             )
                         }
                     )
                 }
             }
+            if (uiState.errors.containsKey("zone")) {
+                Text(
+                    text = uiState.errors["zone"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
         }
         item {
             Text(
                 "Tipo de Registro",
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
             )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 TipoRegistro.entries.forEach { tipo ->
                     RadioButtonWithText(
                         text = tipo.displayName,
                         isSelected = uiState.logType == tipo.displayName,
-                        onClick = { viewModel.updateUiState(uiState.copy(logType = tipo.displayName)) }
+                        onClick = {
+                            viewModel.updateUiState(
+                                uiState.copy(
+                                    logType = tipo.displayName,
+                                    errors = uiState.errors - "logType"
+                                )
+                            )
+                        }
                     )
                 }
+            }
+            if (uiState.errors.containsKey("logType")) {
+                Text(
+                    text = uiState.errors["logType"] ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
         }
         item(key = "boton") {
             Button(
                 onClick = {
-                    Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
-
-                    viewModel.addNewForm { newId ->
-                        when (uiState.logType) {
-                            TipoRegistro.TRANSECTOS.displayName -> onTransectClick(newId)
-                            TipoRegistro.PUNTO_CONTEO.displayName ->  onTransectClick(newId)
-                            TipoRegistro.BUSQUEDA_LIBRE.displayName ->  onTransectClick(newId)
-                            TipoRegistro.VALIDACION_COBERTURA.displayName -> onCoverageClick(newId)
-                            TipoRegistro.PARCELA_VEGETACION.displayName -> onVegetationClick(newId)
-                            TipoRegistro.CAMARAS_TRAMPA.displayName -> onTrapClick(newId)
-                            TipoRegistro.VARIABLES_CLIMATICAS.displayName -> onClimateClick(newId)
+                    if (viewModel.validateFields()) {
+                        Toast.makeText(context, "Formulario enviado!", Toast.LENGTH_SHORT).show()
+                        viewModel.addNewForm { newId ->
+                            when (uiState.logType) {
+                                TipoRegistro.TRANSECTOS.displayName -> onTransectClick(newId)
+                                TipoRegistro.PUNTO_CONTEO.displayName -> onTransectClick(newId)
+                                TipoRegistro.BUSQUEDA_LIBRE.displayName -> onTransectClick(newId)
+                                TipoRegistro.VALIDACION_COBERTURA.displayName -> onCoverageClick(newId)
+                                TipoRegistro.PARCELA_VEGETACION.displayName -> onVegetationClick(newId)
+                                TipoRegistro.CAMARAS_TRAMPA.displayName -> onTrapClick(newId)
+                                TipoRegistro.VARIABLES_CLIMATICAS.displayName -> onClimateClick(newId)
+                            }
                         }
+                    } else {
+                        Toast.makeText(context, "Por favor, complete todos los campos obligatorios.", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier
@@ -195,12 +291,12 @@ fun FormularioContent(
 }
 
 @Composable
-fun WeatherIcon(iconRes: Int, isSelected: Boolean, onClick: () -> Unit) {
+fun WeatherIcon(iconRes: Int, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(id = iconRes),
         contentDescription = null,
-        modifier = Modifier
-            .size(48.dp)
+        modifier = modifier
+            .size(64.dp)
             .clip(CircleShape)
             .background(if (isSelected) Color.Gray else Color.LightGray)
             .padding(8.dp)
@@ -235,77 +331,8 @@ enum class Zone(val displayName: String) {
     D("Cultivos Permanentes")
 }
 
-@ScreenPreviews
-@Composable
-fun FormularyInitialScreenPreview() {
-    LechendasAppTheme {
-        FormularyInitialScreen(
-            onBack = {},
-            currentRoute = "formulary",
-            onMenuClick = {},
-            onSearchClick = {},
-            onSettingsClick = {},
-            onClimateClick = {},
-            onCoverageClick = {},
-            onTrapClick = {},
-            onVegetationClick = {},
-            onTransectClick = {},
-            //onConteoClick = {},
-            //onFreeClick = {},
-            viewModel = rememberPreviewFormularioViewModel()
-        )
-    }
-}
 
-class MockMonitorLogRepository2 : MonitorLogRepository {
-    override fun getMonitorLogsStream(): Flow<List<MonitorLog>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getMonitorLogByIdStream(monitorLogId: Long): Flow<MonitorLog> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getAllMonitorLogs(): List<MonitorLog> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getMonitorLogById(monitorLogId: Long): MonitorLog? {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun addMonitorLog(monitorLog: MonitorLog) : Long {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteMonitorLog(monitorLog: MonitorLog) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteMonitorLogById(monitorLogId: Long) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun countMonitorLog(): Int {
-        TODO("Not yet implemented")
-    }
-}
-
-@Composable
-fun rememberPreviewFormularioViewModel(): FormularioViewModel {
-    val mockMonitorLogRepository = MockMonitorLogRepository2()
-
-    return remember {
-        FormularioViewModel(mockMonitorLogRepository).apply {
-            // Initialize with sample data for the preview
-            updateUiState(
-                FormsUiState(
-                    climateType = "SUNNY",
-                    seasons = "VERANO",
-                    logType = "Fauna en Transectos",
-                    zone = "Bosque"
-                )
-            )
-        }
-    }
+fun isGpsEnabled(context: Context): Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 }

@@ -28,7 +28,6 @@ fun User.toUserDetails(): LoginUiState = LoginUiState(
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val userRepository: UserRepository,
     private val auth0: Auth0
 ) : ViewModel() {
     private val _loginUiState = mutableStateOf(LoginUiState())

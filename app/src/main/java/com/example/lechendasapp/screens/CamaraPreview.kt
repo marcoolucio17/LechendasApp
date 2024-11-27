@@ -12,14 +12,17 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,11 +51,29 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.lechendasapp.MainActivity
 import com.example.lechendasapp.viewmodels.CameraViewModel
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+import com.example.lechendasapp.R
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun CameraPreview(activity: MainActivity, cameraViewModel: CameraViewModel = hiltViewModel()) {
+fun CameraPreview(
+    activity: MainActivity,
+    onBack: () -> Unit,
+    cameraViewModel: CameraViewModel = hiltViewModel()) {
     val imageCapture = remember { ImageCapture.Builder().build() }
+    val showModal = remember { mutableStateOf(false) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    // val userInput = remember { mutableStateOf("") }
+
     val controller = remember {
         LifecycleCameraController(
             activity
@@ -64,14 +86,12 @@ fun CameraPreview(activity: MainActivity, cameraViewModel: CameraViewModel = hil
 
     cameraViewModel.setImageCapture(controller)
 
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
     ) {
 
-        val lifecycleOwner = LocalLifecycleOwner.current
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
@@ -87,96 +107,69 @@ fun CameraPreview(activity: MainActivity, cameraViewModel: CameraViewModel = hil
                 .fillMaxWidth()
                 .padding(bottom = 80.dp)
                 .align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(14.dp))
-                    .size(45.dp)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .clickable {
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(
-                                "content://media/internal/images/media"
-                            )
-                        ).also {
-                            activity.startActivity(it)
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Done,
-                    contentDescription = "Gallery",
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(1.dp))
-
-
-
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .size(60.dp)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .size(80.dp)
+                    .background(MaterialTheme.colorScheme.onPrimary)
                     .clickable {
                         if ((activity as MainActivity).arePermissionsGranted()) {
                             cameraViewModel.takePhoto2(
                                 context = activity,
                                 onImageSaved = { file ->
-                                    // Manejar la imagen guardada (opcional)
-                                    println("Foto guardada en: ${file.absolutePath}")
+                                    println("Photo saved at: ${file.absolutePath}")
+                                    // Show modal when photo is taken
+                                    showModal.value = true
                                 },
                                 onError = { exception ->
-                                    // Manejar error
-                                    println("Error al guardar la foto: ${exception.message}")
+                                    println("Error saving photo: ${exception.message}")
                                 }
                             )
                         }
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.AccountBox,
+                Image(
+                    painter = painterResource(id = R.drawable.camera),
                     contentDescription = "Take Photo",
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(40.dp),
+                    colorFilter = ColorFilter.tint(Color.Black)
                 )
             }
-
-            Spacer(modifier = Modifier.width(1.dp))
-
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(14.dp))
-                    .size(45.dp)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .clickable {
-                        controller.cameraSelector =
-                            if (controller.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
-                                CameraSelector.DEFAULT_FRONT_CAMERA
-                            } else {
-                                CameraSelector.DEFAULT_BACK_CAMERA
-                            }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Share,
-                    contentDescription = "Change Camera",
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-
         }
-
     }
 
+    if (showModal.value) {
+        AlertDialog(
+            onDismissRequest = {
+                showModal.value = false
+                onBack() },
+            confirmButton = {
+                Button(onClick = {
+                    showModal.value = false
+                    onBack()
+                }) {
+                    Text(text = "Salir")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showModal.value = false
+                }) {
+                    Text(text = "Tomar otra foto")
+                }
+            },
+            title = { Text(text = "Imagen capturada con éxito") },
+            text = {
+                Column {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = "¡Se guardó la imagen! Puedes tomar otra foto, o continuar con el formulario.")
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        )
+    }
 }

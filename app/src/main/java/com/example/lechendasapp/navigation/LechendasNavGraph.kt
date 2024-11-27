@@ -127,8 +127,8 @@ fun LechendasNavGraph(
             LoginScreen(
                 onBack = { navController.navigateUp() },
                 onLoginSuccess = {
-                    viewModel.setCredentials(it)
-                    navActions.navigateToHome()
+                 viewModel.setCredentials(it)
+                 navActions.navigateToHome()
                 }
             )
         }
@@ -164,6 +164,7 @@ fun LechendasNavGraph(
         composable(route = CAMERA_ROUTE) {
             CameraPreview(
                 activity = navController.context as MainActivity,
+                onBack = { navController.navigateUp() }
             )
         }
         composable(route = SEARCH_ROUTE) {
