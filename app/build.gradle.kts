@@ -86,7 +86,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.5") // For Compose test rules
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.7.5") // Manifest support for UI tests
 
+    androidTestImplementation("androidx.navigation:navigation-testing:2.8.4")
 
 
 
