@@ -125,11 +125,17 @@ fun FormularioContent(
             )
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 WeatherState.entries.forEach { weatherState ->
+                    val icon = when (weatherState) {
+                        WeatherState.SUNNY -> R.drawable.sol
+                        WeatherState.CLOUDY -> R.drawable.nublado
+                        WeatherState.RAINY -> R.drawable.lluvia
+                    }
                     WeatherIcon(
-                        iconRes = R.drawable.capybara,
+                        iconRes = icon,
                         isSelected = uiState.climateType == weatherState.name,
                         onClick = { viewModel.updateUiState(uiState.copy(climateType = weatherState.name)) }
                     )
+
 
                 }
             }
@@ -247,7 +253,7 @@ fun WeatherIcon(iconRes: Int, isSelected: Boolean, onClick: () -> Unit) {
         painter = painterResource(id = iconRes),
         contentDescription = null,
         modifier = Modifier
-            .size(48.dp)
+            .size(64.dp)
             .clip(CircleShape)
             .background(if (isSelected) Color.Gray else Color.LightGray)
             .padding(8.dp)

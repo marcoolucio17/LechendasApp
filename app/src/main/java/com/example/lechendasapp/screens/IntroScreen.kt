@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,6 +56,7 @@ fun IntroScreen(
             contentDescription = null,
             contentScale = ContentScale.Crop,
 
+
         )
         IntroContent(
             onLogin = onLogin,
@@ -69,10 +71,11 @@ fun IntroContent(
     isLoggedIn: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val image = painterResource(R.drawable.intro_img)
+    val image = painterResource(R.drawable.capybara)
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
+
 
     )
     {
@@ -84,6 +87,7 @@ fun IntroContent(
         Image(
             painter = image,
             contentDescription = null,
+            modifier = Modifier.size(250.dp)
         )
         Spacer(modifier = Modifier.height(40.dp))
 

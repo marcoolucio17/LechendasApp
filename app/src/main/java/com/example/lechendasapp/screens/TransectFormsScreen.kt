@@ -433,11 +433,11 @@ fun AnimalOptions(
 }
 
 enum class AnimalTypes(val displayName: String, val iconRes: Int) {
-    MAMIFERO("Mamífero", R.drawable.capybara), // TODO: Cambiar icono placeholder
-    AVE("Ave", R.drawable.capybara),
-    REPTIL("Reptil", R.drawable.capybara),
-    ANFIBIO("Anfibio", R.drawable.capybara),
-    INSECTO("Insecto", R.drawable.capybara)
+    MAMIFERO("Mamífero", R.drawable.panda), // TODO: Cambiar icono placeholder
+    AVE("Ave", R.drawable.aguila),
+    REPTIL("Reptil", R.drawable.cocodrilo),
+    ANFIBIO("Anfibio", R.drawable.rana),
+    INSECTO("Insecto", R.drawable.abeja)
 }
 
 enum class ObservationTypes(val displayName: String) {
